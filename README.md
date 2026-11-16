@@ -33,13 +33,11 @@ Retro 16-bit gra w przeglądarce (Phaser 3), repo `wikary`.
 - ✅ Ekran tytułowy: złoty migoczący tytuł, kościół, mrugająca twarz Kamila, rząd świeczek, START NEW GAME / HIGH SCORES, wersja, M i F.
 - ✅ HIGH SCORES: 20 wyników w dwóch kolumnach, wpisywanie nicku po GAME OVER i po wygranej (na telefonie systemowe okienko).
 - ✅ Intro: modlitwa od tyłu, zbliżenie na twarz, telefon, rozmowa z proboszczem, wybiegnięcie z domu.
-- ✅ Level 1 „Droga na plebanię”: auto-scroll, podpowiedzi, auta i kałuże, rzeka tylko z saltem (wpadnięcie = -1 życie i powrót przed rzekę), krzyż z piorunem i przyciemnieniem, rzut krzyżem, psy, wilki, nietoperze, pająki, diamenciki, pioruny (przyspieszenie), kościół i podsumowanie.
+- ✅ Level 1 „Droga na plebanię”: auto-scroll, podpowiedzi, płotki, kosze na śmieci i kałuże, rzeka tylko z saltem (wpadnięcie = -1 życie i powrót przed rzekę), krzyż z piorunem i przyciemnieniem, rzut krzyżem, psy, wilki, nietoperze, pająki, diamenciki, pioruny (przyspieszenie), kościół i podsumowanie.
 - ✅ Grom z Nieba (ultimate) i HUD: życia, punkty, czas, pasek ataku specjalnego.
 - Czas w HUD liczy się w czasie gry na poziomach (intro się nie wlicza).
-- ⏳ Następne: cutscenka w kościele z proboszczem, Level 2 i Level 3, docelowe grafiki wrogów i otoczenia (teraz są tymczasowe zastępstwa z Fibi-Run, patrz niżej), wspólna tablica na Azure.
-
-### Grafiki tymczasowe (do wymiany)
-Psy i wilki (`fibi_walk`), nietoperze (`freeze_spell`), pająki (`rafal_kastet_spin`), auta jako przeszkody (`car_empty_1`), miasto i bruk (wycinki z `intro_house_bg`), woda (wycinek z `intro_room_bg`), diamenciki (`fx_bless_1`), piorun-znajdźka (`freeze_spell`), kościół na końcu (drzwi `door_1..2` + świeczki), słup światła Gromu (`fx_pray_aura`).
+- ✅ Level 1 ma już docelowe grafiki: tła z paralaksą, bruk, rzeka, płotki, kosze na śmieci, kałuże, wrogowie, znajdźki, kościół z otwieranymi drzwiami, piorun i Grom z Nieba.
+- ⏳ Następne: cutscenka w kościele z proboszczem, Level 2 i Level 3, wspólna tablica na Azure.
 
 ## Bohater
 Główną postacią jest **wikary Kamil**: rude krótkie włosy, czarna sutanna, plecak.
@@ -152,3 +150,6 @@ Assety w `assets/` (skopiowane z Fibi-Run). Nowe grafiki wikarego Kamila (patrzy
 - **Proboszcz:** portrety `assets/portraits/proboszcz_closeup_open` / `proboszcz_closeup_closed` (192×192) i sylwetka `assets/sprites/proboszcz_idle_1..2` (72×164), `proboszcz_talk_1..2` (118×164), `proboszcz_bless_1..2` (94×164), patrzy w prawo, origin 0.5,1. Podgląd: `docs/proboszcz_portraits.png`, `docs/proboszcz_sprites.png`.
 - **Krzysztof „Dwa Grosze”:** portrety `assets/portraits/krzysztof_closeup_open` / `_closed` / `_ashamed` (192×192) i sylwetka `assets/sprites/krzysztof_idle_1..2` (66×160), `krzysztof_talk_1..2` (110×160), `krzysztof_coin_1..2` (94×160), patrzy w prawo, origin 0.5,1. Podgląd: `docs/krzysztof_contact.png`.
 - Świeczka na ekran tytułowy: `assets/sprites/candle_1..8.png` (64×64, migoczący płomień, 8 klatek, origin 0.5,1). Źródło: [Lit And Unlit Candle](https://cindersphoenix.itch.io/lit-and-unlit-candle) autorstwa CindersPhoenix (darmowe do dowolnego użytku, podziękowania dla autora).
+- **Level 1, postacie i znajdźki** (skala postaci jak Kamil, w grze ×0.45, patrzą w prawo, origin 0.5,1, wersje `_x4`), `assets/sprites/`:
+  `enemy_dog_run_1..4` (120×72), `enemy_wolf_run_1..4` (150×90), `enemy_wolf_jump_1..2` (150×100), `enemy_bat_fly_1..4` (80×56), `enemy_spider_1..4` (64×64) + `enemy_spider_thread` (4×64, nitka powtarzana w pionie), oraz origin 0.5,0.5: `fx_enemy_poof_1..4` (96×96), `item_diamond_1..6` (40×40), `item_lightning_1..4` (40×56). Podgląd: `docs/level1_sprites.png`.
+- **Level 1, otoczenie i efekty** (piksele ekranu 1:1), `assets/game/`: `bg_l1_sky` (568×320, stałe), `bg_l1_city_far` (568×200, paralaksa wolna), `bg_l1_houses_near` (568×150, paralaksa szybsza), `tile_ground_cobble` (64×32), `tile_water_1..4` (64×28) + `water_bank_left/right` (16×32), `obstacle_fence` (48×28), `obstacle_trash_bin` (26×32), `obstacle_puddle` (56×8), `church_exterior` (240×250) + `church_door_1..3` (48×72: zamknięte / uchylone / otwarte), `fx_lightning_strike_1..3` (64×300), `fx_grom_pillar_1..4` (140×320), `fx_grom_cross` (96×128). Podgląd: `docs/level1_game.png`, `docs/level1_scene.png`.

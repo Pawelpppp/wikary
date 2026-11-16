@@ -23,14 +23,17 @@ class LevelScene extends Phaser.Scene {
 
         bindGlobalKeys(this);
         const cam = this.cameras.main;
-        cam.setBackgroundColor('#2a1a3a');
+        cam.setBackgroundColor('#1a1020');
         cam.setScroll(L.dir > 0 ? 0 : L.length - W, 0);
         cam.fadeIn(300, 0, 0, 0);
         this.physics.world.gravity.y = CFG.gravity;
         if (this.physics.world.isPaused) this.physics.resume();
 
-        // --- tło (TYMCZASOWE: wycinek intro_house_bg jako miasto) ---
-        this.far = this.add.tileSprite(0, G + 6, W, 286, 'intro_house_bg', 'city').setOrigin(0, 1).setScrollFactor(0).setDepth(0).setTint(0xc8b8d0);
+        // --- tło: niebo (stałe) + dwie warstwy paralaksy ---
+        const BG = L.bg;
+        this.add.image(0, 0, BG.sky).setOrigin(0).setScrollFactor(0).setDepth(0);
+        this.far = this.add.tileSprite(0, 16, W, 200, BG.far).setOrigin(0).setScrollFactor(0).setDepth(0.5);
+        this.near = this.add.tileSprite(0, 138, W, 150, BG.near).setOrigin(0).setScrollFactor(0).setDepth(1);
 
         // --- ziemia i rzeki ---
         const rivers = (L.rivers || []).slice().sort((a, b) => a.at - b.at);
@@ -40,30 +43,31 @@ class LevelScene extends Phaser.Scene {
         segs.push([d0, L.length]);
         segs.forEach(([a, b]) => {
             const x0 = Math.min(this.wx(a), this.wx(b)), x1 = Math.max(this.wx(a), this.wx(b));
-            this.add.tileSprite(x0, G - 2, x1 - x0, H - G + 4, 'intro_house_bg', 'cobble').setOrigin(0).setDepth(2);
+            this.add.tileSprite(x0, 288, x1 - x0, 32, BG.ground).setOrigin(0).setDepth(2).setTilePosition(x0 % 64, 0);
             const z = this.add.zone((x0 + x1) / 2, G + 40, x1 - x0, 80);
             this.physics.add.existing(z, true);
             this.solids.push(z); this.groundSolids.push(z);
         });
         this.rivers = rivers.map(r => {
             const x0 = Math.min(this.wx(r.at), this.wx(r.at + r.w)), x1 = Math.max(this.wx(r.at), this.wx(r.at + r.w));
-            const water = this.add.tileSprite(x0, G + 6, x1 - x0, H - G - 6, 'intro_room_bg', 'water').setOrigin(0).setDepth(3).setTint(0x6ab0ff);
+            const water = this.add.tileSprite(x0, 292, x1 - x0, 28, BG.water + '1').setOrigin(0).setDepth(3);
+            this.add.image(x0, 288, 'water_bank_left').setOrigin(0).setDepth(3.5);
+            this.add.image(x1, 288, 'water_bank_right').setOrigin(1, 0).setDepth(3.5);
             return { at: r.at, w: r.w, x0, x1, water };
         });
 
         // --- przeszkody ---
         (L.obstacles || []).forEach(o => {
             const x = this.wx(o.at);
-            if (o.type === 'car') {
-                const car = this.add.image(x, G + 3, 'car_empty_1').setOrigin(0.5, 1).setScale(CFG.car.scale).setDepth(4).setFlipX(L.dir < 0);
-                const bw = car.displayWidth * 0.86, bh = car.displayHeight * 0.74;
-                const z = this.add.zone(x, G - bh / 2, bw, bh);
+            if (o.type === 'fence' || o.type === 'trash_bin') {         // stałe przeszkody: można na nie wskoczyć
+                this.add.image(x, G, 'obstacle_' + o.type).setOrigin(0.5, 1).setDepth(4).setFlipX(L.dir < 0);
+                const hb = CFG.obstacles[o.type];
+                const z = this.add.zone(x, G - hb.h / 2, hb.w, hb.h);
                 this.physics.add.existing(z, true);
                 this.solids.push(z);
             } else if (o.type === 'puddle') {
-                const w = o.w || 48;
-                this.add.tileSprite(x - w / 2, G - 1, w, 5, 'intro_room_bg', 'water').setOrigin(0).setDepth(3).setTint(0x7ab8ff);
-                this.puddles.push({ x0: x - w / 2, x1: x + w / 2 });
+                this.add.image(x, G + 2, 'obstacle_puddle').setOrigin(0.5, 1).setDepth(3);
+                this.puddles.push({ x0: x - 26, x1: x + 26 });
             }
         });
 
@@ -72,10 +76,10 @@ class LevelScene extends Phaser.Scene {
             const x = this.wx(it.at);
             let s;
             if (it.type === 'diamond') {
-                s = this.add.image(x, G - (it.h || 18) - 6, 'fx_bless_1').setScale(0.42).setDepth(6);
+                s = this.add.sprite(x, G - (it.h || 18) - 6, 'item_diamond_1').setScale(CFG.items.scale).setDepth(6).play({ key: 'diamond_spin', startFrame: it.at % 6 });
                 this.tweens.add({ targets: s, y: s.y - 4, duration: 600 + (it.at % 5) * 60, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
             } else if (it.type === 'lightning') {
-                s = this.add.image(x, G - (it.h || 26) - 8, 'freeze_spell_1').setScale(1.2).setAngle(-70).setTintFill(0xffe040).setDepth(6);
+                s = this.add.sprite(x, G - (it.h || 26) - 8, 'item_lightning_1').setScale(CFG.items.scale).setDepth(6).play('lightning_item');
                 this.tweens.add({ targets: s, y: s.y - 5, duration: 500, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
             } else if (it.type === 'cross') {
                 if (GS.hasCross) return;
@@ -85,11 +89,13 @@ class LevelScene extends Phaser.Scene {
             if (s) { s.itemType = it.type; this.items.push(s); }
         });
 
-        // --- kościół na końcu (TYMCZASOWO: drzwi + świeczki) ---
-        const ex = this.wx(L.endAt);
-        this.door = this.add.image(ex, G + 2, 'door_1').setOrigin(0.5, 1).setScale(0.62).setDepth(3);
-        [-52, 52].forEach((dx, i) => this.add.sprite(ex + dx, G + 2, 'candle_1').setOrigin(0.5, 1).setScale(0.8).setDepth(3).play({ key: 'candle', startFrame: i * 4 }));
-        txt(this, ex, G - this.door.displayHeight - 12, 'KOŚCIÓŁ', 8, '#ffd040').setDepth(3);
+        // --- kościół na końcu: drzwi (overlay 48x72 w punkcie 51,162 obrazka) stoją na pozycji endAt ---
+        const ex = this.wx(L.endAt), flip = L.dir < 0;
+        const doorLeft = flip ? 240 - 51 - 48 : 51;                  // lewa krawędź drzwi w obrazku kościoła
+        const churchX = ex - (doorLeft + 24) + 120, churchY = G + 2;
+        this.add.image(churchX, churchY, BG.end).setOrigin(0.5, 1).setDepth(2.5).setFlipX(flip);
+        this.door = this.add.image(churchX - 120 + doorLeft, churchY - 250 + 162, 'church_door_1').setOrigin(0).setDepth(2.6).setFlipX(flip);
+        this.doorX = ex;
 
         // --- bohater: niewidoczny hitbox + sprite ---
         const sx = this.wx(L.startAt || 100);
@@ -181,8 +187,10 @@ class LevelScene extends Phaser.Scene {
     update(time, delta) {
         const dt = Math.min(delta, 50) / 1000, cam = this.cameras.main, L = this.L, HC = CFG.hero, W = CFG.W, G = CFG.GROUND_Y;
         const hero = this.hero, body = hero.body;
-        this.rivers.forEach(r => { r.water.tilePositionX += dt * 22; r.water.tilePositionY = Math.sin(time / 400) * 3; });
-        this.far.tilePositionX = cam.scrollX * 0.35;
+        const wf = 1 + Math.floor(time / 170) % 4;
+        this.rivers.forEach(r => { if (r.water.texture.key !== this.L.bg.water + wf) r.water.setTexture(this.L.bg.water + wf); });
+        this.far.tilePositionX = cam.scrollX * 0.2;
+        this.near.tilePositionX = cam.scrollX * 0.5;
 
         if (!this.ended && !this.dead) GS.timeMs += delta;
         this.updateHud(time);
@@ -330,6 +338,11 @@ class LevelScene extends Phaser.Scene {
         this.cameras.main.flash(180, 255, 255, 230);
         this.tweens.add({ targets: this.dim, alpha: 0.6, duration: 250 });
         const fx = this.add.sprite(k.x, k.y - k.displayHeight - 6, 'fx_bless_1').setScale(0.7).setDepth(11).play('fx_bless');
+        const strike = () => {
+            const b = this.add.sprite(k.x + Phaser.Math.Between(-4, 4), k.y, 'fx_lightning_strike_1').setOrigin(0.5, 1).setDepth(11.5).play('lightning_strike');
+            b.once('animationcomplete', () => b.destroy());
+        };
+        strike(); this.time.delayedCall(380, strike);
         this.time.delayedCall(380, () => { this.cameras.main.flash(140, 255, 255, 255); this.cameras.main.shake(200, 0.008); });
         this.time.delayedCall(700, () => hintBubble(this, IS_TOUCH ? 'KRZYŻ = RZUT KRZYŻEM' : 'ALT = RZUT KRZYŻEM', 3200, 90));
         this.time.delayedCall(1900, () => {
@@ -371,16 +384,20 @@ class LevelScene extends Phaser.Scene {
         this.cancelPray();
         GS.meter = 0;
         this.kamil.play('k_bless');
-        const cross = this.add.sprite(cx, -80, 'fx_bless_3').setScale(2.4).setDepth(12);
-        const pillar = this.add.image(cx, G + 4, 'fx_pray_aura_1').setOrigin(0.5, 1).setScale(2.6, 1.9).setTint(0xfff0a0).setAlpha(0).setDepth(11);
+        const cross = this.add.image(cx, -80, 'fx_grom_cross').setDepth(12);
+        const pillars = [this.add.sprite(cx, CFG.H, 'fx_grom_pillar_1').setOrigin(0.5, 1).setAlpha(0).setDepth(11).play('grom_pillar')];
         WikaryAudio.sfx('grom');
         this.tweens.add({
             targets: cross, y: G - 150, duration: 260, ease: 'Quad.easeIn',
             onComplete: () => {
                 cam.flash(450, 255, 255, 255); cam.shake(350, 0.012);
-                pillar.setAlpha(0.9);
-                this.enemies.getChildren().slice().forEach(e => { if (e.active && !e.dead && this.inView(e)) this.damageEnemy(e, 999, true); });
-                this.tweens.add({ targets: [cross, pillar], alpha: 0, duration: 700, delay: 200, onComplete: () => { cross.destroy(); pillar.destroy(); } });
+                pillars[0].setAlpha(1);
+                this.enemies.getChildren().slice().forEach(e => {
+                    if (!e.active || e.dead || !this.inView(e)) return;
+                    if (Math.abs(e.x - cx) > 40) pillars.push(this.add.sprite(e.x, CFG.H, 'fx_grom_pillar_1').setOrigin(0.5, 1).setDepth(11).play({ key: 'grom_pillar', startFrame: pillars.length % 4 }));
+                    this.damageEnemy(e, 999, true);
+                });
+                this.tweens.add({ targets: [cross, ...pillars], alpha: 0, duration: 600, delay: 450, onComplete: () => { cross.destroy(); pillars.forEach(p => p.destroy()); } });
             },
         });
     }
@@ -398,42 +415,58 @@ class LevelScene extends Phaser.Scene {
         const frontX = dir > 0 ? cam.scrollX + W + 30 : cam.scrollX - 30, mv = -dir;
         const mk = (x, y, key, anim) => {
             const e = this.enemies.create(x, y, key);
-            e.type = type; e.hp = C.hp; e.dead = false; e.setScale(C.scale).setDepth(7);
+            e.type = type; e.hp = C.hp; e.dead = false; e.thread = null;
+            e.setOrigin(0.5, 1).setScale(C.scale).setDepth(7).setFlipX(mv < 0);   // grafiki patrzą w prawo
             if (anim) e.play(anim);
-            if (C.tint) { e.setTint(C.tint); e.baseTint = C.tint; }
+            this.fitBody(e);
             return e;
         };
         if (type === 'dog' || type === 'wolf') {
-            const e = mk(frontX, G - 2, 'fibi_walk_1', 'dog_run').setOrigin(0.5, 1);
-            e.body.setSize(C.bodyW / C.scale, C.bodyH / C.scale).setOffset((e.width - C.bodyW / C.scale) / 2, e.height - C.bodyH / C.scale);
-            e.setVelocityX(mv * C.speed); e.setFlipX(mv < 0);
+            const e = mk(frontX, G, type === 'dog' ? 'enemy_dog_run_1' : 'enemy_wolf_run_1', type === 'dog' ? 'dog_run' : 'wolf_run');
+            e.setVelocityX(mv * C.speed);
             e.nextJump = this.time.now + (C.jumpEveryMs || 0);
         } else if (type === 'bat') {
             const baseY = Phaser.Math.Between(C.yMin, C.yMax);
             for (let i = 0; i < C.wave; i++) {
-                const e = mk(frontX + dir * i * C.gap, baseY, 'freeze_spell_1', 'bat_fly');
-                e.body.setAllowGravity(false); e.body.setSize(22, 16);
+                const e = mk(frontX + dir * i * C.gap, baseY, 'enemy_bat_fly_1', 'bat_fly');
+                e.body.setAllowGravity(false);
+                e.anims.setProgress((i * 0.3) % 1);
                 e.baseY = baseY; e.phase = i * 0.9; e.t0 = this.time.now;
-                e.setVelocityX(mv * C.speed); e.setFlipX(mv > 0);
+                e.setVelocityX(mv * C.speed);
             }
         } else if (type === 'spider') {
             const x = dir > 0 ? cam.scrollX + Phaser.Math.Between(W * 0.55, W * 0.9) : cam.scrollX + Phaser.Math.Between(W * 0.1, W * 0.45);
-            const e = mk(x, -20, 'rafal_kastet_spin_1', 'spider_spin');
-            e.body.setAllowGravity(false); e.body.setSize(20, 16);
+            const e = mk(x, 0, 'enemy_spider_1', 'spider_wiggle');
+            e.setFlipX(false);
+            e.body.setAllowGravity(false);
             e.state = 'drop'; e.setVelocityY(C.dropSpeed);
+            e.thread = this.add.tileSprite(x, -8, 4, 8, 'enemy_spider_thread').setOrigin(0.5, 0).setScale(C.scale).setDepth(6.9);
+            e.once('destroy', () => { if (e.thread) { e.thread.destroy(); e.thread = null; } });
         }
+    }
+    /** hitbox na dole klatki (origin 0.5,1), w px ekranu z CFG; działa też po zmianie klatki (skok wilka) */
+    fitBody(e) {
+        const C = CFG.enemies[e.type], w = C.bodyW / C.scale, h = C.bodyH / C.scale;
+        e.body.setSize(w, h, false);
+        e.body.setOffset((e.frame.width - w) / 2, e.type === 'bat' ? (e.frame.height - h) / 2 : e.frame.height - h - (e.type === 'spider' ? 2 : 0));
     }
     updateEnemies(time, dt) {
         const cam = this.cameras.main, dir = this.L.dir;
         this.enemies.getChildren().slice().forEach(e => {
             if (!e.active || e.dead) return;
             const C = CFG.enemies[e.type];
-            if (e.type === 'wolf' && e.body.blocked.down && time > e.nextJump) { e.setVelocityY(-C.jumpV); e.nextJump = time + C.jumpEveryMs; }
+            if (e.type === 'wolf') {
+                const onG = e.body.blocked.down || e.body.touching.down;
+                if (onG && time > e.nextJump) { e.setVelocityY(-C.jumpV); e.nextJump = time + C.jumpEveryMs; }
+                else if (!onG) { e.anims.stop(); e.setTexture(e.body.velocity.y < 0 ? 'enemy_wolf_jump_1' : 'enemy_wolf_jump_2'); this.fitBody(e); }
+                else if (!e.anims.isPlaying) { e.play('wolf_run'); this.fitBody(e); }
+            }
             if (e.type === 'bat') e.body.velocity.y = Math.cos((time - e.t0) / 1000 * C.freq + e.phase) * C.amp * C.freq;
             if (e.type === 'spider') {
                 if (e.state === 'drop' && e.y >= C.dropTo) { e.state = 'hold'; e.setVelocityY(0); e.holdUntil = time + C.holdMs; }
                 else if (e.state === 'hold' && time > e.holdUntil) { e.state = 'up'; e.setVelocityY(-C.dropSpeed); }
-                else if (e.state === 'up' && e.y < -40) { e.destroy(); return; }
+                else if (e.state === 'up' && e.y < -6) { e.destroy(); return; }
+                if (e.thread) { e.thread.x = e.x; e.thread.height = Math.max(1, (e.y - e.displayHeight + 3 + 8) / C.scale); }
             }
             const behind = dir > 0 ? e.x < cam.scrollX - 140 : e.x > cam.scrollX + CFG.W + 140;
             if (behind || e.y > CFG.H + 80) e.destroy();
@@ -445,15 +478,16 @@ class LevelScene extends Phaser.Scene {
         if (e.hp > 0) {
             WikaryAudio.sfx('hit');
             e.setTintFill(0xffffff);
-            this.time.delayedCall(90, () => { if (e.active) { e.clearTint(); if (e.baseTint) e.setTint(e.baseTint); } });
+            this.time.delayedCall(90, () => { if (e.active) e.clearTint(); });
             return;
         }
         e.dead = true; e.body.enable = false;
         const pts = CFG.score[e.type] || 50;
         GS.score += pts; GS.kills++; if (!byUlt) this.addMeter(CFG.ult.perKill);
-        WikaryAudio.sfx('kill'); this.popup(e.x, e.y - 20, '+' + pts);
-        e.anims.stop(); e.setTintFill(0xffffff);
-        this.tweens.add({ targets: e, alpha: 0, y: e.y - 16, angle: 90 * (e.flipX ? -1 : 1), duration: 320, onComplete: () => e.destroy() });
+        WikaryAudio.sfx('kill'); this.popup(e.x, e.y - e.displayHeight - 4, '+' + pts);
+        const poof = this.add.sprite(e.x, e.y - e.displayHeight / 2, 'fx_enemy_poof_1').setScale(CFG.items.scale).setDepth(8).play('poof');
+        poof.once('animationcomplete', () => poof.destroy());
+        e.destroy();
     }
 
     /* ---------- obrażenia, woda, koniec ---------- */
@@ -520,7 +554,8 @@ class LevelScene extends Phaser.Scene {
         this.enemies.getChildren().slice().forEach(e => { if (e.active) { e.dead = true; e.body.enable = false; this.tweens.add({ targets: e, alpha: 0, duration: 300, onComplete: () => e.destroy() }); } });
         WikaryAudio.stop(0.5); WikaryAudio.sfx('win');
         this.facing = this.L.dir; k.setFlipX(this.facing < 0); k.play('k_idle'); k.setAlpha(1);
-        this.door.setTexture('door_2');
+        this.door.setTexture('church_door_2');
+        this.time.delayedCall(220, () => this.door.setTexture('church_door_3'));
         // dymek "Zdążyłem!"
         const bx = k.x, by = k.y - k.displayHeight - 16;
         const t = txt(this, bx, by, this.L.endText || 'Zdążyłem!', 8, '#ffffff');
@@ -528,8 +563,8 @@ class LevelScene extends Phaser.Scene {
         this.add.container(0, 0, [bg, t]).setDepth(30);
         this.time.delayedCall(1300, () => {
             k.play('k_run');
-            this.tweens.add({ targets: k, x: this.door.x, duration: Math.abs(this.door.x - k.x) * 8 + 200 });
-            this.tweens.add({ targets: k, alpha: 0, delay: Math.abs(this.door.x - k.x) * 8, duration: 300, onComplete: () => k.setAlpha(0) });
+            this.tweens.add({ targets: k, x: this.doorX, duration: Math.abs(this.doorX - k.x) * 8 + 200 });
+            this.tweens.add({ targets: k, alpha: 0, delay: Math.abs(this.doorX - k.x) * 8, duration: 300, onComplete: () => k.setAlpha(0) });
         });
         this.time.delayedCall(2500, () => this.showSummary());
     }

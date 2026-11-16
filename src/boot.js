@@ -18,12 +18,19 @@ class BootScene extends Phaser.Scene {
             ...range('wikary_kamil_pray_', 1, 2), ...range('wikary_kamil_pray_back_', 1, 2), ...range('wikary_kamil_phone_', 1, 3),
             ...range('fx_cross_', 1, 4), ...range('fx_bless_', 1, 6), ...range('fx_pray_aura_', 1, 4),
             ...range('candle_', 1, 8), ...range('door_', 1, 3), 'phone_1', 'phone_2', 'phone_base_nohandset',
-            // tymczasowe zastępstwa z Fibi-Run (do wymiany na grafiki od artysty)
-            'fibi_walk_1', 'fibi_walk_2', 'freeze_spell_1', 'freeze_spell_2',
+            // Level 1: wrogowie, efekty, znajdźki (skala postaci, x0.45)
+            ...range('enemy_dog_run_', 1, 4), ...range('enemy_wolf_run_', 1, 4), ...range('enemy_wolf_jump_', 1, 2),
+            ...range('enemy_bat_fly_', 1, 4), ...range('enemy_spider_', 1, 4), 'enemy_spider_thread',
+            ...range('fx_enemy_poof_', 1, 4), ...range('item_diamond_', 1, 6), ...range('item_lightning_', 1, 4),
         ];
         sprites.forEach(k => this.load.image(k, SPR + k + '.png'));
-        ['title_bg_church', 'intro_room_bg', 'intro_house_bg', 'car_empty_1', 'rafal_kastet_spin_1', 'rafal_kastet_spin_2']
-            .forEach(k => this.load.image(k, GAME + k + '.png'));
+        ['title_bg_church', 'intro_room_bg', 'intro_house_bg',
+            // Level 1: tła, ziemia, woda, przeszkody, kościół, efekty (1:1)
+            'bg_l1_sky', 'bg_l1_city_far', 'bg_l1_houses_near', 'tile_ground_cobble', ...range('tile_water_', 1, 4),
+            'water_bank_left', 'water_bank_right', 'obstacle_fence', 'obstacle_trash_bin', 'obstacle_puddle',
+            'church_exterior', ...range('church_door_', 1, 3), ...range('fx_lightning_strike_', 1, 3),
+            ...range('fx_grom_pillar_', 1, 4), 'fx_grom_cross',
+        ].forEach(k => this.load.image(k, GAME + k + '.png'));
         ['wikary_kamil_closeup_open', 'wikary_kamil_closeup_closed', 'proboszcz_closeup_open', 'proboszcz_closeup_closed']
             .forEach(k => this.load.image(k, POR + k + '.png'));
     }
@@ -42,16 +49,15 @@ class BootScene extends Phaser.Scene {
         A('fx_aura', range('fx_pray_aura_', 1, 4), 8);
         A('candle', range('candle_', 1, 8), 10);
         A('phone_ring', ['phone_1', 'phone_2'], 14);
-        A('dog_run', ['fibi_walk_1', 'fibi_walk_2'], 8);
-        A('bat_fly', ['freeze_spell_1', 'freeze_spell_2'], 8);
-        A('spider_spin', ['rafal_kastet_spin_1', 'rafal_kastet_spin_2'], 6);
-        // wycinki z teł (tymczasowe: ziemia i miasto w tle poziomu)
-        const hb = this.textures.get('intro_house_bg');
-        if (!hb.has('cobble')) hb.add('cobble', 0, 0, 288, 330, 32);
-        if (!hb.has('city')) hb.add('city', 0, 334, 0, 234, 286);
-        const rb = this.textures.get('intro_room_bg');
-        if (!rb.has('water')) rb.add('water', 0, 340, 10, 200, 100);
-        hb.firstFrame = '__BASE'; rb.firstFrame = '__BASE';      // dodanie wycinka zmienia domyślną klatkę - przywróć całe tło
+        A('dog_run', range('enemy_dog_run_', 1, 4), 12);
+        A('wolf_run', range('enemy_wolf_run_', 1, 4), 9);
+        A('bat_fly', range('enemy_bat_fly_', 1, 4), 10);
+        A('spider_wiggle', range('enemy_spider_', 1, 4), 6);
+        A('poof', range('fx_enemy_poof_', 1, 4), 16, 0);
+        A('diamond_spin', range('item_diamond_', 1, 6), 10);
+        A('lightning_item', range('item_lightning_', 1, 4), 8);
+        A('lightning_strike', range('fx_lightning_strike_', 1, 3), 14, 0);
+        A('grom_pillar', range('fx_grom_pillar_', 1, 4), 12);
         const target = DEBUG && (location.search.match(/[?&]scene=(\w+)/) || [])[1];
         this.scene.start(target && this.scene.get(target) ? target : 'Title');
     }

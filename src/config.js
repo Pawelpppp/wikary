@@ -42,13 +42,18 @@ const CFG = {
     score: { diamond: 50, lightning: 100, cross: 500, dog: 100, wolf: 200, bat: 80, spider: 120 },
 
     enemies: {
-        dog:    { hp: 1, speed: 150, scale: 0.42, weight: 4, bodyW: 40, bodyH: 22 },
-        wolf:   { hp: 2, speed: 85, scale: 0.6, weight: 2, jumpEveryMs: 1500, jumpV: 300, bodyW: 56, bodyH: 30, tint: 0x9a9ab0 },
-        bat:    { hp: 1, speed: 105, scale: 1.3, weight: 3, wave: 3, gap: 36, amp: 22, freq: 3.2, yMin: 170, yMax: 225, tint: 0x7a4aa0 },
-        spider: { hp: 1, dropSpeed: 90, dropTo: 236, holdMs: 1100, scale: 1.4, weight: 2, tint: 0x3a2a3a },
+        // skala postaci = jak Kamil (0.45); bodyW/bodyH = hitbox na ekranie (px)
+        dog:    { hp: 1, speed: 150, scale: 0.45, weight: 4, bodyW: 38, bodyH: 22 },
+        wolf:   { hp: 2, speed: 85, scale: 0.45, weight: 2, jumpEveryMs: 1500, jumpV: 300, bodyW: 50, bodyH: 28 },
+        bat:    { hp: 1, speed: 105, scale: 0.45, weight: 3, wave: 3, gap: 36, amp: 22, freq: 3.2, yMin: 170, yMax: 225, bodyW: 24, bodyH: 14 },
+        spider: { hp: 1, dropSpeed: 90, dropTo: 262, holdMs: 1100, scale: 0.45, weight: 2, bodyW: 22, bodyH: 20 },
     },
     spawn: { minMs: 1300, maxMs: 2600, maxAlive: 6 },
 
-    car: { scale: 0.42 },
+    items: { scale: 0.45 },         // diamenciki, pioruny, efekt "poof" (skala postaci)
+    obstacles: {                    // hitbox przeszkód (px na ekranie, od ziemi w górę)
+        fence: { w: 44, h: 24 },
+        trash_bin: { w: 22, h: 30 },
+    },
     debug: false,
 };
