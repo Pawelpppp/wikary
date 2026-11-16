@@ -61,8 +61,8 @@ Działa jak w Fibi Run:
 
 ### Kościół po Level 1 (cutscenka z dymkami)
 1. Wikary wbiega do kościoła, w środku czeka **proboszcz**. Proboszcz: „No, jesteś wreszcie! Zuch chłopak, dobrze się spisałeś”.
-2. Proboszcz zagląda do koszyczka z tacy: „Wszyscy dali pięknie... tylko pan **Zenek spod lasu** wrzucił guzik i dwa grosze. Idź do niego, porozmawiaj, niech się nawróci”.
-3. Wikary: „Do Zenka? Przecież tam po drodze same wilki i błoto...”. Proboszcz: „Pan Bóg cię prowadzi. I weź parasol, bo będzie padać”.
+2. Proboszcz zagląda do koszyczka z tacy: „Wszyscy dali pięknie... tylko pan **Krzysztof „Dwa Grosze” spod lasu** wrzucił guzik i dwa grosze. Idź do niego, porozmawiaj, niech się nawróci”.
+3. Wikary: „Do Krzysztofa? Przecież tam po drodze same wilki i błoto...”. Proboszcz: „Pan Bóg cię prowadzi. I weź parasol, bo będzie padać”.
 4. Wikary wychodzi z kościoła i **tym razem idzie w lewo**, tą samą drogą, którą przyszedł.
 
 ### Level 2: „Wizyta u skąpego parafianina”
@@ -70,7 +70,7 @@ Działa jak w Fibi Run:
 - **Trudniej niż w Level 1:** więcej przeszkód (rozkopana droga, przewrócone drzewa, dwie rzeki, w tym jedna z ruchomą kładką) i **więcej potworów** naraz.
 - **Nowi przeciwnicy:** **wrony** (pikują na gracza z góry), **dziki** (szarżują, trzeba je przeskoczyć albo trafić dwa razy), a nocą **błędne ogniki** (lewitują i krążą wokół gracza).
 - **Nowy item, ogień:** w połowie drogi wikary znajduje **znicz**, po którym (piorun i przyciemnienie jak przy krzyżu) dostaje **atak ogniem**, który przebija kilku wrogów naraz.
-- **Koniec poziomu:** dom pana Zenka. Zenek wychodzi na próg, ale zamiast rozmowy wypuszcza na wikarego **psa-bestię Burka** (mini-boss). Po wygranej Zenek ze wstydem dorzuca na tacę „całe dziesięć złotych”, a wikary wraca do proboszcza, który mu **gratuluje** i daje kolejne zadanie.
+- **Koniec poziomu:** dom pana Krzysztofa. Krzysztof „Dwa Grosze” wychodzi na próg, ale zamiast rozmowy wypuszcza na wikarego **psa-bestię Hansa** (mini-boss). Po wygranej Krzysztof ze wstydem dorzuca na tacę „całe dziesięć złotych”, a wikary wraca do proboszcza, który mu **gratuluje** i daje kolejne zadanie.
 
 ### Pomysły na później (do dopracowania)
 - Kolejne moce (ogień, błogosławieństwo krzyżem, modlitwa) jako itemy w następnych poziomach, z podobnym efektem pioruna i przyciemnienia.
