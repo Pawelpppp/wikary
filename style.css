@@ -1,0 +1,13 @@
+@font-face {
+    font-family: "PressStart";
+    src: url("assets/fonts/PressStart2P-Regular.ttf") format("truetype");
+    font-display: block;
+}
+html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background: #0c0818; overflow: hidden;
+    touch-action: none; user-select: none; -webkit-user-select: none;
+    -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+}
+#game { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100dvh; }
+canvas { image-rendering: pixelated; image-rendering: crisp-edges; outline: none; display: block; }

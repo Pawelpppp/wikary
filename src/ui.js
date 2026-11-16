@@ -1,0 +1,109 @@
+'use strict';
+/* Wspólne elementy interfejsu: tekst pikselowym fontem, dymki, przyciski M/F. */
+const FONT = '"PressStart", monospace';
+const DEBUG = /[?&]debug=1/.test(location.search);
+const IS_TOUCH = (() => { try { return ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || /[?&]touch=1/.test(location.search); } catch (e) { return false; } })();
+
+const GS = {          // stan jednej rozgrywki (od START NEW GAME do końca)
+    reset() {
+        this.score = 0; this.lives = CFG.hero.lives; this.timeMs = 0; this.meter = 0;
+        this.hasCross = false; this.diamonds = 0; this.kills = 0; this.level = 0;
+    },
+};
+GS.reset();
+
+/** Obsługa klawisza odporna na auto-powtarzanie i ponowne emitowanie tego samego zdarzenia przez Phasera. */
+function onKey(fn) {
+    const seen = new WeakSet();
+    return (e) => {
+        if (e && typeof e === 'object') { if (e.repeat || seen.has(e)) return; seen.add(e); }
+        fn(e);
+    };
+}
+
+function txt(scene, x, y, s, size, color, o) {
+    o = o || {};
+    const t = scene.add.text(x, y, s, {
+        fontFamily: FONT, fontSize: (size || 8) + 'px', color: color || '#ffffff',
+        stroke: o.stroke || '#120a14', strokeThickness: o.strokeW === undefined ? Math.max(2, Math.round((size || 8) / 4)) : o.strokeW,
+        align: o.align || 'left', wordWrap: o.wrap ? { width: o.wrap } : undefined, lineSpacing: o.lineSpacing || 4,
+    });
+    t.setOrigin(o.ox === undefined ? 0.5 : o.ox, o.oy === undefined ? 0.5 : o.oy);
+    if (o.shadow) t.setShadow(2, 2, '#000000', 0, true, true);
+    return t;
+}
+
+function goldText(scene, x, y, s, size) {
+    const t = txt(scene, x, y, s, size, '#ffd040', { stroke: '#3a1608', strokeW: 6 });
+    t.setShadow(3, 3, '#140606', 0, true, true);
+    const g = t.context.createLinearGradient(0, 0, 0, t.height);
+    g.addColorStop(0, '#fff6aa'); g.addColorStop(0.35, '#ffd24a'); g.addColorStop(0.7, '#e09022'); g.addColorStop(1, '#8a4a12');
+    t.setFill(g);
+    return t;
+}
+
+/** Dymek dialogowy z portretem (scrollFactor 0). */
+function dialogBox(scene, opts) {
+    const W = CFG.W, w = opts.w || 520, h = opts.h || 64, x = (W - w) / 2, y = opts.y === undefined ? CFG.H - h - 10 : opts.y;
+    const c = scene.add.container(0, 0).setScrollFactor(0).setDepth(opts.depth || 2000);
+    const bg = scene.add.rectangle(x, y, w, h, 0x140c1c, 0.93).setOrigin(0).setStrokeStyle(2, 0xd8a640);
+    c.add(bg);
+    let tx = x + 12;
+    if (opts.portrait) {
+        const p = scene.add.image(x + 8 + 24, y + h / 2, opts.portrait).setScale(48 / 192);
+        c.add(p); tx = x + 64;
+        c.portrait = p;
+    }
+    if (opts.name) c.add(txt(scene, tx, y + 8, opts.name, 8, '#ffd040', { ox: 0, oy: 0 }));
+    const body = txt(scene, tx, y + (opts.name ? 22 : 12), '', 8, '#ffffff', { ox: 0, oy: 0, wrap: x + w - tx - 12, lineSpacing: 6 });
+    c.add(body);
+    // pisanie na maszynie
+    const full = opts.text || ''; let n = 0;
+    c.done = false;
+    const ev = scene.time.addEvent({ delay: 28, repeat: full.length - 1, callback: () => { n++; body.setText(full.slice(0, n)); if (n >= full.length) c.done = true; } });
+    if (!full.length) c.done = true;
+    c.finish = () => { ev.remove(false); body.setText(full); c.done = true; };
+    if (opts.hint) c.add(txt(scene, x + w - 8, y + h - 8, opts.hint, 8, '#c8b890', { ox: 1, oy: 1 }));
+    return c;
+}
+
+/** Krótka podpowiedź u góry ekranu (znika sama). */
+function hintBubble(scene, s, ms, y) {
+    const t = txt(scene, CFG.W / 2, y || 62, s, 8, '#fff2c0');
+    const pad = 8;
+    const bg = scene.add.rectangle(CFG.W / 2, y || 62, t.width + pad * 2, t.height + pad * 2, 0x140c1c, 0.88).setStrokeStyle(2, 0xd8a640);
+    const c = scene.add.container(0, 0, [bg, t]).setScrollFactor(0).setDepth(1900).setAlpha(0);
+    scene.tweens.add({ targets: c, alpha: 1, duration: 200 });
+    scene.time.delayedCall(ms || 3000, () => {
+        scene.tweens.add({ targets: c, alpha: 0, duration: 300, onComplete: () => c.destroy() });
+    });
+    return c;
+}
+
+/** Klawisze globalne: M = wycisz, F = pełny ekran, + odblokowanie dźwięku przy pierwszym geście. */
+function bindGlobalKeys(scene) {
+    const kb = scene.input.keyboard;
+    kb.on('keydown-M', onKey(() => { if (scene.textInput) return; WikaryAudio.unlock(); WikaryAudio.toggleMute(); scene.events.emit('mutechange'); }));
+    kb.on('keydown-F', onKey(() => { if (!scene.textInput) toggleFullscreen(scene); }));
+    kb.on('keydown', () => WikaryAudio.unlock());
+    scene.input.on('pointerdown', () => WikaryAudio.unlock());
+}
+function toggleFullscreen(scene) {
+    try { if (scene.scale.isFullscreen) scene.scale.stopFullscreen(); else scene.scale.startFullscreen(); } catch (e) { /* brak wsparcia */ }
+}
+
+/** Małe przyciski M (dźwięk) i F (pełny ekran) w prawym górnym rogu. */
+function cornerButtons(scene, y) {
+    y = y || 10;
+    const mk = (x, label, cb) => {
+        const r = scene.add.rectangle(x, y, 22, 16, 0x140c1c, 0.75).setStrokeStyle(1, 0xd8a640).setScrollFactor(0).setDepth(3000);
+        const t = txt(scene, x, y + 1, label, 8, '#ffe8a0').setScrollFactor(0).setDepth(3001);
+        r.setInteractive({ useHandCursor: true }).on('pointerdown', (p, lx, ly, ev) => { if (ev) ev.stopPropagation(); cb(); });
+        return { r, t };
+    };
+    const m = mk(CFG.W - 40, 'M', () => { WikaryAudio.unlock(); WikaryAudio.toggleMute(); scene.events.emit('mutechange'); });
+    const f = mk(CFG.W - 14, 'F', () => toggleFullscreen(scene));
+    const upd = () => { m.t.setColor(WikaryAudio.muted ? '#777777' : '#ffe8a0'); };
+    upd(); scene.events.on('mutechange', upd);
+    return { m, f };
+}

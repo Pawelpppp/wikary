@@ -1,6 +1,46 @@
 # Przygody Księdza Kamila
 Retro 16-bit gra w przeglądarce (Phaser 3), repo `wikary`.
 
+**Zagraj:** https://pawelpppp.github.io/wikary/
+
+## Jak uruchomić
+- Online: GitHub Pages z gałęzi `master` (link wyżej).
+- Lokalnie: z katalogu repo `python3 -m http.server 8000`, potem http://localhost:8000/ (gra ładuje pliki, więc potrzebny jest serwer, a nie `file://`).
+
+## Technologia
+- **Phaser 3.80** z CDN (jsDelivr), czysty JavaScript bez bundlera: `index.html`, `style.css`, `src/*.js`.
+- Rozdzielczość bazowa **568×320**, `Scale.FIT` + wyśrodkowanie, `pixelArt`, `roundPixels`. Mieści się w całości na telefonie poziomo.
+- **Wszystkie parametry rozgrywki** (prędkości, skok, grawitacja, auto-scroll, obrażenia, nietykalność, koszt ultimate, spawn wrogów, punkty) są w jednym bloku `CFG` w `src/config.js`.
+- **Poziomy opisane danymi** w `src/levels.js` (kierunek `dir` w prawo/lewo, rzeki, przeszkody, znajdźki, zestaw wrogów, koniec poziomu). Level 2 i 3 dojdą jako kolejne wpisy.
+- Dźwięk: chiptune generowany w **Web Audio** (`src/audio.js`, bez plików): organy na tytule i w intro, szybki motyw w Level 1, mocny bas, efekty (skok, salto, trafienie, znajdźki, dzwonek telefonu, piorun, rzut krzyżem, Grom z Nieba).
+- Font: [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) (SIL OFL, `assets/fonts/`).
+- Wersja na ekranie tytułowym: `v1.N`, N = liczba commitów na `master` (`src/version.js`).
+- Pliki: `src/boot.js` (ładowanie, animacje), `title.js`, `scores.js`, `intro.js`, `level.js`, `nick.js`, `ui.js`, `leaderboard.js`, `main.js`.
+
+## Sterowanie
+| Akcja | Klawiatura | Dotyk |
+|---|---|---|
+| Bieg w lewo / prawo | ← / → | `<` / `>` |
+| Skok / salto | Spacja, 2× Spacja (w powietrzu) | SKOK, 2× SKOK |
+| Rzut krzyżem (po zdobyciu krzyża) | Alt | KRZYŻ |
+| Grom z Nieba (pełny pasek) | trzymaj Shift 1 s, puść | trzymaj GROM, puść |
+| Pełny ekran | F | przycisk F |
+| Wycisz | M | przycisk M |
+| Menu | ↑ ↓ + Enter / Spacja | dotknij przycisk |
+| Intro | Spacja = pomiń, Enter = dalej | dotknij = pomiń |
+
+## Status (co już działa)
+- ✅ Ekran tytułowy: złoty migoczący tytuł, kościół, mrugająca twarz Kamila, rząd świeczek, START NEW GAME / HIGH SCORES, wersja, M i F.
+- ✅ HIGH SCORES: 20 wyników w dwóch kolumnach, wpisywanie nicku po GAME OVER i po wygranej (na telefonie systemowe okienko).
+- ✅ Intro: modlitwa od tyłu, zbliżenie na twarz, telefon, rozmowa z proboszczem, wybiegnięcie z domu.
+- ✅ Level 1 „Droga na plebanię”: auto-scroll, podpowiedzi, auta i kałuże, rzeka tylko z saltem (wpadnięcie = -1 życie i powrót przed rzekę), krzyż z piorunem i przyciemnieniem, rzut krzyżem, psy, wilki, nietoperze, pająki, diamenciki, pioruny (przyspieszenie), kościół i podsumowanie.
+- ✅ Grom z Nieba (ultimate) i HUD: życia, punkty, czas, pasek ataku specjalnego.
+- Czas w HUD liczy się w czasie gry na poziomach (intro się nie wlicza).
+- ⏳ Następne: cutscenka w kościele z proboszczem, Level 2 i Level 3, docelowe grafiki wrogów i otoczenia (teraz są tymczasowe zastępstwa z Fibi-Run, patrz niżej), wspólna tablica na Azure.
+
+### Grafiki tymczasowe (do wymiany)
+Psy i wilki (`fibi_walk`), nietoperze (`freeze_spell`), pająki (`rafal_kastet_spin`), auta jako przeszkody (`car_empty_1`), miasto i bruk (wycinki z `intro_house_bg`), woda (wycinek z `intro_room_bg`), diamenciki (`fx_bless_1`), piorun-znajdźka (`freeze_spell`), kościół na końcu (drzwi `door_1..2` + świeczki), słup światła Gromu (`fx_pray_aura`).
+
 ## Bohater
 Główną postacią jest **wikary Kamil**: rude krótkie włosy, czarna sutanna, plecak.
 
