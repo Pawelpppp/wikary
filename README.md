@@ -75,3 +75,4 @@ Assety w `assets/` (skopiowane z Fibi-Run). Nowe grafiki wikarego Kamila (patrzy
 - `assets/sprites/wikary_kamil_run_1..6`, `idle_1..2`, `jump_1..3`, `flip_1..6` (salto), `attack_fire_1..4`, `attack_cross_1..4`, `bless_1..4`, `pray_1..2`
 - efekty: `assets/sprites/fx_fireball_1..4`, `fx_cross_1..4`, `fx_bless_1..6`, `fx_pray_aura_1..4`
 - portret z bliska z frontu: `assets/portraits/wikary_kamil_closeup_open` (oczy otwarte) i `wikary_kamil_closeup_closed` (oczy zamknięte, skupienie w modlitwie)
+- Świeczka na ekran tytułowy: `assets/sprites/candle_1..8.png` (64×64, migoczący płomień, 8 klatek, origin 0.5,1). Źródło: [Lit And Unlit Candle](https://cindersphoenix.itch.io/lit-and-unlit-candle) autorstwa CindersPhoenix (darmowe do dowolnego użytku, podziękowania dla autora).
