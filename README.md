@@ -70,7 +70,24 @@ Działa jak w Fibi Run:
 - **Trudniej niż w Level 1:** więcej przeszkód (rozkopana droga, przewrócone drzewa, dwie rzeki, w tym jedna z ruchomą kładką) i **więcej potworów** naraz.
 - **Nowi przeciwnicy:** **wrony** (pikują na gracza z góry), **dziki** (szarżują, trzeba je przeskoczyć albo trafić dwa razy), a nocą **błędne ogniki** (lewitują i krążą wokół gracza).
 - **Nowy item, ogień:** w połowie drogi wikary znajduje **znicz**, po którym (piorun i przyciemnienie jak przy krzyżu) dostaje **atak ogniem**, który przebija kilku wrogów naraz.
-- **Koniec poziomu:** dom pana Krzysztofa. Krzysztof „Dwa Grosze” wychodzi na próg, ale zamiast rozmowy wypuszcza na wikarego **psa-bestię Hansa** (mini-boss). Po wygranej Krzysztof ze wstydem dorzuca na tacę „całe dziesięć złotych”, a wikary wraca do proboszcza, który mu **gratuluje** i daje kolejne zadanie.
+- **Koniec poziomu:** dom pana Krzysztofa. Krzysztof „Dwa Grosze” wychodzi na próg, ale zamiast rozmowy wypuszcza na wikarego **psa-bestię Hansa** (mini-boss). Po wygranej Krzysztof ze wstydem dorzuca na tacę „całe dziesięć złotych”, Wikary rusza z powrotem na plebanię (Level 3).
+
+### Level 3: „Noc duchów” (powrót na plebanię i obrona kościoła)
+**Część A, droga powrotna:**
+- Ekran znów przesuwa się **w prawo**: ta sama trasa co w Level 2, ale **od końca**, a na końcu czeka **kościół**. Zapada **noc**, deszcz przestaje padać, a nad drogą wisi mgła i pełnia księżyca.
+- Z początku są zwykli wrogowie z Level 2, ale **im bliżej kościoła, tym więcej duchów**:
+  - **duszki** (lekkie, latają falą, giną od jednego trafienia),
+  - **duchy przenikające** (przechodzą przez przeszkody i pojawiają się znikąd, chwilę migają przed atakiem),
+  - **upiory z cmentarza** (wolne, wytrzymałe, wychodzą spod ziemi).
+- Duchy są odporne na zwykły ogień, a najlepiej działa na nie **krzyż** i **błogosławieństwo**. Gracz musi więc mądrze dobierać ataki.
+- Tutaj wikary zdobywa trzecią moc, **błogosławieństwo krzyżem** (atak obszarowy wokół siebie). Działa jak przy krzyżu i zniczu: piorun i przyciemnienie ekranu.
+
+**Część B, obrona kościoła (arena):**
+- Przed kościołem ekran się zatrzymuje. **Proboszcz** stoi na schodach i **ciska w duchy czary na dystans** (świetliste kule). Krótki dymek, proboszcz: „Kamil! Nie stój jak słup soli, pomóż mi!”.
+- Rozgrywka typu **obrona**: duchy nadlatują **falami** z obu stron (3 fale), a gracz z proboszczem bronią **drzwi kościoła**. Drzwi mają własny pasek życia, a gdy spadnie do zera, trzeba powtórzyć część B.
+- Proboszcz strzela sam, ale co jakiś czas **się męczy** (siada i ociera pot), a wtedy cała obrona spada na wikarego.
+- **Boss: Upiorny Kościelny**, duch dawnego kościelnego z pękiem kluczy. Rzuca kluczami i próbuje zamknąć wikarego w konfesjonale. Najlepiej pokonać go **ultimatem** (Grom z Nieba).
+- **Zakończenie:** świt, biją dzwony, a proboszcz **gratuluje** wikaremu („No, Kamil, z ciebie będzie jeszcze proboszcz!”) i daje kolejne zadanie.
 
 ### Pomysły na później (do dopracowania)
 - Kolejne moce (ogień, błogosławieństwo krzyżem, modlitwa) jako itemy w następnych poziomach, z podobnym efektem pioruna i przyciemnienia.
