@@ -1,5 +1,5 @@
-# wikary
-Wikary - retro 16-bit gra w przeglądarce (Phaser 3)
+# Przygody Księdza Kamila
+Retro 16-bit gra w przeglądarce (Phaser 3), repo `wikary`.
 
 ## Bohater
 Główną postacią jest **wikary Kamil**: rude krótkie włosy, czarna sutanna, plecak.
@@ -13,6 +13,25 @@ Główną postacią jest **wikary Kamil**: rude krótkie włosy, czarna sutanna,
   - uderzenie **krzyżem**,
   - **błogosławieństwo krzyżem**,
   - **modlitwa**.
+
+## Ekran tytułowy
+- **Tytuł:** **PRZYGODY KSIĘDZA KAMILA**, duże pikselowe złote litery z ciemnym obrysem, lekko migoczące jak w blasku świec.
+- **Tło:** ciemne wnętrze kościoła (witraż, ołtarz w półmroku), a w tle **duża twarz księdza Kamila** (portret z bliska, przyciemniony i półprzezroczysty). Co kilka sekund Kamil **mruga** (podmiana portretu na wersję z zamkniętymi oczami).
+- **Świeczki:** na dole ekranu rząd **palących się świeczek** z animowanymi płomykami i delikatną poświatą, która lekko pulsuje.
+- **Menu:**
+  - **START NEW GAME** (Spacja / Enter / tap): odpala intro,
+  - **HIGH SCORES** (tablica wyników).
+- U dołu numer wersji `v1.N` (N = liczba commitów), przycisk wyciszenia (M) i pełnego ekranu (F).
+- **Muzyka:** spokojny chiptune na organach z mocnym basem.
+
+## Tablica wyników (High Scores)
+Działa jak w Fibi Run:
+- Po **GAME OVER** i po **wygranej** gracz wpisuje **nick** (maks. 12 znaków: wielkie litery, cyfry, spacja, myślnik, polskie znaki).
+- Zapis: nick, **łączna liczba punktów** i **czas od START** do końca gry (`mm:ss`). Licznik czasu widać w HUD.
+- Sortowanie: więcej punktów, a przy remisie krótszy czas.
+- Tablicę otwiera przycisk **HIGH SCORES** z ekranu tytułowego (ranga, nick, punkty, czas).
+- Na razie wyniki są zapisywane **lokalnie** (`localStorage`, klucz `wikary_leaderboard`, do 20 wyników).
+- **TODO:** wspólna tablica dla wszystkich graczy na **Azure**, w **nowej, osobnej tabeli** (nie tej z Fibi Run). Lokalny zapis zostaje jako zapas, gdy API nie odpowiada. W testach API zawsze mockowane.
 
 ## Początek gry
 
