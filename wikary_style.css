@@ -1,0 +1,123 @@
+:root {
+  color-scheme: dark;
+  font-family: "Courier New", monospace;
+  background: #100d18;
+  color: #f7e7b0;
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(ellipse at 50% 0, #35233b 0, transparent 56%),
+    #100d18;
+}
+
+.cabinet {
+  width: min(100% - 24px, 1024px);
+  margin: 0 auto;
+  padding: 22px 0 18px;
+}
+
+.masthead { text-align: center; margin-bottom: 14px; }
+.eyebrow {
+  margin: 0 0 8px;
+  color: #c69b5b;
+  font-size: 16px;
+  letter-spacing: .24em;
+}
+h1 {
+  margin: 0;
+  color: #ffe18a;
+  font: 20px/1.5 "Courier New", monospace;
+  text-shadow: 3px 3px #442a30, 0 0 18px #ffbd5b88;
+}
+
+.game-frame {
+  position: relative;
+  overflow: hidden;
+  border: 5px solid #8a5d42;
+  background: #0c0a12;
+  box-shadow: 0 0 0 2px #241923, 0 15px 50px #0009;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  touch-action: none;
+}
+
+.score-form {
+  position: absolute;
+  top: 57%;
+  left: 50%;
+  width: min(380px, 88%);
+  padding: 14px;
+  transform: translate(-50%, -50%);
+  border: 2px solid #e8c477;
+  background: #17111eef;
+  box-shadow: 0 8px 30px #000b;
+  font-size: 22px;
+}
+.score-form[hidden] { display: none; }
+.score-form label { display: block; margin-bottom: 8px; }
+.score-form-row { display: flex; gap: 8px; }
+.score-form input {
+  min-width: 0;
+  flex: 1;
+  border: 1px solid #c69b5b;
+  padding: 8px;
+  background: #09070c;
+  color: #fff1bd;
+  font: 22px "Courier New", monospace;
+}
+.score-form button, .touch-controls button {
+  border: 1px solid #f4d28b;
+  background: #614039;
+  color: #fff1bd;
+  font: 18px "Courier New", monospace;
+  cursor: pointer;
+}
+.score-form button { padding: 6px 12px; }
+.score-form button:hover, .touch-controls button:active { background: #966448; }
+
+.touch-controls { display: none; }
+footer {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px 18px;
+  padding: 12px 4px 0;
+  color: #b7a89d;
+  font-size: 17px;
+}
+
+@media (max-width: 680px) {
+  .cabinet { width: 100%; padding-top: 14px; }
+  .masthead { padding: 0 10px; }
+  h1 { font-size: clamp(13px, 3.2vw, 20px); }
+  .eyebrow { font-size: 13px; }
+  .game-frame { border-width: 3px; }
+  .touch-controls {
+    position: absolute;
+    inset: auto 8px 8px;
+    display: flex;
+    justify-content: space-between;
+    gap: 7px;
+    pointer-events: none;
+  }
+  .touch-controls button {
+    min-width: 42px;
+    min-height: 38px;
+    opacity: .8;
+    pointer-events: auto;
+    touch-action: none;
+  }
+  footer { gap: 3px 10px; font-size: 15px; }
+}
