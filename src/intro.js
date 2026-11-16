@@ -92,7 +92,7 @@ class IntroScene extends Phaser.Scene {
     say(portrait, name, text) {
         return new Promise(res => {
             if (this.done) return res();
-            this.dialog = dialogBox(this, { portrait, name, text, y: 12, hint: IS_TOUCH ? '' : 'ENTER' });
+            this.dialog = dialogBox(this, { portrait, name, text, y: 26, hint: IS_TOUCH ? '' : 'ENTER' });
             this.dialogResolve = res;
             this.dialogAuto = this.time.delayedCall(900 + text.length * 55, () => this.closeDialog());
         });

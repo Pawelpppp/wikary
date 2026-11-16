@@ -51,6 +51,7 @@ class BootScene extends Phaser.Scene {
         if (!hb.has('city')) hb.add('city', 0, 334, 0, 234, 286);
         const rb = this.textures.get('intro_room_bg');
         if (!rb.has('water')) rb.add('water', 0, 340, 10, 200, 100);
+        hb.firstFrame = '__BASE'; rb.firstFrame = '__BASE';      // dodanie wycinka zmienia domyślną klatkę - przywróć całe tło
         const target = DEBUG && (location.search.match(/[?&]scene=(\w+)/) || [])[1];
         this.scene.start(target && this.scene.get(target) ? target : 'Title');
     }
