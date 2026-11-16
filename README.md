@@ -14,6 +14,13 @@ Główną postacią jest **wikary Kamil**: rude krótkie włosy, czarna sutanna,
   - **błogosławieństwo krzyżem**,
   - **modlitwa**.
 
+## Atak specjalny (ultimate)
+- Wikary **zbiera punkty** do ataku specjalnego (pasek w HUD).
+- Gdy pasek jest pełny, gracz **wciska i trzyma Shift**: wikary zaczyna się **modlić**.
+- Po **1 sekundzie** modlitwy pojawia się **złota aura**, a ekran **stopniowo przyciemnia się do 75%**.
+- Gdy gracz **puści Shift**, wikary odpala **ultimate-atak** i pasek się zeruje.
+- Propozycja ultimate (do zatwierdzenia): **„Grom z Nieba”**: z góry spada słup złotego światła z wielkim świecącym krzyżem, który w jednej chwili rozświetla cały ekran i trafia wszystkich przeciwników na ekranie; ekran błyska na biało, a potem wraca do normalnej jasności.
+
 ## Grafiki
 Assety w `assets/` (skopiowane z Fibi-Run). Nowe grafiki wikarego Kamila (patrzy w prawo, stopy na dole płótna, origin 0.5,1; każdy plik ma też wersję `_x4`):
 - `assets/sprites/wikary_kamil_run_1..6`, `idle_1..2`, `jump_1..3`, `flip_1..6` (salto), `attack_fire_1..4`, `attack_cross_1..4`, `bless_1..4`, `pray_1..2`
