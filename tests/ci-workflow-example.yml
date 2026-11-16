@@ -1,0 +1,29 @@
+# Przykładowy workflow GitHub Actions dla testów gry.
+# Aby włączyć: skopiuj ten plik do .github/workflows/tests.yml
+# (wypchnięcie pliku z .github/workflows wymaga tokena z uprawnieniem "workflow").
+name: tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # pełna historia: test wersji porównuje z git rev-list --count HEAD
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r tests/requirements.txt
+      - run: playwright install --with-deps chromium
+      - run: pytest tests
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-artifacts
+          path: tests/artifacts/

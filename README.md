@@ -7,6 +7,9 @@ Retro 16-bit gra w przeglądarce (Phaser 3), repo `wikary`.
 - Online: GitHub Pages z gałęzi `master` (link wyżej).
 - Lokalnie: z katalogu repo `python3 -m http.server 8000`, potem http://localhost:8000/ (gra ładuje pliki, więc potrzebny jest serwer, a nie `file://`).
 
+## Testy
+Automatyczne testy (Python + pytest + Playwright, przeglądarka headless) są w katalogu [`tests/`](tests/README.md): `pip install -r tests/requirements.txt`, `playwright install chromium`, potem `pytest tests` (lokalnie) albo `pytest tests --base-url https://pawelpppp.github.io/wikary/` (na Pages).
+
 ## Technologia
 - **Phaser 3.80** z CDN (jsDelivr), czysty JavaScript bez bundlera: `index.html`, `style.css`, `src/*.js`.
 - Rozdzielczość bazowa **568×320**, `Scale.FIT` + wyśrodkowanie, `pixelArt`, `roundPixels`. Mieści się w całości na telefonie poziomo.
