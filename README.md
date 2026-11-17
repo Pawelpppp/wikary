@@ -24,7 +24,7 @@ Automatyczne testy (Python + pytest + Playwright, przeglądarka headless) są w 
 | Akcja | Klawiatura | Dotyk |
 |---|---|---|
 | Bieg w lewo / prawo | ← / → | `<` / `>` |
-| Kucnięcie (trzymaj; nietoperze przelatują nad głową, można z niego skoczyć) | ↓ | `↓` |
+| Kucnięcie (trzymaj; nietoperze i pająki mijają głowę, krzyż leci nisko, można z niego skoczyć) | ↓ | `↓` |
 | Skok / salto | Spacja, 2× Spacja (w powietrzu) | SKOK, 2× SKOK |
 | Rzut krzyżem (po zdobyciu krzyża) | Alt | KRZYŻ |
 | Grom z Nieba (pełny pasek) | trzymaj Shift 1 s, puść | trzymaj GROM, puść |

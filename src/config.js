@@ -37,7 +37,9 @@ const CFG = {
     puddle: { slowMult: 0.5, slowMs: 600 },
     boost: { mult: 1.55, ms: 4500 },       // piorun = przyspieszenie biegu
 
-    cross: { speed: 380, cooldownMs: 330, lifeMs: 900, damage: 1 },   // rzut krzyżem (Alt)
+    cross: { speed: 380, cooldownMs: 330, lifeMs: 900, damage: 1,    // rzut krzyżem (Alt)
+        standDy: -6,                // wysokość lotu na stojąco: środek hitboxu Kamila + standDy
+        crouchUp: 22 },             // w kucnięciu: tyle px nad stopami (nisko - trafia psy i wilki)
 
     ult: {
         max: 100,                   // pełny pasek = można odpalić Grom z Nieba
@@ -54,7 +56,7 @@ const CFG = {
         dog:    { hp: 1, speed: 150, scale: 0.45, weight: 4, bodyW: 38, bodyH: 22 },
         wolf:   { hp: 2, speed: 85, scale: 0.45, weight: 2, jumpEveryMs: 1500, jumpV: 300, bodyW: 50, bodyH: 28 },
         bat:    { hp: 1, speed: 105, scale: 0.45, weight: 3, wave: 3, gap: 36, amp: 22, freq: 3.2, yMin: 170, yMax: 222, bodyW: 24, bodyH: 14 },
-        spider: { hp: 1, dropSpeed: 90, dropTo: 262, holdMs: 1100, scale: 0.45, weight: 2, bodyW: 22, bodyH: 20 },
+        spider: { hp: 1, dropSpeed: 90, dropTo: 244, holdMs: 1100, scale: 0.45, weight: 2, bodyW: 22, bodyH: 20 },
     },
     spawn: { minMs: 1300, maxMs: 2600, maxAlive: 6 },
 

@@ -377,12 +377,13 @@ class LevelScene extends Phaser.Scene {
 
     throwCross(time) {
         this.lastThrow = time; this.attackUntil = time + 240;
-        const h = this.hero, s = this.shots.create(h.x + this.facing * 14, h.y - 6, 'fx_cross_1');
+        const h = this.hero, y = this.crouching ? h.body.bottom - CFG.cross.crouchUp : h.y + CFG.cross.standDy;
+        const s = this.shots.create(h.x + this.facing * 14, y, 'fx_cross_1');
         s.setScale(0.8).setDepth(9).play('fx_cross');
         s.body.setAllowGravity(false); s.body.setSize(20, 24);
         s.setVelocityX(this.facing * CFG.cross.speed);
         s.dieAt = time + CFG.cross.lifeMs;
-        this.kamil.play('k_attack');
+        if (!this.crouching) this.kamil.play('k_attack');   // w kucnięciu zostaje w kucnięciu
         WikaryAudio.sfx('throw');
     }
 

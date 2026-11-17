@@ -1,7 +1,7 @@
 """Kucanie (strzałka w dół): niższy hitbox, brak biegu, skok z kucnięcia, nietoperze nad głową."""
 import time
 
-from wikary import fmt, start_level, state
+from wikary import fmt, hold, start_level, state
 
 BODY = "(()=>{const l=__wikary.level(),b=l.hero.body;return {crouching:l.crouching,h:b.height,bottom:b.bottom,top:b.top,tex:l.kamil.texture.key,anim:l.kamil.anims.currentAnim&&l.kamil.anims.currentAnim.key}})()"
 
@@ -83,3 +83,59 @@ def test_lowest_bat_hits_standing_hero(game):
     lives0 = state(game)["lives"]
     _bat_at_lowest_reach(game)
     game.wait_for_function(f"__wikary.GS.lives < {lives0}", timeout=12000)
+
+
+def _spider_on_hero(page):
+    """Spuszcza pająka dokładnie nad Kamilem (tuż nad końcem nici, żeby Kamil nie zdążył odjechać z auto-scrollem)."""
+    page.evaluate("""(()=>{const l=__wikary.level(),C=__wikary.CFG.enemies.spider; l.spawnEnemy('spider');
+        const s=l.enemies.getChildren().filter(e=>e.type==='spider').pop();
+        s.body.reset(l.hero.x, C.dropTo - 30); s.setVelocityY(C.dropSpeed);})()""")
+    page.wait_for_function("__wikary.level().enemies.getChildren().some(e=>e.type==='spider'&&e.state==='hold')", timeout=8000)
+
+
+def test_spider_misses_crouching_hero(game):
+    start_level(game)
+    hold(game, "ArrowRight", 1.0)   # na środek ekranu, z dala od lewej krawędzi
+    game.keyboard.down("ArrowDown")
+    time.sleep(0.4)
+    lives0 = state(game)["lives"]
+    _spider_on_hero(game)
+    sb = game.evaluate("__wikary.level().enemies.getChildren().find(e=>e.type==='spider').body.bottom")
+    assert sb < body(game)["top"], (sb, body(game))
+    time.sleep(0.8)  # pająk wisi nad głową
+    s = state(game)
+    game.keyboard.up("ArrowDown")
+    assert s["lives"] == lives0, fmt(s)
+
+
+def test_spider_hits_standing_hero(game):
+    start_level(game)
+    hold(game, "ArrowRight", 1.0)
+    lives0 = state(game)["lives"]
+    _spider_on_hero(game)
+    game.wait_for_function(f"__wikary.GS.lives < {lives0}", timeout=4000)
+
+
+def _throw_y(page):
+    page.evaluate("__wikary.level().lastThrow = -99999")
+    page.keyboard.press("Alt")
+    page.wait_for_function("__wikary.level().shots.getChildren().some(s=>s.active)", timeout=3000)
+    y = page.evaluate("Math.max(...__wikary.level().shots.getChildren().filter(s=>s.active).map(s=>s.y))")
+    page.wait_for_function("__wikary.level().shots.getChildren().every(s=>!s.active)", timeout=3000)
+    return y
+
+
+def test_crouched_cross_flies_lower_and_hero_stays_crouched(game):
+    start_level(game)
+    game.evaluate("__wikary.giveCross()")
+    time.sleep(2.5)  # krótka cutscenka po krzyżu
+    stand_y = _throw_y(game)
+    game.keyboard.down("ArrowDown")
+    time.sleep(0.4)
+    crouch_y = _throw_y(game)
+    b = body(game)
+    game.keyboard.up("ArrowDown")
+    ground = game.evaluate("__wikary.CFG.GROUND_Y")
+    assert crouch_y > stand_y + 10, (stand_y, crouch_y)
+    assert ground - crouch_y <= 30, crouch_y
+    assert b["crouching"] and b["tex"].startswith("wikary_kamil_crouch_"), b
