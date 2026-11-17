@@ -1,7 +1,7 @@
 """Tablica wyników (tylko localStorage): pusta lista, zapis nicku, sortowanie, limit."""
 import time
 
-from wikary import leaderboard, start_level, teleport, hold, type_nick, wait_scene
+from wikary import finish_game, leaderboard, start_level, teleport, hold, type_nick, wait_scene
 
 
 def test_empty_scores_screen(game):
@@ -27,13 +27,7 @@ def test_sorting_and_limit_20(game):
 def test_win_nick_with_polish_letter_saved(game):
     start_level(game)
     game.evaluate("__wikary.GS.lives=3")
-    teleport(game, 5250)
-    hold(game, "ArrowRight", 1.6)
-    time.sleep(3.2)
-    assert game.evaluate("__wikary.level().ended")
-    game.keyboard.press("Enter")
-    assert wait_scene(game, "Nick", 4)
-    time.sleep(0.6)
+    finish_game(game)
     type_nick(game, "KS. TEST-1")
     game.evaluate("window.dispatchEvent(new KeyboardEvent('keydown',{key:'ą',code:'KeyA',keyCode:65}))")
     time.sleep(0.3)

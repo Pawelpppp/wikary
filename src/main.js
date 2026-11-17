@@ -12,7 +12,7 @@
             input: { activePointers: 4 },
             physics: { default: 'arcade', arcade: { gravity: { y: CFG.gravity }, debug: CFG.debug } },
             scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
-            scene: [BootScene, TitleScene, ScoresScene, IntroScene, LevelScene, NickScene],
+            scene: [BootScene, TitleScene, ScoresScene, IntroScene, LevelScene, ChurchScene, NickScene],
         });
         // Alt nie może aktywować menu przeglądarki (Alt = rzut krzyżem). Rejestrowane PO Phaserze,
         // bo Phaser ignoruje zdarzenia z defaultPrevented.
@@ -26,6 +26,12 @@
                 level: () => game.scene.getScene('Level'),
                 setMeter: (v) => { GS.meter = v; },
                 giveCross: () => { GS.hasCross = true; },
+                giveFire: () => { GS.hasFire = true; },
+                church: () => game.scene.getScene('Church'),
+                start: (idx, startAt) => debugStart(game.scene.getScenes(true)[0], idx, startAt),
+                startScene: (key, data) => { const s = game.scene.getScenes(true)[0]; s.scene.start(key, data || {}); },
+                boss: () => { const l = game.scene.getScene('Level'); return l && l.boss; },
+                artMissing: () => ART.missing(),
                 teleport: (d) => game.scene.getScene('Level').debugTeleport(d),
             };
         }

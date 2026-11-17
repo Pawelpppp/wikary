@@ -14,11 +14,11 @@ Automatyczne testy (Python + pytest + Playwright, przeglądarka headless) są w 
 - **Phaser 3.80** z CDN (jsDelivr), czysty JavaScript bez bundlera: `index.html`, `style.css`, `src/*.js`.
 - Rozdzielczość bazowa **568×320**, `Scale.FIT` + wyśrodkowanie, `pixelArt`, `roundPixels`. Mieści się w całości na telefonie poziomo.
 - **Wszystkie parametry rozgrywki** (prędkości, skok, grawitacja, auto-scroll, obrażenia, nietykalność, koszt ultimate, spawn wrogów, punkty) są w jednym bloku `CFG` w `src/config.js`.
-- **Poziomy opisane danymi** w `src/levels.js` (kierunek `dir` w prawo/lewo, rzeki, przeszkody, znajdźki, zestaw wrogów, koniec poziomu). Level 2 i 3 dojdą jako kolejne wpisy.
-- Dźwięk: chiptune generowany w **Web Audio** (`src/audio.js`, bez plików): organy na tytule i w intro, szybki motyw w Level 1, mocny bas, efekty (skok, salto, trafienie, znajdźki, dzwonek telefonu, piorun, rzut krzyżem, Grom z Nieba).
+- **Poziomy opisane danymi** w `src/levels.js` (kierunek `dir` w prawo/lewo, rzeki, przeszkody, znajdźki, zestaw wrogów, koniec poziomu). Level 1 i Level 2 już są, Level 3 dojdzie jako kolejny wpis.
+- Dźwięk: chiptune generowany w **Web Audio** (`src/audio.js`, bez plików): organy na tytule i w intro, szybki motyw w Level 1, mocny bas, efekty (skok, salto, trafienie, znajdźki, dzwonek telefonu, piorun, rzut krzyżem, ogień, szczekanie, kracz, moneta, grzmot, Grom z Nieba). Level 2 ma własny mroczny motyw, a Hans szybki motyw bossa.
 - Font: [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) (SIL OFL, `assets/fonts/`).
 - Wersja na ekranie tytułowym: `v1.N`, N = liczba commitów na `master` (`src/version.js`).
-- Pliki: `src/boot.js` (ładowanie, animacje), `title.js`, `scores.js`, `intro.js`, `level.js`, `nick.js`, `ui.js`, `leaderboard.js`, `main.js`.
+- Pliki: `src/boot.js` (ładowanie, animacje), `title.js`, `scores.js`, `intro.js`, `church.js` (kościół), `level.js` + `level2.js` (kładka, pogoda, nowi wrogowie, ogień, Hans), `art.js` + `art_files.js` (grafiki i zamienniki), `nick.js`, `ui.js`, `leaderboard.js`, `main.js`.
 
 ## Sterowanie
 | Akcja | Klawiatura | Dotyk |
@@ -27,13 +27,19 @@ Automatyczne testy (Python + pytest + Playwright, przeglądarka headless) są w 
 | Kucnięcie (trzymaj; nietoperze i pająki mijają głowę, krzyż leci nisko, można z niego skoczyć) | ↓ | `↓` |
 | Skok / salto | Spacja, 2× Spacja (w powietrzu) | SKOK, 2× SKOK |
 | Rzut krzyżem (po zdobyciu krzyża) | Alt | KRZYŻ |
+| Kula ognia, przebija kilku wrogów (po zdobyciu znicza w Level 2) | Z | OGIEŃ |
 | Grom z Nieba (pełny pasek) | trzymaj Shift 1 s, puść | trzymaj GROM, puść |
 | Pełny ekran | F | przycisk F |
 | Wycisz | M | przycisk M |
 | Menu | ↑ ↓ + Enter / Spacja | dotknij przycisk |
 
-Na dotyku przyciski są półprzezroczyste i pionowo na środku ekranu: `<` `>` `↓` przy lewej krawędzi, GROM / KRZYŻ / SKOK przy prawej. Kamil nie wchodzi pod przyciski (margines `CFG.touch.heroMargin`).
+Na dotyku przyciski są półprzezroczyste i pionowo na środku ekranu: `<` `>` `↓` przy lewej krawędzi, GROM / (OGIEŃ w Level 2) / KRZYŻ / SKOK przy prawej. Kamil nie wchodzi pod przyciski (margines `CFG.touch.heroMargin`).
+
+| Scenka | Klawiatura | Dotyk |
+|---|---|---|
 | Intro | Spacja = pomiń, Enter = dalej | dotknij = pomiń |
+| Kościół | Spacja / Esc = pomiń, Enter / klik = dalej | dotknij = dalej, POMIŃ |
+| Rozmowy w Level 2 | Enter / Spacja / klik = dalej | dotknij = dalej |
 
 ## Status (co już działa)
 - ✅ Ekran tytułowy: złoty migoczący tytuł, kościół, mrugająca twarz Kamila, rząd świeczek, START NEW GAME / HIGH SCORES, wersja, M i F.
@@ -43,7 +49,12 @@ Na dotyku przyciski są półprzezroczyste i pionowo na środku ekranu: `<` `>` 
 - ✅ Grom z Nieba (ultimate) i HUD: życia, punkty, czas, pasek ataku specjalnego.
 - Czas w HUD liczy się w czasie gry na poziomach (intro się nie wlicza).
 - ✅ Level 1 ma już docelowe grafiki: tła z paralaksą, bruk, rzeka, płotki, kosze na śmieci, kałuże, wrogowie, znajdźki, kościół z otwieranymi drzwiami, piorun i Grom z Nieba.
-- ⏳ Następne: cutscenka w kościele z proboszczem, Level 2 i Level 3, wspólna tablica na Azure.
+- ✅ Kościół po Level 1: rozmowa z proboszczem (dymki z mrugającymi portretami, animacja mówienia, błogosławieństwo), Kamil wychodzi w lewo do Level 2.
+- ✅ Level 2 „Wizyta u skąpego parafianina”: ekran w lewo, wieczór, deszcz i dalekie błyskawice, rozkopana droga, zwalone drzewa, dwie rzeki (druga z ruchomą kładką), wrony, dziki, błędne ogniki, znicz i kula ognia (Z), dom Krzysztofa, boss Hans z paskiem życia, zakończenie z dziesięcioma złotymi.
+- ✅ Punkty, życia, pasek, krzyż i czas przechodzą z poziomu na poziom; game over w Level 2 prowadzi do wpisania nicku.
+- ⏳ Następne: Level 3, wspólna tablica na Azure.
+
+**Debug:** `?debug=1` na ekranie tytułowym: 1 = Level 1, 2 = kościół, 3 = Level 2, 4 = Level 2 tuż przed Hansem (także `?debug=1&level=2`).
 
 ## Bohater
 Główną postacią jest **wikary Kamil**: rude krótkie włosy, czarna sutanna, plecak.
@@ -104,17 +115,24 @@ Działa jak w Fibi Run:
 - W rozmowach pokazuje się jako portret w dymku (jak Kamil), a w kościele stoi jako pełna postać przy ołtarzu.
 
 ### Kościół po Level 1 (cutscenka z dymkami)
-1. Wikary wbiega do kościoła, w środku czeka **proboszcz**. Proboszcz: „No, jesteś wreszcie! Zuch chłopak, dobrze się spisałeś”.
-2. Proboszcz zagląda do koszyczka z tacy: „Wszyscy dali pięknie... tylko pan **Krzysztof „Dwa Grosze” spod lasu** wrzucił guzik i dwa grosze. Idź do niego, porozmawiaj, niech się nawróci”.
-3. Wikary: „Do Krzysztofa? Przecież tam po drodze same wilki i błoto...”. Proboszcz: „Pan Bóg cię prowadzi. I weź parasol, bo będzie padać”.
-4. Wikary wychodzi z kościoła i **tym razem idzie w lewo**, tą samą drogą, którą przyszedł.
+1. Wikary wbiega do kościoła, przy ołtarzu czeka **proboszcz** (obok koszyczek z tacy). Proboszcz: „No, jesteś wreszcie! Zuch chłopak, dobrze się spisałeś”.
+2. Kamil: „Psy, wilki, nietoperze... Proszę księdza, ja tu biegłem jak na olimpiadzie!”. Proboszcz: „Dobrze, dobrze, olimpijczyku. Zajrzyjmy do koszyczka z tacy...”.
+3. Proboszcz: „Wszyscy dali pięknie... tylko pan **Krzysztof „Dwa Grosze” spod lasu** wrzucił guzik i dwa grosze”. Kamil: „Guzik? A chociaż ładny?”. Proboszcz: „Od kalesonów. Idź do niego, porozmawiaj. Niech się chłop nawróci”.
+4. Kamil: „Do Krzysztofa? Przecież tam po drodze same wilki i błoto...”. Proboszcz: „Pan Bóg cię prowadzi. I weź parasol, bo będzie padać”.
+5. Proboszcz **błogosławi** Kamila na drogę, a wikary wychodzi z kościoła i **tym razem idzie w lewo**, tą samą drogą, którą przyszedł.
 
 ### Level 2: „Wizyta u skąpego parafianina”
 - **Kierunek odwrócony:** ekran przesuwa się **w lewo**, a gracz idzie w stronę, z której przyszedł. Ta sama okolica, ale **wieczorem i w deszczu** (ciemniejsze niebo, kałuże, błyskawice w tle).
 - **Trudniej niż w Level 1:** więcej przeszkód (rozkopana droga, przewrócone drzewa, dwie rzeki, w tym jedna z ruchomą kładką) i **więcej potworów** naraz.
 - **Nowi przeciwnicy:** **wrony** (pikują na gracza z góry), **dziki** (szarżują, trzeba je przeskoczyć albo trafić dwa razy), a nocą **błędne ogniki** (lewitują i krążą wokół gracza).
 - **Nowy item, ogień:** w połowie drogi wikary znajduje **znicz**, po którym (piorun i przyciemnienie jak przy krzyżu) dostaje **atak ogniem**, który przebija kilku wrogów naraz.
-- **Koniec poziomu:** dom pana Krzysztofa. Krzysztof „Dwa Grosze” wychodzi na próg, ale zamiast rozmowy wypuszcza na wikarego **psa-bestię Hansa** (mini-boss). Po wygranej Krzysztof ze wstydem dorzuca na tacę „całe dziesięć złotych”, Wikary rusza z powrotem na plebanię (Level 3).
+- **Kładka:** nad drugą rzeką pływa deska, na którą trzeba wskoczyć. Ekran czeka przy rzece, aż Kamil przepłynie.
+- **Koniec poziomu:** dom pana Krzysztofa. Ekran się zatrzymuje, drzwi się otwierają i Krzysztof „Dwa Grosze” wychodzi na próg:
+  - Krzysztof: „Czego?! Jak po kolędę, to w styczniu!”. Kamil: „Szczęść Boże, panie Krzysztofie! Proboszcz przysyła... w sprawie guzika”.
+  - Krzysztof: „Guzik to też pieniądz! Inflacja, proszę księdza!”. Kamil: „Dwa grosze i guzik od kalesonów? Panie Krzysztofie...”.
+  - Krzysztof: „Dość gadania! HANS! Do nogi! To znaczy... BIERZ GO!”.
+- **Boss: pies-bestia Hans** (pasek życia u góry): chodzi za wikarym, **szarżuje** (trzeba przeskoczyć saltem) i **szczeka**, a szczeknięcie puszcza po ziemi **falę**, którą trzeba przeskoczyć (trafienie ogłusza i zabiera życie). Ma trzy fazy: im mniej życia, tym szybsze szarże, podwójne fale, a na końcu wpada w szał (czerwienieje). Grom z Nieba zabiera mu tylko kawałek paska.
+- **Po wygranej** Krzysztof ze wstydem: „Hans... mój Hans... No dobrze już, dobrze, proszę księdza. Wstyd mi”. Wyjmuje monetę i dorzuca na tacę **całe dziesięć złotych** (+1000 pkt): „Tylko niech proboszcz nikomu nie mówi”. Kamil: „Bóg zapłać, panie Krzysztofie! A guzik oddaję, przyda się do kalesonów”. Potem podsumowanie, „CIĄG DALSZY: LEVEL 3 WKRÓTCE” i wpisanie nicku.
 
 ### Level 3: „Noc duchów” (powrót na plebanię i obrona kościoła)
 **Część A, droga powrotna:**
@@ -134,7 +152,7 @@ Działa jak w Fibi Run:
 - **Zakończenie:** świt, biją dzwony, a proboszcz **gratuluje** wikaremu („No, Kamil, z ciebie będzie jeszcze proboszcz!”) i daje kolejne zadanie.
 
 ### Pomysły na później (do dopracowania)
-- Kolejne moce (ogień, błogosławieństwo krzyżem, modlitwa) jako itemy w następnych poziomach, z podobnym efektem pioruna i przyciemnienia.
+- Kolejne moce (błogosławieństwo krzyżem, modlitwa) jako itemy w następnych poziomach, z podobnym efektem pioruna i przyciemnienia.
 - Na końcu Level 1 mały mini-boss, np. **przywódca watahy wilków**.
 - Dzwony kościoła na końcu poziomu jako dźwięk wygranej.
 
@@ -159,3 +177,6 @@ Assety w `assets/` (skopiowane z Fibi-Run). Nowe grafiki wikarego Kamila (patrzy
 - **Level 1, postacie i znajdźki** (skala postaci jak Kamil, w grze ×0.45, patrzą w prawo, origin 0.5,1, wersje `_x4`), `assets/sprites/`:
   `enemy_dog_run_1..4` (120×72), `enemy_wolf_run_1..4` (150×90), `enemy_wolf_jump_1..2` (150×100), `enemy_bat_fly_1..4` (80×56), `enemy_spider_1..4` (64×64) + `enemy_spider_thread` (4×64, nitka powtarzana w pionie), oraz origin 0.5,0.5: `fx_enemy_poof_1..4` (96×96), `item_diamond_1..6` (40×40), `item_lightning_1..4` (40×56). Podgląd: `docs/level1_sprites.png`.
 - **Level 1, otoczenie i efekty** (piksele ekranu 1:1), `assets/game/`: `bg_l1_sky` (568×320, stałe), `bg_l1_city_far` (568×200, paralaksa wolna), `bg_l1_houses_near` (568×150, paralaksa szybsza), `tile_ground_cobble` (64×32), `tile_water_1..4` (64×28) + `water_bank_left/right` (16×32), `obstacle_fence` (48×28), `obstacle_trash_bin` (26×32), `obstacle_puddle` (56×8), `church_exterior` (240×250) + `church_door_1..3` (48×72: zamknięte / uchylone / otwarte), `fx_lightning_strike_1..3` (64×300), `fx_grom_pillar_1..4` (140×320), `fx_grom_cross` (96×128). Podgląd: `docs/level1_game.png`, `docs/level1_scene.png`.
+- **Kościół i Level 2** (`assets/game/`, piksele ekranu 1:1, wersje `_x4`): `bg_church_interior` (568×320, proboszcz stoi stopami w x=450, y=288), `prop_collection_basket`, `bg_l2_sky` (od 0,0), `bg_l2_city_far` (od y=16), `bg_l2_houses_near` (od y=138), `tile_ground_wet` (od y=288), `fx_rain_1..3` (64×64, kafelki deszczu), `obstacle_dug_road` (y=264), `obstacle_fallen_tree` (y=252), `platform_plank` (64×10, origin 0.5,0.5), `house_krzysztof` (260×230, dół na podłodze 288) + `house_krzysztof_door_1..2` (27×58, zamknięte / otwarte, w domu na 134,130).
+- **Level 2, postacie** (`assets/sprites/`, skala jak Kamil, wersje `_x4`): `enemy_crow_fly_1..4`, `enemy_crow_dive_1..2` (wrona w grze ×0.6, bo jest mała: `CFG.enemies.crow.scale`), `enemy_boar_run_1..4`, `enemy_wisp_1..4`, `item_znicz_1..4`, `boss_hans_run_1..4`, `boss_hans_bark_1..2`, `boss_hans_hurt_1`, `boss_hans_defeated_1`.
+- **Podmiana grafik:** `python3 tools/art_manifest.py` skanuje `assets/` i zapisuje listę plików do `src/art_files.js`. Gra ładuje tylko pliki z listy, a dla brakujących używa zamienników z `src/art.js` (`ART.SPEC`: istniejąca grafika + odcień/skala). Nową grafikę wystarczy wrzucić pod docelową nazwą i uruchomić skrypt. W `?debug=1` `__wikary.artMissing()` pokazuje, które zamienniki są w użyciu (teraz: żadne).

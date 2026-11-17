@@ -100,7 +100,7 @@ def test_enemies_spawn_and_cross_attack(game):
     assert not s["dead"] and s["lives"] == 3, fmt(s)
 
 
-def test_reaching_church_ends_level_and_asks_for_nick(game):
+def test_reaching_church_ends_level_and_goes_to_church_scene(game):
     start_level(game)
     teleport(game, 5250)
     hold(game, "ArrowRight", 1.6)
@@ -108,4 +108,4 @@ def test_reaching_church_ends_level_and_asks_for_nick(game):
     s = state(game)
     assert s["ended"], fmt(s)
     game.keyboard.press("Enter")
-    assert wait_scene(game, "Nick", 4)
+    assert wait_scene(game, "Church", 4)

@@ -1,7 +1,7 @@
 """Kolejne podejścia: stan gry resetuje się w create(), bez pozostałości po poprzedniej grze."""
 import time
 
-from wikary import drown_once, fmt, hold, leaderboard, state, start_level, teleport, type_nick, wait_scene
+from wikary import finish_game, drown_once, fmt, hold, leaderboard, state, start_level, teleport, type_nick, wait_scene
 
 CLEAN = "(()=>{const l=__wikary.level();return !l.ended&&!l.dead&&!l.cutscene&&!l.praying&&l.dim.alpha===0&&l.items.some(i=>i.itemType==='cross')})()"
 
@@ -17,13 +17,7 @@ def _assert_fresh(game):
 def _win(game, nick):
     start_level(game)
     game.evaluate("__wikary.giveCross(); __wikary.setMeter(50)")
-    teleport(game, 5250)
-    hold(game, "ArrowRight", 1.6)
-    time.sleep(3.2)
-    assert state(game)["ended"]
-    game.keyboard.press("Enter")
-    assert wait_scene(game, "Nick", 4)
-    time.sleep(0.5)
+    finish_game(game)
     type_nick(game, nick)
     game.keyboard.press("Enter")
     assert wait_scene(game, "Scores", 3)

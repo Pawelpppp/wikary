@@ -33,11 +33,13 @@ Przydatne opcje pytest-playwright: `--headed` (widoczna przeglądarka), `--brows
 | `test_title.py` | ekran tytułowy, wersja, dopasowanie 568×320, wyciszanie M, menu |
 | `test_highscores.py` | tablica wyników: pusta, sanityzacja nicku, sortowanie i limit 20, zapis nicku z polską literą |
 | `test_intro.py` | start intro, Enter w dialogach, pomijanie Spacją |
-| `test_level1.py` | ruch, kamera, rzeka (utonięcie, zwykły skok, salto), krzyż, wrogowie, dojście do kościoła |
+| `test_level1.py` | ruch, kamera, rzeka (utonięcie, zwykły skok, salto), krzyż, wrogowie, dojście do kościoła (przejście do sceny Church) |
+| `test_level2.py` | kościół (dymki, Enter, Spacja, przejście do Level 2), przenoszenie stanu L1→L2, kierunek w lewo, błyskawice, kładka (ruch, wożenie Kamila, ekran czeka), znicz → ogień przebijający 3 psy, wrony / dziki / ogniki, game over w L2 → nick, Hans (pasek, fala szczeknięcia ogłusza, fazy, wygrana → zakończenie → nick) |
+| `test_art.py` | `src/art_files.js` aktualny (lokalnie), wszystkie grafiki docelowe załadowane, brak zamienników |
 | `test_crouch.py` | kucanie: niższy hitbox, brak biegu, skok z kucnięcia, nietoperz i pająk nad głową kucającego / trafiają stojącego |
 | `test_ultimate.py` | Grom z Nieba: ładowanie, wyzwolenie, anulowanie, brak bez pełnego paska |
 | `test_restart_state.py` | kolejne podejścia po wygranej i game over mają czysty stan |
-| `test_touch_mobile.py` | dotyk (START, pominięcie intro, skok, przycisk ↓), układ przycisków (pionowo na środku przy krawędziach, półprzezroczyste, Kamil nie wchodzi pod nie), `?touch=1`, skalowanie 1280×720 |
+| `test_touch_mobile.py` | dotyk (START, pominięcie intro, skok, przycisk ↓), układ przycisków (pionowo na środku przy krawędziach, OGIEŃ w Level 2, półprzezroczyste, Kamil nie wchodzi pod nie), `?touch=1`, skalowanie 1280×720 |
 | `test_console_errors.py` | zwykłe uruchomienie bez debug, krótka rozgrywka, ładowanie wszystkich grafik |
 
 ## CI

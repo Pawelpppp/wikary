@@ -7,7 +7,7 @@ const IS_TOUCH = (() => { try { return ('ontouchstart' in window) || navigator.m
 const GS = {          // stan jednej rozgrywki (od START NEW GAME do końca)
     reset() {
         this.score = 0; this.lives = CFG.hero.lives; this.timeMs = 0; this.meter = 0;
-        this.hasCross = false; this.diamonds = 0; this.kills = 0; this.level = 0;
+        this.hasCross = false; this.hasFire = false; this.diamonds = 0; this.kills = 0; this.level = 0;
     },
 };
 GS.reset();
@@ -60,9 +60,10 @@ function dialogBox(scene, opts) {
     // pisanie na maszynie
     const full = opts.text || ''; let n = 0;
     c.done = false;
-    const ev = scene.time.addEvent({ delay: 28, repeat: full.length - 1, callback: () => { n++; body.setText(full.slice(0, n)); if (n >= full.length) c.done = true; } });
+    const ev = scene.time.addEvent({ delay: 28, repeat: full.length - 1, callback: () => { if (!body.active) return; n++; body.setText(full.slice(0, n)); if (n >= full.length) c.done = true; } });
     if (!full.length) c.done = true;
-    c.finish = () => { ev.remove(false); body.setText(full); c.done = true; };
+    c.finish = () => { ev.remove(false); if (body.active) body.setText(full); c.done = true; };
+    c.once('destroy', () => ev.remove(false));
     if (opts.hint) c.add(txt(scene, x + w - 8, y + h - 8, opts.hint, 8, '#c8b890', { ox: 1, oy: 1 }));
     return c;
 }
@@ -106,4 +107,52 @@ function cornerButtons(scene, y) {
     const upd = () => { m.t.setColor(WikaryAudio.muted ? '#777777' : '#ffe8a0'); };
     upd(); scene.events.on('mutechange', upd);
     return { m, f };
+}
+
+/** Rozmowa w dymkach z portretami: say() zwraca Promise; Enter/klik = dalej, skip() = pomiń resztę.
+    Portret *_open mruga (podmiana na *_closed). onStart/onEnd: np. animacja mówienia postaci. */
+function makeTalker(scene, defaults) {
+    defaults = defaults || {};
+    const t = { dialog: null, resolve: null, auto: null, blink: null, skipped: false, onEnd: null };
+    t.say = (portrait, name, text, o) => new Promise(res => {
+        o = Object.assign({}, defaults, o || {});
+        if (t.skipped || !scene.sys.isActive()) return res();
+        t.dialog = dialogBox(scene, { portrait, name, text, y: o.y === undefined ? 26 : o.y, hint: IS_TOUCH ? '' : 'ENTER', depth: o.depth || 4900 });
+        t.resolve = res; t.onEnd = o.onEnd || null;
+        if (o.onStart) o.onStart();
+        const closed = portrait && /_open$/.test(portrait) ? portrait.replace(/_open$/, '_closed') : null;
+        if (closed && scene.textures.exists(closed)) {
+            const d = t.dialog;
+            t.blink = scene.time.addEvent({ delay: 2100, loop: true, callback: () => {
+                if (!d.portrait || !d.active) return;
+                d.portrait.setTexture(closed);
+                scene.time.delayedCall(140, () => { if (d.active && d.portrait) d.portrait.setTexture(portrait); });
+            } });
+        }
+        t.auto = scene.time.delayedCall(o.ms || (1600 + text.length * 60), () => t.close());
+    });
+    t.close = () => {
+        if (!t.dialog) return;
+        if (t.auto) t.auto.remove(false);
+        if (t.blink) t.blink.remove(false);
+        t.auto = t.blink = null;
+        t.dialog.destroy(); t.dialog = null;
+        const e = t.onEnd; t.onEnd = null; if (e) e();
+        const r = t.resolve; t.resolve = null; if (r) r();
+    };
+    t.advance = () => {
+        if (!t.dialog) return false;
+        if (!t.dialog.done) t.dialog.finish(); else { WikaryAudio.sfx('click'); t.close(); }
+        return true;
+    };
+    t.skip = () => { t.skipped = true; t.close(); };
+    return t;
+}
+const sleep = (scene, ms) => new Promise(res => scene.time.delayedCall(ms, res));
+
+/** Tylko ?debug=1: start wybranego poziomu z nowym stanem gry (w Level 2 krzyż już jest). */
+function debugStart(scene, idx, startAt) {
+    GS.reset();
+    if (idx >= 1) GS.hasCross = true;
+    scene.scene.start('Level', { level: idx, startAt });
 }

@@ -116,3 +116,23 @@ def test_touch_crouch_button(new_page, base_url):
     after = pg.evaluate(BODY_STATE)
     assert held["crouching"] and held["h"] == pg.evaluate("__wikary.CFG.hero.crouchH"), held
     assert not after["crouching"], after
+
+
+def test_touch_level2_has_fire_button_in_centered_right_column(new_page, base_url):
+    pg = new_page(has_touch=True, is_mobile=True)
+    pg.goto(base_url + "?debug=1")
+    pg.wait_for_function("window.__wikary && window.__wikary.scene().includes('Title')", timeout=30000)
+    pg.evaluate("__wikary.start(1)")
+    pg.wait_for_function("__wikary.scene().includes('Level') && __wikary.level().L.id === 2", timeout=8000)
+    time.sleep(0.8)
+    b = pg.evaluate(BUTTONS)
+    assert set(b) == {"left", "right", "down", "ult", "fire", "attack", "jump"}, b
+    col = [b[k] for k in ("ult", "fire", "attack", "jump")]
+    top, bottom = min(c["y"] for c in col), max(c["y"] + c["h"] for c in col)
+    assert abs((top + bottom) / 2 - (24 + (320 - 24) / 2)) <= 2, (top, bottom)
+    assert bottom <= 320 and top >= 24
+    pg.evaluate("__wikary.GS.hasFire = true")
+    fx, fy = button_center(pg, "fire")
+    pg.touchscreen.tap(fx, fy)
+    time.sleep(0.15)
+    assert pg.evaluate("__wikary.level().shots.getChildren().some(s=>s.kind==='fire')")

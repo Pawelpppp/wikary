@@ -5,7 +5,7 @@
    ===================================================================== */
 class LevelScene extends Phaser.Scene {
     constructor() { super('Level'); }
-    init(data) { this.levelIndex = (data && data.level) || 0; }
+    init(data) { this.levelIndex = (data && data.level) || 0; this.startAtD = (data && data.startAt) || null; }
 
     create() {
         const L = this.L = LEVELS[this.levelIndex], W = CFG.W, H = CFG.H, G = CFG.GROUND_Y, HC = CFG.hero;
@@ -20,6 +20,9 @@ class LevelScene extends Phaser.Scene {
         this.crouching = false; this.crouchAt = 0;
         this.items = []; this.puddles = []; this.solids = []; this.groundSolids = []; this.popups = [];
         this.prevHeroX = 0; this.textInput = false;
+        this.firePressed = false; this.lastFire = -99999; this.stunUntil = 0;
+        this.arena = false; this.boss = null; this.krzysztof = null; this.autoWalk = null; this.planks = [];
+        this.nextFlash = 0; this.rain = null; this.bossBar = null; this.ending = false;
         GS.level = this.levelIndex;
 
         bindGlobalKeys(this);
@@ -32,9 +35,10 @@ class LevelScene extends Phaser.Scene {
 
         // --- tło: niebo (stałe) + dwie warstwy paralaksy ---
         const BG = L.bg;
-        this.add.image(0, 0, BG.sky).setOrigin(0).setScrollFactor(0).setDepth(0);
-        this.far = this.add.tileSprite(0, 16, W, 200, BG.far).setOrigin(0).setScrollFactor(0).setDepth(0.5);
-        this.near = this.add.tileSprite(0, 138, W, 150, BG.near).setOrigin(0).setScrollFactor(0).setDepth(1);
+        const tnt = (o, k) => { const t = ART.tint(k); if (t) o.setTint(t); return o; };   // zamiennik = wieczorny odcień
+        tnt(this.add.image(0, 0, ART.key(BG.sky)).setOrigin(0).setScrollFactor(0).setDepth(0), BG.sky);
+        this.far = tnt(this.add.tileSprite(0, 16, W, 200, ART.key(BG.far)).setOrigin(0).setScrollFactor(0).setDepth(0.5), BG.far);
+        this.near = tnt(this.add.tileSprite(0, 138, W, 150, ART.key(BG.near)).setOrigin(0).setScrollFactor(0).setDepth(1), BG.near);
 
         // --- ziemia i rzeki ---
         const rivers = (L.rivers || []).slice().sort((a, b) => a.at - b.at);
@@ -44,7 +48,7 @@ class LevelScene extends Phaser.Scene {
         segs.push([d0, L.length]);
         segs.forEach(([a, b]) => {
             const x0 = Math.min(this.wx(a), this.wx(b)), x1 = Math.max(this.wx(a), this.wx(b));
-            this.add.tileSprite(x0, 288, x1 - x0, 32, BG.ground).setOrigin(0).setDepth(2).setTilePosition(x0 % 64, 0);
+            tnt(this.add.tileSprite(x0, 288, x1 - x0, 32, ART.key(BG.ground)).setOrigin(0).setDepth(2).setTilePosition(x0 % 64, 0), BG.ground);
             const z = this.add.zone((x0 + x1) / 2, G + 40, x1 - x0, 80);
             this.physics.add.existing(z, true);
             this.solids.push(z); this.groundSolids.push(z);
@@ -52,9 +56,11 @@ class LevelScene extends Phaser.Scene {
         this.rivers = rivers.map(r => {
             const x0 = Math.min(this.wx(r.at), this.wx(r.at + r.w)), x1 = Math.max(this.wx(r.at), this.wx(r.at + r.w));
             const water = this.add.tileSprite(x0, 292, x1 - x0, 28, BG.water + '1').setOrigin(0).setDepth(3);
-            this.add.image(x0, 288, 'water_bank_left').setOrigin(0).setDepth(3.5);
-            this.add.image(x1, 288, 'water_bank_right').setOrigin(1, 0).setDepth(3.5);
-            return { at: r.at, w: r.w, x0, x1, water };
+            const bl = this.add.image(x0, 288, 'water_bank_left').setOrigin(0).setDepth(3.5);
+            const br = this.add.image(x1, 288, 'water_bank_right').setOrigin(1, 0).setDepth(3.5);
+            if (L.waterTint) [water, bl, br].forEach(o => o.setTint(L.waterTint));
+            if (r.plank) this.createPlank(x0, x1);
+            return { at: r.at, w: r.w, x0, x1, water, plank: !!r.plank };
         });
 
         // --- przeszkody ---
@@ -62,6 +68,12 @@ class LevelScene extends Phaser.Scene {
             const x = this.wx(o.at);
             if (o.type === 'fence' || o.type === 'trash_bin') {         // stałe przeszkody: można na nie wskoczyć
                 this.add.image(x, G, 'obstacle_' + o.type).setOrigin(0.5, 1).setDepth(4).setFlipX(L.dir < 0);
+                const hb = CFG.obstacles[o.type];
+                const z = this.add.zone(x, G - hb.h / 2, hb.w, hb.h);
+                this.physics.add.existing(z, true);
+                this.solids.push(z);
+            } else if (CFG.obstacles[o.type]) {                         // Level 2: rozkopana droga, przewrócone drzewo
+                ART.image(this, x, G - 4, 'obstacle_' + o.type, 1, 0.5, 1).setDepth(4).setFlipX(L.dir < 0);
                 const hb = CFG.obstacles[o.type];
                 const z = this.add.zone(x, G - hb.h / 2, hb.w, hb.h);
                 this.physics.add.existing(z, true);
@@ -82,6 +94,11 @@ class LevelScene extends Phaser.Scene {
             } else if (it.type === 'lightning') {
                 s = this.add.sprite(x, G - (it.h || 26) - 8, 'item_lightning_1').setScale(CFG.items.scale).setDepth(6).play('lightning_item');
                 this.tweens.add({ targets: s, y: s.y - 5, duration: 500, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+            } else if (it.type === 'znicz') {
+                if (GS.hasFire) return;
+                s = this.add.sprite(x, G - 30, ART.key('item_znicz_1')).play('znicz').setDepth(6);
+                ART.fit(this, s, 'item_znicz_1', CFG.items.scale, 0.5, 0.5);
+                this.tweens.add({ targets: s, y: s.y - 4, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
             } else if (it.type === 'cross') {
                 if (GS.hasCross) return;
                 s = this.add.image(x, G - 24, 'fx_bless_3').setScale(0.4).setDepth(6);
@@ -90,29 +107,35 @@ class LevelScene extends Phaser.Scene {
             if (s) { s.itemType = it.type; this.items.push(s); }
         });
 
-        // --- kościół na końcu: drzwi (overlay 48x72 w punkcie 51,162 obrazka) stoją na pozycji endAt ---
+        // --- koniec poziomu: kościół (Level 1) albo dom Krzysztofa (Level 2) ---
         const ex = this.wx(L.endAt), flip = L.dir < 0;
+        if (BG.end !== 'church_exterior') this.createHouse(ex);
+        else {
         const doorLeft = flip ? 240 - 51 - 48 : 51;                  // lewa krawędź drzwi w obrazku kościoła
         const churchX = ex - (doorLeft + 24) + 120, churchY = G + 2;
         this.add.image(churchX, churchY, BG.end).setOrigin(0.5, 1).setDepth(2.5).setFlipX(flip);
         this.door = this.add.image(churchX - 120 + doorLeft, churchY - 250 + 162, 'church_door_1').setOrigin(0).setDepth(2.6).setFlipX(flip);
         this.doorX = ex;
+        }
 
         // --- bohater: niewidoczny hitbox + sprite ---
-        const sx = this.wx(L.startAt || 100);
+        const sx = this.wx(this.startAtD || L.startAt || 100);
         this.hero = this.add.zone(sx, G - HC.bodyH / 2 - 1, HC.bodyW, HC.bodyH);
         this.physics.add.existing(this.hero);
         this.hero.body.setMaxVelocity(2000, HC.maxFall);
         this.kamil = this.add.sprite(sx, G, 'wikary_kamil_idle_1').setOrigin(0.5, 1).setScale(HC.scale).setDepth(10).play('k_idle');
         this.kamil.setFlipX(this.facing < 0);
         this.physics.add.collider(this.hero, this.solids);
+        this.planks.forEach(p => this.physics.add.collider(this.hero, p));
 
         // --- wrogowie i pociski ---
         this.enemies = this.physics.add.group();
         this.shots = this.physics.add.group({ allowGravity: false });
         this.physics.add.collider(this.enemies, this.groundSolids);
         this.physics.add.overlap(this.hero, this.enemies, (h, e) => { if (!e.dead) this.hurt(e.x); });
-        this.physics.add.overlap(this.shots, this.enemies, (s, e) => { if (e.dead || !s.active) return; s.destroy(); this.damageEnemy(e, CFG.cross.damage); });
+        this.physics.add.overlap(this.shots, this.enemies, (s, e) => this.shotHits(s, e));
+        this.waves = this.physics.add.group({ allowGravity: false });
+        this.physics.add.overlap(this.hero, this.waves, (h, w) => this.waveHit(w));
 
         // --- przyciemnienie (modlitwa, piorun) ---
         this.dim = this.add.rectangle(0, 0, W, H, 0x000000, 1).setOrigin(0).setScrollFactor(0).setDepth(8).setAlpha(0);
@@ -123,11 +146,15 @@ class LevelScene extends Phaser.Scene {
         kb.on('keydown-SPACE', onKey(() => { this.jumpAt = this.time.now; }));
         kb.on('keydown-UP', onKey(() => { this.jumpAt = this.time.now; }));
         kb.on('keydown-ALT', onKey(() => { this.attackPressed = true; }));
+        kb.on('keydown-Z', onKey(() => { this.firePressed = true; }));
         kb.on('keydown-ENTER', onKey(() => this.onConfirm()));
-        this.input.on('pointerdown', (p) => { if (this.summaryShown) this.onConfirm(); });
+        kb.on('keydown-SPACE', onKey(() => { if (this.talk.dialog) this.talk.skip(); }));
+        this.input.on('pointerdown', (p) => { if (this.talk.dialog) this.talk.advance(); else if (this.summaryShown) this.onConfirm(); });
+        this.talk = makeTalker(this);
 
         this.createHud();
         if (IS_TOUCH) this.createTouch();
+        this.createWeather();
         WikaryAudio.play(L.music);
         hintBubble(this, 'POZIOM ' + L.id + ': ' + L.name, 2200, 112);
     }
@@ -148,6 +175,7 @@ class LevelScene extends Phaser.Scene {
         this.hudScore = txt(this, 82, 8, '', 8, '#ffffff', { ox: 0, oy: 0 }).setScrollFactor(0).setDepth(D);
         this.hudTime = txt(this, 262, 8, '', 8, '#ffe8a0', { ox: 0.5, oy: 0 }).setScrollFactor(0).setDepth(D);
         this.hudCross = this.add.image(332, 12, 'fx_cross_1').setScale(0.5).setScrollFactor(0).setDepth(D);
+        this.hudFire = this.add.image(312, 12, 'fx_fireball_1').setScale(0.6).setScrollFactor(0).setDepth(D);
         this.hudGromLabel = txt(this, 350, 8, 'GROM', 8, '#ffd040', { ox: 0, oy: 0 }).setScrollFactor(0).setDepth(D);
         this.hudBarBg = this.add.rectangle(396, 7, 106, 10, 0x221420, 1).setOrigin(0).setStrokeStyle(1, 0xd8a640).setScrollFactor(0).setDepth(D);
         this.hudBar = this.add.rectangle(397, 8, 0, 8, 0xffc830, 1).setOrigin(0).setScrollFactor(0).setDepth(D);
@@ -159,6 +187,8 @@ class LevelScene extends Phaser.Scene {
         this.hudScore.setText('PKT ' + String(GS.score).padStart(6, '0'));
         this.hudTime.setText(Leaderboard.fmt(GS.timeMs / 1000));
         this.hudCross.setVisible(GS.hasCross);
+        this.hudFire.setVisible(GS.hasFire);
+        if (this.bossBar) this.updateBossBar();
         const full = GS.meter >= CFG.ult.max;
         this.hudBar.width = Math.round(104 * Math.min(1, GS.meter / CFG.ult.max));
         this.hudBar.fillColor = full ? ((Math.floor(time / 150) % 2) ? 0xfff2a0 : 0xffb020) : 0xffc830;
@@ -171,6 +201,8 @@ class LevelScene extends Phaser.Scene {
         const T = CFG.touch, D = 4500, a = T.alpha;
         const midY = 24 + (CFG.H - 24) / 2;            // środek pola gry pod HUD-em
         const ys = [midY - T.h - T.gap, midY, midY + T.h + T.gap];
+        const withFire = GS.hasFire || (this.L.items || []).some(i => i.type === 'znicz');
+        const ry = withFire ? [0, 1, 2, 3].map(i => midY + (i - 1.5) * (T.h + T.gap)) : ys;
         this.touchButtons = {};
         const btn = (name, x, y, w, label, size, down, up) => {
             const r = this.add.rectangle(x, y, w, T.h, 0x140c1c, a).setStrokeStyle(1, 0xd8a640, 0.55).setScrollFactor(0).setDepth(D).setInteractive();
@@ -185,9 +217,11 @@ class LevelScene extends Phaser.Scene {
         btn('left', lx, ys[0], T.leftW, '<', 16, () => this.touch.left = true, () => this.touch.left = false);
         btn('right', lx, ys[1], T.leftW, '>', 16, () => this.touch.right = true, () => this.touch.right = false);
         btn('down', lx, ys[2], T.leftW, '↓', 16, () => this.touch.down = true, () => this.touch.down = false);
-        btn('ult', rx, ys[0], T.rightW, 'GROM', 8, () => this.touch.ult = true, () => this.touch.ult = false);
-        btn('attack', rx, ys[1], T.rightW, 'KRZYŻ', 8, () => this.attackPressed = true);
-        btn('jump', rx, ys[2], T.rightW, 'SKOK', 8, () => this.jumpAt = this.time.now);
+        let ri = 0;
+        btn('ult', rx, ry[ri++], T.rightW, 'GROM', 8, () => this.touch.ult = true, () => this.touch.ult = false);
+        if (withFire) btn('fire', rx, ry[ri++], T.rightW, 'OGIEŃ', 8, () => this.firePressed = true);
+        btn('attack', rx, ry[ri++], T.rightW, 'KRZYŻ', 8, () => this.attackPressed = true);
+        btn('jump', rx, ry[ri++], T.rightW, 'SKOK', 8, () => this.jumpAt = this.time.now);
     }
 
     /* ---------- kucanie (strzałka w dół / przycisk ↓) ---------- */
@@ -211,17 +245,20 @@ class LevelScene extends Phaser.Scene {
         if (!this.ended && !this.dead) GS.timeMs += delta;
         this.updateHud(time);
         this.updateEnemies(time, dt);
+        this.updatePlanks(dt);
+        this.updateWeather(time, delta);
         this.shots.getChildren().forEach(s => { if (time > s.dieAt) s.destroy(); });
         if (this.dead || this.ended || this.respawning) { this.syncSprite(time, 0); return; }
 
         // --- auto-scroll + kamera dogania gracza ---
-        if (!this.cutscene) {
-            let sx = cam.scrollX + L.dir * CFG.scrollSpeed * dt;
+        if (this.arena) this.updateArenaCamera(dt);                   // walka z bossem: ekran stoi przy domu
+        else if (!this.cutscene) {
+            let sx = this.holdForPlank(cam.scrollX + L.dir * CFG.scrollSpeed * dt);
             if (L.dir > 0 && hero.x - sx > W * HC.followAt) sx = hero.x - W * HC.followAt;
             if (L.dir < 0 && sx + W - hero.x > W * HC.followAt) sx = hero.x - W * (1 - HC.followAt);
             cam.scrollX = Phaser.Math.Clamp(sx, 0, L.length - W);
         }
-        if (this.cutscene) { this.syncSprite(time, 0); return; }
+        if (this.cutscene) { this.syncSprite(time, this.updateAutoWalk()); return; }
 
         const onG = this.onGround();
         if (onG && body.velocity.y >= 0) { this.lastGroundAt = time; this.jumps = 0; this.flipping = false; }
@@ -237,8 +274,10 @@ class LevelScene extends Phaser.Scene {
             if (!shift) { if (this.charged) this.fireGrom(); else this.cancelPray(); }
         } else {
             const mult = (time < this.boostUntil ? CFG.boost.mult : 1) * (time < this.slowUntil ? CFG.puddle.slowMult : 1);
-            const dirX = (right ? 1 : 0) - (left ? 1 : 0);
+            const stunned = time < this.stunUntil;                       // ogłuszony szczekaniem Hansa
+            const dirX = stunned ? 0 : (right ? 1 : 0) - (left ? 1 : 0);
             if (dirX) this.facing = dirX;
+            if (stunned) this.jumpAt = -99999;
             const wantJump = time - this.jumpAt <= HC.jumpBufferMs;
             this.setCrouch(downHeld && onG && !wantJump, time);   // skok z kucnięcia: wstaje i skacze
             vx = dirX * (this.crouching ? HC.crouchSpeed : HC.speed) * mult;
@@ -258,8 +297,12 @@ class LevelScene extends Phaser.Scene {
                 if (GS.hasCross && time - this.lastThrow >= CFG.cross.cooldownMs) this.throwCross(time);
             }
         }
-        this.attackPressed = false;
+        if (this.firePressed && !this.praying) {
+            if (GS.hasFire && time - this.lastFire >= CFG.fire.cooldownMs) this.throwFire(time);
+        }
+        this.attackPressed = false; this.firePressed = false;
         body.setVelocityX(vx);
+        this.carryOnPlank();
 
         // --- bohater nigdy nie wychodzi poza ekran ---
         const em = IS_TOUCH ? CFG.touch.heroMargin : HC.edgeMargin;
@@ -289,15 +332,18 @@ class LevelScene extends Phaser.Scene {
         });
         // --- spawner wrogów (dopiero gdy wikary ma krzyż) ---
         const E = L.enemies, fd = this.frontD();
-        if (E && GS.hasCross && fd > E.from && fd < E.to) {
+        const SP = L.spawn || CFG.spawn;
+        if (E && GS.hasCross && !this.arena && fd > E.from && fd < E.to) {
             this.spawnAcc += delta;
-            if (this.spawnAcc >= this.nextSpawn && this.enemies.countActive(true) < CFG.spawn.maxAlive) {
-                this.spawnAcc = 0; this.nextSpawn = Phaser.Math.Between(CFG.spawn.minMs, CFG.spawn.maxMs);
-                this.spawnEnemy(this.pickEnemy(E.set));
+            if (this.spawnAcc >= this.nextSpawn && this.enemies.countActive(true) < SP.maxAlive) {
+                this.spawnAcc = 0; this.nextSpawn = Phaser.Math.Between(SP.minMs, SP.maxMs);
+                const set = E.late && this.heroD() >= E.late.at ? E.late.set : E.set;
+                this.spawnEnemy(this.pickEnemy(set));
             }
         }
-        // --- meta ---
-        if (this.heroD() >= L.endAt - 6) this.finishLevel();
+        // --- meta: kościół (Level 1) albo arena z bossem (Level 2) ---
+        if (L.boss) { if (!this.arena && this.heroD() >= L.arenaAt) this.startArena(); }
+        else if (this.heroD() >= L.endAt - 6) this.finishLevel();
         this.syncSprite(time, vx);
     }
 
@@ -318,7 +364,7 @@ class LevelScene extends Phaser.Scene {
         }
         const inv = time < this.invulnUntil && !this.dead;
         k.setAlpha(inv && Math.floor(time / 80) % 2 ? 0.35 : 1);
-        if (!this.dead) k.setTint(time < this.boostUntil ? 0xffffb0 : 0xffffff);
+        if (!this.dead) k.setTint(time < this.stunUntil ? 0xa0a0ff : time < this.boostUntil ? 0xffffb0 : 0xffffff);
         if (this.aura) { this.aura.x = k.x; this.aura.y = k.y + 2; }
     }
 
@@ -340,6 +386,8 @@ class LevelScene extends Phaser.Scene {
             WikaryAudio.sfx('boost'); this.popup(it.x, it.y, 'SZYBCIEJ!');
         } else if (t === 'cross') {
             this.crossPickup(it); return;
+        } else if (t === 'znicz') {
+            this.zniczPickup(it); return;
         }
         this.tweens.killTweensOf(it);
         this.tweens.add({ targets: it, scale: it.scale * 1.8, alpha: 0, duration: 180, onComplete: () => it.destroy() });
@@ -457,6 +505,8 @@ class LevelScene extends Phaser.Scene {
                 e.baseY = baseY; e.phase = i * 0.9; e.t0 = this.time.now;
                 e.setVelocityX(mv * C.speed);
             }
+        } else if (this.spawnEnemy2(type, frontX, mv, mk)) {
+            /* Level 2: wrona, dzik, błędny ognik (level2.js) */
         } else if (type === 'spider') {
             const x = dir > 0 ? cam.scrollX + Phaser.Math.Between(W * 0.55, W * 0.9) : cam.scrollX + Phaser.Math.Between(W * 0.1, W * 0.45);
             const e = mk(x, 0, 'enemy_spider_1', 'spider_wiggle');
@@ -469,14 +519,16 @@ class LevelScene extends Phaser.Scene {
     }
     /** hitbox na dole klatki (origin 0.5,1), w px ekranu z CFG; działa też po zmianie klatki (skok wilka) */
     fitBody(e) {
-        const C = CFG.enemies[e.type], w = C.bodyW / C.scale, h = C.bodyH / C.scale;
+        const C = e.type === 'hans' ? CFG.boss : CFG.enemies[e.type], w = C.bodyW / Math.abs(e.scaleX), h = C.bodyH / Math.abs(e.scaleY);
         e.body.setSize(w, h, false);
-        e.body.setOffset((e.frame.width - w) / 2, e.type === 'bat' ? (e.frame.height - h) / 2 : e.frame.height - h - (e.type === 'spider' ? 2 : 0));
+        const mid = e.type === 'bat' || C.center;
+        e.body.setOffset((e.frame.width - w) / 2, mid ? (e.frame.height - h) / 2 : e.frame.height - h - (e.type === 'spider' ? 2 : 0));
     }
     updateEnemies(time, dt) {
         const cam = this.cameras.main, dir = this.L.dir;
         this.enemies.getChildren().slice().forEach(e => {
             if (!e.active || e.dead) return;
+            if (e.type === 'hans') { this.updateBoss(e, time, dt); return; }
             const C = CFG.enemies[e.type];
             if (e.type === 'wolf') {
                 const onG = e.body.blocked.down || e.body.touching.down;
@@ -484,6 +536,7 @@ class LevelScene extends Phaser.Scene {
                 else if (!onG) { e.anims.stop(); e.setTexture(e.body.velocity.y < 0 ? 'enemy_wolf_jump_1' : 'enemy_wolf_jump_2'); this.fitBody(e); }
                 else if (!e.anims.isPlaying) { e.play('wolf_run'); this.fitBody(e); }
             }
+            if (this.updateEnemy2(e, C, time, dt)) return;
             if (e.type === 'bat') e.body.velocity.y = Math.cos((time - e.t0) / 1000 * C.freq + e.phase) * C.amp * C.freq;
             if (e.type === 'spider') {
                 if (e.state === 'drop' && e.y >= C.dropTo) { e.state = 'hold'; e.setVelocityY(0); e.holdUntil = time + C.holdMs; }
@@ -497,11 +550,12 @@ class LevelScene extends Phaser.Scene {
     }
     damageEnemy(e, dmg, byUlt) {
         if (e.dead || !e.active) return;
+        if (e.type === 'hans') { this.bossHit(e, dmg, byUlt); return; }
         e.hp -= dmg;
         if (e.hp > 0) {
             WikaryAudio.sfx('hit');
             e.setTintFill(0xffffff);
-            this.time.delayedCall(90, () => { if (e.active) e.clearTint(); });
+            this.time.delayedCall(90, () => { if (e.active) { e.clearTint(); if (e.baseTint) e.setTint(e.baseTint); } });
             return;
         }
         e.dead = true; e.body.enable = false;
@@ -604,17 +658,19 @@ class LevelScene extends Phaser.Scene {
             add(txt(this, W / 2 - 140, 120 + i * 20, a, 8, '#d8c8a0', { ox: 0 }));
             add(txt(this, W / 2 + 140, 120 + i * 20, b, 8, '#ffffff', { ox: 1 }));
         });
-        add(txt(this, W / 2, 214, L.next === null || L.next === undefined ? 'CIĄG DALSZY WKRÓTCE: LEVEL 2' : '', 8, '#ffd040'));
-        add(txt(this, W / 2, 246, IS_TOUCH ? 'DOTKNIJ = ZAPISZ WYNIK' : 'ENTER = ZAPISZ WYNIK', 8, '#c8b890'));
+        const hasNext = L.next !== null && L.next !== undefined && LEVELS[L.next];
+        add(txt(this, W / 2, 214, hasNext ? 'DALEJ: KOŚCIÓŁ I ROZMOWA Z PROBOSZCZEM' : 'CIĄG DALSZY: LEVEL ' + (L.id + 1) + ' WKRÓTCE', 8, '#ffd040'));
+        add(txt(this, W / 2, 246, (IS_TOUCH ? 'DOTKNIJ' : 'ENTER') + (hasNext ? ' = DALEJ' : ' = ZAPISZ WYNIK'), 8, '#c8b890'));
         this.time.delayedCall(400, () => { this.summaryShown = true; });
     }
     onConfirm() {
+        if (this.talk.dialog) { this.talk.advance(); return; }
         if (!this.summaryShown) return;
         this.summaryShown = false;
         WikaryAudio.sfx('select');
         const L = this.L;
         this.cameras.main.once('camerafadeoutcomplete', () => {
-            if (L.next !== null && L.next !== undefined && LEVELS[L.next]) this.scene.start('Level', { level: L.next });
+            if (L.next !== null && L.next !== undefined && LEVELS[L.next]) this.scene.start('Church', { next: L.next });
             else this.scene.start('Nick', { result: 'win' });
         });
         this.cameras.main.fade(350, 0, 0, 0, true);
