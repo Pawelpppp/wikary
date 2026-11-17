@@ -34,9 +34,10 @@ Przydatne opcje pytest-playwright: `--headed` (widoczna przeglądarka), `--brows
 | `test_highscores.py` | tablica wyników: pusta, sanityzacja nicku, sortowanie i limit 20, zapis nicku z polską literą |
 | `test_intro.py` | start intro, Enter w dialogach, pomijanie Spacją |
 | `test_level1.py` | ruch, kamera, rzeka (utonięcie, zwykły skok, salto), krzyż, wrogowie, dojście do kościoła |
+| `test_crouch.py` | kucanie: niższy hitbox, brak biegu, skok z kucnięcia, nietoperz nad głową / trafia stojącego |
 | `test_ultimate.py` | Grom z Nieba: ładowanie, wyzwolenie, anulowanie, brak bez pełnego paska |
 | `test_restart_state.py` | kolejne podejścia po wygranej i game over mają czysty stan |
-| `test_touch_mobile.py` | dotyk (START, pominięcie intro, skok), `?touch=1`, skalowanie 1280×720 |
+| `test_touch_mobile.py` | dotyk (START, pominięcie intro, skok, przycisk ↓), układ przycisków (pionowo na środku przy krawędziach, półprzezroczyste, Kamil nie wchodzi pod nie), `?touch=1`, skalowanie 1280×720 |
 | `test_console_errors.py` | zwykłe uruchomienie bez debug, krótka rozgrywka, ładowanie wszystkich grafik |
 
 ## CI

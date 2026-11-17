@@ -23,6 +23,14 @@ const CFG = {
         invulnMs: 1600,             // nietykalność po każdej utracie życia (też woda)
         knockback: 140,
         respawnBeforeRiver: 60,     // powrót przed rzekę (px przed brzegiem)
+        crouchH: 38,                // hitbox w kucnięciu (strzałka w dół) - nietoperze przelatują nad głową
+        crouchSpeed: 0,             // bieg w kucnięciu (0 = stoi w miejscu; auto-scroll i tak pcha)
+        crouchDownMs: 90,           // klatka przejściowa (półprzysiad) przy kucaniu
+    },
+
+    touch: {                        // przyciski dotykowe: pionowo na środku, przy lewej i prawej krawędzi
+        leftW: 40, rightW: 56, h: 40, gap: 8, alpha: 0.28, edge: 2,
+        heroMargin: 64,             // w trybie dotyku Kamil trzyma się tyle px od krawędzi (nie wchodzi pod przyciski)
     },
 
     scrollSpeed: 55,                // auto-scroll ekranu
@@ -45,7 +53,7 @@ const CFG = {
         // skala postaci = jak Kamil (0.45); bodyW/bodyH = hitbox na ekranie (px)
         dog:    { hp: 1, speed: 150, scale: 0.45, weight: 4, bodyW: 38, bodyH: 22 },
         wolf:   { hp: 2, speed: 85, scale: 0.45, weight: 2, jumpEveryMs: 1500, jumpV: 300, bodyW: 50, bodyH: 28 },
-        bat:    { hp: 1, speed: 105, scale: 0.45, weight: 3, wave: 3, gap: 36, amp: 22, freq: 3.2, yMin: 170, yMax: 225, bodyW: 24, bodyH: 14 },
+        bat:    { hp: 1, speed: 105, scale: 0.45, weight: 3, wave: 3, gap: 36, amp: 22, freq: 3.2, yMin: 170, yMax: 222, bodyW: 24, bodyH: 14 },
         spider: { hp: 1, dropSpeed: 90, dropTo: 262, holdMs: 1100, scale: 0.45, weight: 2, bodyW: 22, bodyH: 20 },
     },
     spawn: { minMs: 1300, maxMs: 2600, maxAlive: 6 },

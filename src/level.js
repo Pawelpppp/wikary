@@ -16,7 +16,8 @@ class LevelScene extends Phaser.Scene {
         this.attackUntil = 0; this.lastThrow = -99999; this.attackPressed = false;
         this.boostUntil = 0; this.slowUntil = 0; this.facing = L.dir;
         this.spawnAcc = 0; this.nextSpawn = 1200; this.hintsShown = {}; this.summaryShown = false;
-        this.touch = { left: false, right: false, ult: false };
+        this.touch = { left: false, right: false, ult: false, down: false };
+        this.crouching = false; this.crouchAt = 0;
         this.items = []; this.puddles = []; this.solids = []; this.groundSolids = []; this.popups = [];
         this.prevHeroX = 0; this.textInput = false;
         GS.level = this.levelIndex;
@@ -118,7 +119,7 @@ class LevelScene extends Phaser.Scene {
 
         // --- sterowanie ---
         const kb = this.input.keyboard;
-        this.keys = kb.addKeys({ left: 'LEFT', right: 'RIGHT', shift: 'SHIFT', alt: 'ALT', space: 'SPACE', up: 'UP' });
+        this.keys = kb.addKeys({ left: 'LEFT', right: 'RIGHT', shift: 'SHIFT', alt: 'ALT', space: 'SPACE', up: 'UP', down: 'DOWN' });
         kb.on('keydown-SPACE', onKey(() => { this.jumpAt = this.time.now; }));
         kb.on('keydown-UP', onKey(() => { this.jumpAt = this.time.now; }));
         kb.on('keydown-ALT', onKey(() => { this.attackPressed = true; }));
@@ -167,20 +168,35 @@ class LevelScene extends Phaser.Scene {
     /* ---------- dotyk ---------- */
     createTouch() {
         this.input.addPointer(3);
-        const y = CFG.H - 14, D = 4500;
-        const btn = (x, w, label, down, up) => {
-            const r = this.add.rectangle(x, y, w, 24, 0x140c1c, 0.35).setStrokeStyle(1, 0xd8a640, 0.7).setScrollFactor(0).setDepth(D).setInteractive();
-            txt(this, x, y + 1, label, 8, '#ffe8a0').setScrollFactor(0).setDepth(D + 1).setAlpha(0.85);
+        const T = CFG.touch, D = 4500, a = T.alpha;
+        const midY = 24 + (CFG.H - 24) / 2;            // środek pola gry pod HUD-em
+        const ys = [midY - T.h - T.gap, midY, midY + T.h + T.gap];
+        this.touchButtons = {};
+        const btn = (name, x, y, w, label, size, down, up) => {
+            const r = this.add.rectangle(x, y, w, T.h, 0x140c1c, a).setStrokeStyle(1, 0xd8a640, 0.55).setScrollFactor(0).setDepth(D).setInteractive();
+            txt(this, x, y + 1, label, size, '#ffe8a0').setScrollFactor(0).setDepth(D + 1).setAlpha(0.7);
             r.on('pointerdown', () => { r.setFillStyle(0xd8a640, 0.45); down(); });
-            const rel = () => { r.setFillStyle(0x140c1c, 0.35); if (up) up(); };
+            const rel = () => { r.setFillStyle(0x140c1c, a); if (up) up(); };
             r.on('pointerup', rel); r.on('pointerout', rel);
+            this.touchButtons[name] = r;
             return r;
         };
-        btn(26, 46, '<', () => this.touch.left = true, () => this.touch.left = false);
-        btn(78, 46, '>', () => this.touch.right = true, () => this.touch.right = false);
-        btn(CFG.W - 168, 52, 'GROM', () => this.touch.ult = true, () => this.touch.ult = false);
-        btn(CFG.W - 106, 52, 'KRZYŻ', () => this.attackPressed = true);
-        btn(CFG.W - 40, 64, 'SKOK', () => this.jumpAt = this.time.now);
+        const lx = T.edge + T.leftW / 2, rx = CFG.W - T.edge - T.rightW / 2;
+        btn('left', lx, ys[0], T.leftW, '<', 16, () => this.touch.left = true, () => this.touch.left = false);
+        btn('right', lx, ys[1], T.leftW, '>', 16, () => this.touch.right = true, () => this.touch.right = false);
+        btn('down', lx, ys[2], T.leftW, '↓', 16, () => this.touch.down = true, () => this.touch.down = false);
+        btn('ult', rx, ys[0], T.rightW, 'GROM', 8, () => this.touch.ult = true, () => this.touch.ult = false);
+        btn('attack', rx, ys[1], T.rightW, 'KRZYŻ', 8, () => this.attackPressed = true);
+        btn('jump', rx, ys[2], T.rightW, 'SKOK', 8, () => this.jumpAt = this.time.now);
+    }
+
+    /* ---------- kucanie (strzałka w dół / przycisk ↓) ---------- */
+    setCrouch(on, time) {
+        if (on === this.crouching) return;
+        const HC = CFG.hero, b = this.hero.body;
+        this.crouching = on;
+        if (on) { b.setSize(HC.bodyW, HC.crouchH, false); b.setOffset(0, HC.bodyH - HC.crouchH); this.crouchAt = time; }
+        else { b.setSize(HC.bodyW, HC.bodyH, false); b.setOffset(0, 0); }
     }
 
     /* ---------- pętla ---------- */
@@ -211,17 +227,21 @@ class LevelScene extends Phaser.Scene {
         if (onG && body.velocity.y >= 0) { this.lastGroundAt = time; this.jumps = 0; this.flipping = false; }
         const left = this.keys.left.isDown || this.touch.left, right = this.keys.right.isDown || this.touch.right;
         const shift = this.keys.shift.isDown || this.touch.ult;
+        const downHeld = this.keys.down.isDown || this.touch.down;
 
         // --- modlitwa / Grom z Nieba ---
-        if (!this.praying && shift && GS.meter >= CFG.ult.max && onG) this.startPray(time);
+        if (!this.praying && shift && GS.meter >= CFG.ult.max && onG) { this.setCrouch(false, time); this.startPray(time); }
         let vx = 0;
         if (this.praying) {
             if (!this.charged && time - this.prayStart >= CFG.ult.prayMs) this.chargeUlt();
             if (!shift) { if (this.charged) this.fireGrom(); else this.cancelPray(); }
         } else {
             const mult = (time < this.boostUntil ? CFG.boost.mult : 1) * (time < this.slowUntil ? CFG.puddle.slowMult : 1);
-            vx = ((right ? 1 : 0) - (left ? 1 : 0)) * HC.speed * mult;
-            if (vx) this.facing = Math.sign(vx);
+            const dirX = (right ? 1 : 0) - (left ? 1 : 0);
+            if (dirX) this.facing = dirX;
+            const wantJump = time - this.jumpAt <= HC.jumpBufferMs;
+            this.setCrouch(downHeld && onG && !wantJump, time);   // skok z kucnięcia: wstaje i skacze
+            vx = dirX * (this.crouching ? HC.crouchSpeed : HC.speed) * mult;
             // skok / salto (z buforem i "coyote time")
             if (time - this.jumpAt <= HC.jumpBufferMs) {
                 if (this.jumps === 0 && (onG || time - this.lastGroundAt <= HC.coyoteMs)) {
@@ -242,7 +262,8 @@ class LevelScene extends Phaser.Scene {
         body.setVelocityX(vx);
 
         // --- bohater nigdy nie wychodzi poza ekran ---
-        const minX = cam.scrollX + HC.edgeMargin + HC.bodyW / 2, maxX = cam.scrollX + W - HC.edgeMargin - HC.bodyW / 2;
+        const em = IS_TOUCH ? CFG.touch.heroMargin : HC.edgeMargin;
+        const minX = cam.scrollX + em + HC.bodyW / 2, maxX = cam.scrollX + W - em - HC.bodyW / 2;
         if (hero.x < minX) { hero.x = minX; if (body.velocity.x < 0) body.setVelocityX(0); if (body.blocked.right || body.touching.right) this.liftOverObstacle(); }
         if (hero.x > maxX) { hero.x = maxX; if (body.velocity.x > 0) body.setVelocityX(0); if (body.blocked.left || body.touching.left) this.liftOverObstacle(); }
 
@@ -288,6 +309,7 @@ class LevelScene extends Phaser.Scene {
         if (!this.dead && !this.ended && !this.cutscene) {
             const onG = this.onGround();
             if (this.praying) this.playK('k_pray');
+            else if (this.crouching) { if (time - this.crouchAt < CFG.hero.crouchDownMs) { k.anims.stop(); k.setTexture('wikary_kamil_crouch_down_1'); } else this.playK('k_crouch'); }
             else if (time < this.attackUntil) { /* animacja rzutu */ }
             else if (!onG && this.flipping && k.anims.isPlaying && k.anims.currentAnim.key === 'k_flip') { /* salto */ }
             else if (!onG) { k.anims.stop(); k.setTexture(b.velocity.y < -60 ? 'wikary_kamil_jump_1' : b.velocity.y < 60 ? 'wikary_kamil_jump_2' : 'wikary_kamil_jump_3'); }
@@ -329,7 +351,7 @@ class LevelScene extends Phaser.Scene {
     }
 
     crossPickup(it) {           // piorun + przyciemnienie + pierwsza moc: rzut krzyżem
-        this.cutscene = true;
+        this.cutscene = true; this.setCrouch(false, 0);
         this.tweens.killTweensOf(it); it.destroy();
         this.physics.pause();
         const k = this.kamil;
@@ -504,6 +526,7 @@ class LevelScene extends Phaser.Scene {
     }
     drown() {
         if (this.respawning || this.dead) return;
+        this.setCrouch(false, 0);
         const now = this.time.now;
         this.respawning = true;
         if (this.praying) this.cancelPray();
@@ -531,6 +554,7 @@ class LevelScene extends Phaser.Scene {
     }
     gameOver() {
         if (this.dead) return;
+        this.setCrouch(false, 0);
         this.dead = true; GS.lives = 0;
         if (this.praying) this.cancelPray();
         this.hero.body.setVelocity(0, 0); this.hero.body.setAllowGravity(false); this.hero.body.enable = false;
@@ -547,6 +571,7 @@ class LevelScene extends Phaser.Scene {
     }
     finishLevel() {
         if (this.ended) return;
+        this.setCrouch(false, 0);
         this.ended = true;
         if (this.praying) this.cancelPray();
         const k = this.kamil, hero = this.hero;

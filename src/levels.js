@@ -18,7 +18,7 @@ const LEVELS = [
         bg: { sky: 'bg_l1_sky', far: 'bg_l1_city_far', near: 'bg_l1_houses_near', ground: 'tile_ground_cobble', water: 'tile_water_', end: 'church_exterior' },
         hints: [
             { at: 0, text: '\u2192 = BIEG   SPACJA = SKOK', touch: '> = BIEG   ^ = SKOK', ms: 3200 },
-            { at: 640, text: 'RZEKA! 2\u00d7 SPACJA = SALTO', touch: 'RZEKA! 2\u00d7 ^ = SALTO', ms: 3200 },
+            { at: 640, text: 'RZEKA! 2\u00d7 SPACJA = SALTO', touch: 'RZEKA! 2\u00d7 SKOK = SALTO', ms: 3200 },
         ],
         rivers: [{ at: 1000, w: 150 }],
         obstacles: [

@@ -15,7 +15,7 @@ class BootScene extends Phaser.Scene {
         const sprites = [
             ...range('wikary_kamil_run_', 1, 6), ...range('wikary_kamil_idle_', 1, 2), ...range('wikary_kamil_jump_', 1, 3),
             ...range('wikary_kamil_flip_', 1, 6), ...range('wikary_kamil_attack_cross_', 1, 4), ...range('wikary_kamil_bless_', 1, 4),
-            ...range('wikary_kamil_pray_', 1, 2), ...range('wikary_kamil_pray_back_', 1, 2), ...range('wikary_kamil_phone_', 1, 3),
+            ...range('wikary_kamil_pray_', 1, 2), 'wikary_kamil_crouch_down_1', ...range('wikary_kamil_crouch_', 1, 2), ...range('wikary_kamil_pray_back_', 1, 2), ...range('wikary_kamil_phone_', 1, 3),
             ...range('fx_cross_', 1, 4), ...range('fx_bless_', 1, 6), ...range('fx_pray_aura_', 1, 4),
             ...range('candle_', 1, 8), ...range('door_', 1, 3), 'phone_1', 'phone_2', 'phone_base_nohandset',
             // Level 1: wrogowie, efekty, znajdźki (skala postaci, x0.45)
@@ -41,6 +41,7 @@ class BootScene extends Phaser.Scene {
         A('k_flip', range('wikary_kamil_flip_', 1, 6), 16, 0);
         A('k_attack', range('wikary_kamil_attack_cross_', 1, 4), 18, 0);
         A('k_bless', range('wikary_kamil_bless_', 1, 4), 7, 0);
+        A('k_crouch', range('wikary_kamil_crouch_', 1, 2), 2);
         A('k_pray', range('wikary_kamil_pray_', 1, 2), 2);
         A('k_pray_back', range('wikary_kamil_pray_back_', 1, 2), 1.5);
         A('k_phone', range('wikary_kamil_phone_', 1, 3), 3, 0);
