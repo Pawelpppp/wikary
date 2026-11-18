@@ -16,7 +16,7 @@ class LevelScene extends Phaser.Scene {
         this.attackUntil = 0; this.lastThrow = -99999; this.attackPressed = false;
         this.boostUntil = 0; this.slowUntil = 0; this.facing = L.dir;
         this.spawnAcc = 0; this.nextSpawn = 1200; this.hintsShown = {}; this.summaryShown = false;
-        this.touch = { left: false, right: false, ult: false, down: false };
+        this.touch = { left: false, right: false, ult: false, down: false }; this.joy = null;
         this.crouching = false; this.crouchAt = 0;
         this.items = []; this.puddles = []; this.solids = []; this.groundSolids = []; this.popups = [];
         this.prevHeroX = 0; this.textInput = false;
@@ -149,7 +149,7 @@ class LevelScene extends Phaser.Scene {
         kb.on('keydown-Z', onKey(() => { this.firePressed = true; }));
         kb.on('keydown-ENTER', onKey(() => this.onConfirm()));
         kb.on('keydown-SPACE', onKey(() => { if (this.talk.dialog) this.talk.skip(); }));
-        this.input.on('pointerdown', (p) => { if (this.talk.dialog) this.talk.advance(); else if (this.summaryShown) this.onConfirm(); });
+        this.input.on('pointerdown', (p, over) => this.onPointerDown(p, over));
         this.talk = makeTalker(this);
 
         this.createHud();
@@ -214,14 +214,64 @@ class LevelScene extends Phaser.Scene {
             return r;
         };
         const lx = T.edge + T.leftW / 2, rx = CFG.W - T.edge - T.rightW / 2;
-        btn('left', lx, ys[0], T.leftW, '<', 16, () => this.touch.left = true, () => this.touch.left = false);
-        btn('right', lx, ys[1], T.leftW, '>', 16, () => this.touch.right = true, () => this.touch.right = false);
-        btn('down', lx, ys[2], T.leftW, '↓', 16, () => this.touch.down = true, () => this.touch.down = false);
+        if (TOUCH_MODE === 'joystick') this.createJoystick();
+        else {
+            btn('left', lx, ys[0], T.leftW, '<', 16, () => this.touch.left = true, () => this.touch.left = false);
+            btn('right', lx, ys[1], T.leftW, '>', 16, () => this.touch.right = true, () => this.touch.right = false);
+            btn('down', lx, ys[2], T.leftW, '↓', 16, () => this.touch.down = true, () => this.touch.down = false);
+        }
         let ri = 0;
         btn('ult', rx, ry[ri++], T.rightW, 'GROM', 8, () => this.touch.ult = true, () => this.touch.ult = false);
         if (withFire) btn('fire', rx, ry[ri++], T.rightW, 'OGIEŃ', 8, () => this.firePressed = true);
         btn('attack', rx, ry[ri++], T.rightW, 'KRZYŻ', 8, () => this.attackPressed = true);
         btn('jump', rx, ry[ri++], T.rightW, 'SKOK', 8, () => this.jumpAt = this.time.now);
+    }
+
+    /* ---------- joystick (dotyk, tryb testowy): pływający, w lewej strefie ekranu ---------- */
+    createJoystick() {
+        const J = CFG.touch.joystick, a = CFG.touch.alpha, D = 4500;
+        const base = this.add.circle(J.restX, J.restY, J.baseR, 0x140c1c, a).setStrokeStyle(1, 0xd8a640, 0.55).setScrollFactor(0).setDepth(D);
+        const knob = this.add.circle(J.restX, J.restY, J.knobR, 0xd8a640, 0.45).setScrollFactor(0).setDepth(D + 1);
+        this.joy = { id: null, x0: J.restX, y0: J.restY, ax: 0, ay: 0, base, knob };
+        this.joyRest();
+        this.input.on('pointermove', (p) => { if (this.joy && p.id === this.joy.id) this.joyMove(p); });
+        const up = (p) => { if (this.joy && p.id === this.joy.id) this.joyRelease(); };
+        this.input.on('pointerup', up); this.input.on('pointerupoutside', up);
+        this.events.once('shutdown', () => { this.joy = null; });
+    }
+    joyRest() {
+        const J = CFG.touch.joystick, j = this.joy;
+        j.base.setPosition(J.restX, J.restY).setAlpha(J.restAlpha); j.knob.setPosition(J.restX, J.restY).setAlpha(J.restAlpha);
+    }
+    inJoyZone(p) { const J = CFG.touch.joystick; return p.x < CFG.W * J.zoneW && p.y > J.topY; }
+    joyStart(p) {
+        const j = this.joy; j.id = p.id; j.x0 = p.x; j.y0 = p.y;
+        j.base.setPosition(p.x, p.y).setAlpha(1); j.knob.setPosition(p.x, p.y).setAlpha(1);
+        this.joyMove(p);
+    }
+    joyMove(p) {
+        const J = CFG.touch.joystick, j = this.joy;
+        let dx = p.x - j.x0, dy = p.y - j.y0; const d = Math.hypot(dx, dy);
+        if (d > J.radius) { dx *= J.radius / d; dy *= J.radius / d; }
+        j.knob.setPosition(j.x0 + dx, j.y0 + dy);
+        const nx = dx / J.radius, ny = dy / J.radius, m = Math.abs(nx);
+        j.ax = m < J.deadZone ? 0 : Math.sign(nx) * (m - J.deadZone) / (1 - J.deadZone);   // analog: 0..1 za martwą strefą
+        j.ay = ny;
+        this.touch.down = ny >= J.crouchY && dy > Math.abs(dx) * J.crouchSlope;
+        if (this.touch.down) j.ax = 0;
+    }
+    joyRelease() {
+        const j = this.joy; j.id = null; j.ax = 0; j.ay = 0; this.touch.down = false;
+        this.joyRest();
+    }
+    /** dotknięcie ekranu: dymek / podsumowanie, joystick, albo (poza przyciskami) skok */
+    onPointerDown(p, over) {
+        if (this.talk.dialog) { this.talk.advance(); return; }
+        if (this.summaryShown) { this.onConfirm(); return; }
+        if (!IS_TOUCH || TOUCH_MODE !== 'joystick' || !this.joy) return;
+        if (over && over.length) return;                          // przycisk (KRZYŻ, OGIEŃ, GROM, SKOK, M, F)
+        if (this.joy.id === null && this.inJoyZone(p)) { this.joyStart(p); return; }
+        if (CFG.touch.joystick.tapJump) this.jumpAt = this.time.now;
     }
 
     /* ---------- kucanie (strzałka w dół / przycisk ↓) ---------- */
@@ -275,12 +325,13 @@ class LevelScene extends Phaser.Scene {
         } else {
             const mult = (time < this.boostUntil ? CFG.boost.mult : 1) * (time < this.slowUntil ? CFG.puddle.slowMult : 1);
             const stunned = time < this.stunUntil;                       // ogłuszony szczekaniem Hansa
-            const dirX = stunned ? 0 : (right ? 1 : 0) - (left ? 1 : 0);
+            const keyX = (right ? 1 : 0) - (left ? 1 : 0), joyX = this.joy && !keyX ? this.joy.ax : 0;
+            const dirX = stunned ? 0 : (keyX || Math.sign(joyX)), amp = keyX ? 1 : Math.abs(joyX);   // joystick: szybciej / wolniej
             if (dirX) this.facing = dirX;
             if (stunned) this.jumpAt = -99999;
             const wantJump = time - this.jumpAt <= HC.jumpBufferMs;
             this.setCrouch(downHeld && onG && !wantJump, time);   // skok z kucnięcia: wstaje i skacze
-            vx = dirX * (this.crouching ? HC.crouchSpeed : HC.speed) * mult;
+            vx = dirX * amp * (this.crouching ? HC.crouchSpeed : HC.speed) * mult;
             // skok / salto (z buforem i "coyote time")
             if (time - this.jumpAt <= HC.jumpBufferMs) {
                 if (this.jumps === 0 && (onG || time - this.lastGroundAt <= HC.coyoteMs)) {
@@ -328,7 +379,7 @@ class LevelScene extends Phaser.Scene {
 
         // --- podpowiedzi ---
         (L.hints || []).forEach((h, i) => {
-            if (!this.hintsShown[i] && this.heroD() >= h.at) { this.hintsShown[i] = true; hintBubble(this, IS_TOUCH && h.touch ? h.touch : h.text, h.ms || 3000); }
+            if (!this.hintsShown[i] && this.heroD() >= h.at) { this.hintsShown[i] = true; hintBubble(this, IS_TOUCH && h.touch ? (TOUCH_MODE === 'joystick' && h.joy ? h.joy : h.touch) : h.text, h.ms || 3000); }
         });
         // --- spawner wrogów (dopiero gdy wikary ma krzyż) ---
         const E = L.enemies, fd = this.frontD();

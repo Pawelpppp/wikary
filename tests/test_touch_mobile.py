@@ -1,5 +1,7 @@
-"""Dotyk i różne rozmiary ekranu."""
+"""Dotyk i różne rozmiary ekranu. Stary układ przycisków (< > ↓) testowany z ?touch=buttons; joystick w test_touch_joystick.py."""
 import time
+
+import pytest
 
 from wikary import fmt, open_game, start_level, state, wait_scene
 
@@ -44,9 +46,9 @@ def button_center(pg, name):
     return b["x"] + b["w"] / 2, b["y"] + b["h"] / 2
 
 
-def _touch_level(new_page, base_url):
+def _touch_level(new_page, base_url, mode="buttons"):
     pg = new_page(has_touch=True, is_mobile=True)
-    open_game(pg, base_url)
+    open_game(pg, base_url, query="touch=" + mode)
     pg.touchscreen.tap(284, 150)
     assert wait_scene(pg, "Intro", 3)
     time.sleep(0.8)
@@ -118,15 +120,17 @@ def test_touch_crouch_button(new_page, base_url):
     assert not after["crouching"], after
 
 
-def test_touch_level2_has_fire_button_in_centered_right_column(new_page, base_url):
+@pytest.mark.parametrize("mode", ["buttons", "joystick"])
+def test_touch_level2_has_fire_button_in_centered_right_column(new_page, base_url, mode):
     pg = new_page(has_touch=True, is_mobile=True)
-    pg.goto(base_url + "?debug=1")
+    pg.goto(base_url + "?debug=1&touch=" + mode)
     pg.wait_for_function("window.__wikary && window.__wikary.scene().includes('Title')", timeout=30000)
     pg.evaluate("__wikary.start(1)")
     pg.wait_for_function("__wikary.scene().includes('Level') && __wikary.level().L.id === 2", timeout=8000)
     time.sleep(0.8)
     b = pg.evaluate(BUTTONS)
-    assert set(b) == {"left", "right", "down", "ult", "fire", "attack", "jump"}, b
+    expected = {"ult", "fire", "attack", "jump"} | ({"left", "right", "down"} if mode == "buttons" else set())
+    assert set(b) == expected, b
     col = [b[k] for k in ("ult", "fire", "attack", "jump")]
     top, bottom = min(c["y"] for c in col), max(c["y"] + c["h"] for c in col)
     assert abs((top + bottom) / 2 - (24 + (320 - 24) / 2)) <= 2, (top, bottom)

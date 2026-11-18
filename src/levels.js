@@ -17,8 +17,8 @@ const LEVELS = [
         music: 'level1',
         bg: { sky: 'bg_l1_sky', far: 'bg_l1_city_far', near: 'bg_l1_houses_near', ground: 'tile_ground_cobble', water: 'tile_water_', end: 'church_exterior' },
         hints: [
-            { at: 0, text: '\u2192 = BIEG   SPACJA = SKOK', touch: '> = BIEG   ^ = SKOK', ms: 3200 },
-            { at: 640, text: 'RZEKA! 2\u00d7 SPACJA = SALTO', touch: 'RZEKA! 2\u00d7 SKOK = SALTO', ms: 3200 },
+            { at: 0, text: '\u2192 = BIEG   SPACJA = SKOK', touch: '> = BIEG   ^ = SKOK', joy: 'JOYSTICK = BIEG   DOTKNIJ = SKOK', ms: 3200 },
+            { at: 640, text: 'RZEKA! 2\u00d7 SPACJA = SALTO', touch: 'RZEKA! 2\u00d7 SKOK = SALTO', joy: 'RZEKA! DOTKNIJ 2\u00d7 = SALTO', ms: 3200 },
         ],
         rivers: [{ at: 1000, w: 150 }],
         obstacles: [
@@ -53,7 +53,7 @@ const LEVELS = [
         bg: { sky: 'bg_l2_sky', far: 'bg_l2_city_far', near: 'bg_l2_houses_near', ground: 'tile_ground_wet', water: 'tile_water_', end: 'house_krzysztof' },
         waterTint: 0x8a92c0,
         hints: [
-            { at: 0, text: '\u2190 = BIEG   DOM KRZYSZTOFA JEST NA KOŃCU DROGI', touch: '< = BIEG   DO KRZYSZTOFA!', ms: 3200 },
+            { at: 0, text: '\u2190 = BIEG   DOM KRZYSZTOFA JEST NA KOŃCU DROGI', touch: '< = BIEG   DO KRZYSZTOFA!', joy: 'JOYSTICK = BIEG   DO KRZYSZTOFA!', ms: 3200 },
             { at: 2980, text: 'KŁADKA! WSKOCZ, GDY PODPŁYNIE', touch: 'KŁADKA! WSKOCZ, GDY PODPŁYNIE', ms: 3000 },
         ],
         rivers: [{ at: 1150, w: 150 }, { at: 3300, w: 330, plank: true }],

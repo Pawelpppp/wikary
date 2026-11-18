@@ -31,6 +31,19 @@ const CFG = {
     touch: {                        // przyciski dotykowe: pionowo na środku, przy lewej i prawej krawędzi
         leftW: 40, rightW: 56, h: 40, gap: 8, alpha: 0.28, edge: 2,
         heroMargin: 64,             // w trybie dotyku Kamil trzyma się tyle px od krawędzi (nie wchodzi pod przyciski)
+        mode: 'joystick',           // 'joystick' (test: joystick z lewej, dotknięcie ekranu = skok) | 'buttons' (stare < > ↓); URL ?touch=buttons / ?touch=joystick
+        joystick: {
+            zoneW: 0.4,             // strefa joysticka: lewe 40% ekranu, pod HUD-em
+            topY: 24,
+            radius: 34,             // maks. wychylenie gałki (px)
+            baseR: 34, knobR: 15,
+            deadZone: 0.15,         // poniżej = stoi
+            crouchY: 0.55,          // wychylenie w dół (część promienia), od którego kuca...
+            crouchSlope: 1.2,       // ...gdy ruch jest głównie pionowy: dy > |dx| * crouchSlope
+            restX: 64, restY: 248,  // gdzie widać spoczynkowy joystick (podpowiedź)
+            restAlpha: 0.5,         // przezroczystość spoczynkowa (względem alpha przycisków)
+            tapJump: true,          // dotknięcie poza joystickiem i przyciskami = skok, drugie w powietrzu = salto
+        },
     },
 
     scrollSpeed: 55,                // auto-scroll ekranu

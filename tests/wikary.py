@@ -8,8 +8,9 @@ W, H = 568, 320
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
-def open_game(page, base_url, debug=True):
-    page.goto(base_url + ("?debug=1" if debug else ""))
+def open_game(page, base_url, debug=True, query=""):
+    q = "&".join(x for x in (("debug=1" if debug else ""), query) if x)
+    page.goto(base_url + ("?" + q if q else ""))
     if debug:
         page.wait_for_function("window.__wikary && window.__wikary.scene().includes('Title')", timeout=30000)
     else:

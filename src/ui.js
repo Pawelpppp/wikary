@@ -2,7 +2,9 @@
 /* Wspólne elementy interfejsu: tekst pikselowym fontem, dymki, przyciski M/F. */
 const FONT = '"PressStart", monospace';
 const DEBUG = /[?&]debug=1/.test(location.search);
-const IS_TOUCH = (() => { try { return ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || /[?&]touch=1/.test(location.search); } catch (e) { return false; } })();
+const IS_TOUCH = (() => { try { return ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || /[?&]touch=(1|buttons|joystick)\b/.test(location.search); } catch (e) { return false; } })();
+/** Tryb sterowania dotykiem: CFG.touch.mode, nadpisywany przez ?touch=buttons / ?touch=joystick (testy A/B). */
+const TOUCH_MODE = (() => { const m = (location.search.match(/[?&]touch=(buttons|joystick)\b/) || [])[1]; return m || CFG.touch.mode; })();
 
 const GS = {          // stan jednej rozgrywki (od START NEW GAME do końca)
     reset() {

@@ -39,7 +39,8 @@ Przydatne opcje pytest-playwright: `--headed` (widoczna przeglądarka), `--brows
 | `test_crouch.py` | kucanie: niższy hitbox, brak biegu, skok z kucnięcia, nietoperz i pająk nad głową kucającego / trafiają stojącego |
 | `test_ultimate.py` | Grom z Nieba: ładowanie, wyzwolenie, anulowanie, brak bez pełnego paska |
 | `test_restart_state.py` | kolejne podejścia po wygranej i game over mają czysty stan |
-| `test_touch_mobile.py` | dotyk (START, pominięcie intro, skok, przycisk ↓), układ przycisków (pionowo na środku przy krawędziach, OGIEŃ w Level 2, półprzezroczyste, Kamil nie wchodzi pod nie), `?touch=1`, skalowanie 1280×720 |
+| `test_touch_mobile.py` | dotyk (START, pominięcie intro, skok, przycisk ↓), stary układ przycisków z `?touch=buttons` (pionowo na środku przy krawędziach, OGIEŃ w Level 2 w obu trybach, półprzezroczyste, Kamil nie wchodzi pod nie), `?touch=1`, skalowanie 1280×720 |
+| `test_touch_joystick.py` | joystick (test): prędkość zależna od wychylenia, martwa strefa, palec poza strefą, kucanie w dół; dotknięcie = skok, 2× = salto; dotknięcie w strefie joysticka nie skacze; dymek przewijany bez skoku; KRZYŻ / SKOK / GROM / OGIEŃ razem z joystickiem (wielodotyk przez CDP); tryb `?touch=buttons` |
 | `test_console_errors.py` | zwykłe uruchomienie bez debug, krótka rozgrywka, ładowanie wszystkich grafik |
 
 ## CI

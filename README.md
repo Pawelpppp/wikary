@@ -23,9 +23,9 @@ Automatyczne testy (Python + pytest + Playwright, przeglądarka headless) są w 
 ## Sterowanie
 | Akcja | Klawiatura | Dotyk |
 |---|---|---|
-| Bieg w lewo / prawo | ← / → | `<` / `>` |
-| Kucnięcie (trzymaj; nietoperze i pająki mijają głowę, krzyż leci nisko, można z niego skoczyć) | ↓ | `↓` |
-| Skok / salto | Spacja, 2× Spacja (w powietrzu) | SKOK, 2× SKOK |
+| Bieg w lewo / prawo | ← / → | joystick z lewej (test): mocniej wychylony = szybciej; tryb przycisków: `<` / `>` |
+| Kucnięcie (trzymaj; nietoperze i pająki mijają głowę, krzyż leci nisko, można z niego skoczyć) | ↓ | joystick w dół (test); tryb przycisków: `↓` |
+| Skok / salto | Spacja, 2× Spacja (w powietrzu) | dotknięcie ekranu poza joystickiem i przyciskami (test), 2× = salto; zawsze też SKOK, 2× SKOK |
 | Rzut krzyżem (po zdobyciu krzyża) | Alt | KRZYŻ |
 | Kula ognia, przebija kilku wrogów (po zdobyciu znicza w Level 2) | Z | OGIEŃ |
 | Grom z Nieba (pełny pasek) | trzymaj Shift 1 s, puść | trzymaj GROM, puść |
@@ -33,7 +33,9 @@ Automatyczne testy (Python + pytest + Playwright, przeglądarka headless) są w 
 | Wycisz | M | przycisk M |
 | Menu | ↑ ↓ + Enter / Spacja | dotknij przycisk |
 
-Na dotyku przyciski są półprzezroczyste i pionowo na środku ekranu: `<` `>` `↓` przy lewej krawędzi, GROM / (OGIEŃ w Level 2) / KRZYŻ / SKOK przy prawej. Kamil nie wchodzi pod przyciski (margines `CFG.touch.heroMargin`).
+Na dotyku przyciski są półprzezroczyste i pionowo na środku ekranu: GROM / (OGIEŃ w Level 2) / KRZYŻ / SKOK przy prawej krawędzi. Kamil nie wchodzi pod przyciski (margines `CFG.touch.heroMargin`).
+
+**Joystick (wersja testowa, domyślna na telefonie poziomo):** w lewych 40% ekranu (pod HUD-em) pojawia się pod palcem pływający joystick. Prędkość biegu zależy od wychylenia (martwa strefa 15%), a pociągnięcie w dół = kucnięcie. Palec może wyjechać poza strefę i dalej sterować. Dotknięcie gdziekolwiek indziej (poza przyciskami) = skok, drugie w powietrzu = salto. Gdy widać dymek albo podsumowanie, dotknięcie tylko je przewija. Wszystkie ustawienia są w `CFG.touch.joystick`. Tryb wybiera `CFG.touch.mode` (`'joystick'` albo `'buttons'`, czyli stare przyciski `<` `>` `↓` przy lewej krawędzi). Do testów A/B służy nadpisanie w adresie: `?touch=buttons` albo `?touch=joystick`.
 
 | Scenka | Klawiatura | Dotyk |
 |---|---|---|
