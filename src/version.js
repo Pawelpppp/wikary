@@ -1,1 +1,1 @@
-window.WIKARY_VERSION = '1.28';
+window.WIKARY_VERSION = '1.29';

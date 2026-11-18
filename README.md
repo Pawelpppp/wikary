@@ -118,6 +118,12 @@ Działa jak w Fibi Run:
 - Starszy, siwy ksiądz w białej piusce, z ciepłym, lekko przebiegłym uśmiechem. Szef wikarego: **daje mu zadania** przed każdą misją i **gratuluje** po jej ukończeniu.
 - W rozmowach pokazuje się jako portret w dymku (jak Kamil), a w kościele stoi jako pełna postać przy ołtarzu.
 
+### Kościelny Rafał (boss Level 3, „Upiorny Kościelny”)
+- Parafialny **kościelny Rafał**, na co dzień poczciwy opiekun kluczy i dzwonów. W Level 3 jest **opętany przez upiora**: blada, sina twarz, świecące oczy i upiorna poświata.
+- Walczy **pękiem kluczy**: **zamach wręcz** z bliska, **rzut kluczem** na dystans i **wrzask**, który przywołuje **duszki**.
+- Po pokonaniu następuje **egzorcyzm**: upiór z niego **wylatuje**, a Rafał wraca do normy, zdezorientowany: „Co ja tu robię?”. Potem dołącza do końcowej sceny o świcie z proboszczem.
+- Grafiki (boss, wersja „po egzorcyzmie”, portrety) są zamówione w Pixel Art i jeszcze ich nie ma.
+
 ### Kościół po Level 1 (cutscenka z dymkami)
 1. Wikary wbiega do kościoła, przy ołtarzu czeka **proboszcz** (obok koszyczek z tacy). Proboszcz: „No, jesteś wreszcie! Zuch chłopak, dobrze się spisałeś”.
 2. Kamil: „Psy, wilki, nietoperze... Proszę księdza, ja tu biegłem jak na olimpiadzie!”. Proboszcz: „Dobrze, dobrze, olimpijczyku. Zajrzyjmy do koszyczka z tacy...”.
@@ -152,8 +158,8 @@ Działa jak w Fibi Run:
 - Przed kościołem ekran się zatrzymuje. **Proboszcz** stoi na schodach i **ciska w duchy czary na dystans** (świetliste kule). Krótki dymek, proboszcz: „Kamil! Nie stój jak słup soli, pomóż mi!”.
 - Rozgrywka typu **obrona**: duchy nadlatują **falami** z obu stron (3 fale), a gracz z proboszczem bronią **drzwi kościoła**. Drzwi mają własny pasek życia, a gdy spadnie do zera, trzeba powtórzyć część B.
 - Proboszcz strzela sam, ale co jakiś czas **się męczy** (siada i ociera pot), a wtedy cała obrona spada na wikarego.
-- **Boss: Upiorny Kościelny**, duch dawnego kościelnego z pękiem kluczy. Rzuca kluczami i próbuje zamknąć wikarego w konfesjonale. Najlepiej pokonać go **ultimatem** (Grom z Nieba).
-- **Zakończenie:** świt, biją dzwony, a proboszcz **gratuluje** wikaremu („No, Kamil, z ciebie będzie jeszcze proboszcz!”) i daje kolejne zadanie.
+- **Boss: kościelny Rafał, opętany przez upiora („Upiorny Kościelny”)**. Walczy pękiem kluczy: zamach wręcz, rzut kluczem i wrzask, który przywołuje duszki. Najlepiej pokonać go **ultimatem** (Grom z Nieba). Po wygranej egzorcyzm: upiór z niego wylatuje, a Rafał wraca do normy („Co ja tu robię?”).
+- **Zakończenie:** świt, biją dzwony, a Rafał dołącza do proboszcza i wikarego. Proboszcz **gratuluje** wikaremu („No, Kamil, z ciebie będzie jeszcze proboszcz!”) i daje kolejne zadanie.
 
 ### Pomysły na później (do dopracowania)
 - Kolejne moce (błogosławieństwo krzyżem, modlitwa) jako itemy w następnych poziomach, z podobnym efektem pioruna i przyciemnienia.
