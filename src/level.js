@@ -18,7 +18,7 @@ class LevelScene extends Phaser.Scene {
         this.invulnUntil = 0; this.lastGroundAt = 0; this.jumpAt = -99999; this.jumps = 0; this.flipping = false;
         this.attackUntil = 0; this.lastThrow = -99999; this.attackPressed = false;
         this.boostUntil = 0; this.slowUntil = 0; this.facing = L.dir;
-        this.spawnAcc = 0; this.nextSpawn = 1200; this.hintsShown = {}; this.summaryShown = false;
+        this.spawnAcc = 0; this.nextSpawn = 1200; this.hintsShown = {}; this.hintSlots = {}; this.summaryShown = false;
         this.touch = { left: false, right: false, ult: false, down: false }; this.joy = null;
         this.crouching = false; this.crouchAt = 0;
         this.items = []; this.puddles = []; this.solids = []; this.groundSolids = []; this.popups = [];
@@ -29,6 +29,9 @@ class LevelScene extends Phaser.Scene {
         this.blessPressed = false; this.lastBless = -99999; this.fireHintAt = -99999; this.fog = null;
         this.fizzles = 0; this.blessCasts = 0; this.rafalScreams = 0; this.keysThrown = 0; this.exorcised = false;
         this.defense = null; this.doorBar = null; this.proboszcz = null; this.rafal = null; this.dawn = null; this.door = null;
+        this.devil = null; this.devilGone = false; this.adrian = null; this.adrianNpc = null; this.car = null; this.red = null; this.hut = null; this.hutDoor = null;
+        this.kamilFree = false; this.repelUntil = 0; this.repelAura = null; this.repelKills = 0; this.swamp = null;
+        this.orbsCast = 0; this.swarmsSummoned = 0; this.teleports = 0; this.tongues = 0; this.carGone = false;
         GS.level = this.levelIndex;
 
         bindGlobalKeys(this);
@@ -61,11 +64,16 @@ class LevelScene extends Phaser.Scene {
         });
         this.rivers = rivers.map(r => {
             const x0 = Math.min(this.wx(r.at), this.wx(r.at + r.w)), x1 = Math.max(this.wx(r.at), this.wx(r.at + r.w));
-            const water = this.add.tileSprite(x0, 292, x1 - x0, 28, BG.water + '1').setOrigin(0).setDepth(3);
-            const bl = this.add.image(x0, 288, 'water_bank_left').setOrigin(0).setDepth(3.5);
-            const br = this.add.image(x1, 288, 'water_bank_right').setOrigin(1, 0).setDepth(3.5);
-            if (L.waterTint) [water, bl, br].forEach(o => o.setTint(L.waterTint));
-            if (r.plank) this.createPlank(x0, x1);
+            const ws = ART.SPEC[BG.water + '1'], wh = ws ? ws.size[1] : 28;                       // woda 28 px (L2/L3), bagno 32 px (L4)
+            const water = this.add.tileSprite(x0, 320 - wh, x1 - x0, wh, ART.key(BG.water + '1')).setOrigin(0).setDepth(3).setTilePosition(x0 % 64, 0);
+            const kl = BG.bankL || 'water_bank_left', kr = BG.bankR || 'water_bank_right';
+            const bl = this.add.image(x0, 288, ART.key(kl)).setOrigin(0).setDepth(3.5);
+            const br = this.add.image(x1, 288, ART.key(kr)).setOrigin(1, 0).setDepth(3.5);
+            const wt = L.waterTint || ART.tint(BG.water + '1');
+            if (wt) water.setTint(wt);
+            [[bl, kl], [br, kr]].forEach(([o, k]) => { const t = L.waterTint || ART.tint(k); if (t) o.setTint(t); });
+            if (r.plank) this.createPlank(x0, x1, r.plank === 'log' ? 'platform_log' : 'platform_plank');
+            (r.lily || []).forEach(off => this.createPlatform(this.wx(r.at + off), 'platform_lily'));
             return { at: r.at, w: r.w, x0, x1, water, plank: !!r.plank };
         });
 
@@ -110,6 +118,10 @@ class LevelScene extends Phaser.Scene {
                 s = this.add.sprite(x, G - 32, ART.key('item_blessing_1')).play('blessing_item').setDepth(6);
                 ART.fit(this, s, 'item_blessing_1', CFG.items.scale, 0.5, 0.5);
                 this.tweens.add({ targets: s, y: s.y - 5, duration: 650, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+            } else if (it.type === 'repellent') {
+                s = this.add.sprite(x, G - 30, ART.key('item_repellent_1')).play('repellent_item').setDepth(6);
+                ART.fit(this, s, 'item_repellent_1', CFG.items.scale, 0.5, 0.5);
+                this.tweens.add({ targets: s, y: s.y - 4, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
             } else if (it.type === 'cross') {
                 if (GS.hasCross) return;
                 s = this.add.image(x, G - 24, 'fx_bless_3').setScale(0.4).setDepth(6);
@@ -120,7 +132,8 @@ class LevelScene extends Phaser.Scene {
 
         // --- koniec poziomu: kościół (Level 1) albo dom Krzysztofa (Level 2) ---
         const ex = this.wx(L.endAt), flip = L.dir < 0;
-        if (!/^church_exterior/.test(BG.end)) this.createHouse(ex);
+        if (BG.end === 'hut_adrian') this.createHut(ex);
+        else if (!/^church_exterior/.test(BG.end)) this.createHouse(ex);
         else {                                                        // kościół: Level 1 (dzień) i Level 3 (noc)
         const doorLeft = flip ? 240 - 51 - 48 : 51;                  // lewa krawędź drzwi w obrazku kościoła
         const churchX = ex - (doorLeft + 24) + 120, churchY = L.night ? CFG.defense.churchFloorY : G + 2;
@@ -175,6 +188,7 @@ class LevelScene extends Phaser.Scene {
         if (IS_TOUCH) this.createTouch();
         this.createWeather();
         this.createNight();
+        this.createSwamp();
         WikaryAudio.play(L.music);
         hintBubble(this, 'POZIOM ' + L.id + ': ' + L.name, 2200, 112);
     }
@@ -322,7 +336,8 @@ class LevelScene extends Phaser.Scene {
         const dt = Math.min(delta, 50) / 1000, cam = this.cameras.main, L = this.L, HC = CFG.hero, W = CFG.W, G = CFG.GROUND_Y;
         const hero = this.hero, body = hero.body;
         const wf = 1 + Math.floor(time / 170) % 4;
-        this.rivers.forEach(r => { if (r.water.texture.key !== this.L.bg.water + wf) r.water.setTexture(this.L.bg.water + wf); });
+        const wk = ART.key(this.L.bg.water + wf);
+        this.rivers.forEach(r => { if (r.water.texture.key !== wk) r.water.setTexture(wk); });
         this.far.tilePositionX = cam.scrollX * 0.2;
         this.near.tilePositionX = cam.scrollX * 0.5;
 
@@ -332,6 +347,7 @@ class LevelScene extends Phaser.Scene {
         this.updatePlanks(dt);
         this.updateWeather(time, delta);
         this.updateLevel3(time, delta);
+        this.updateLevel4(time, delta);
         this.shots.getChildren().forEach(s => { if (time > s.dieAt) s.destroy(); });
         if (this.dead || this.ended || this.respawning) { this.syncSprite(time, 0); return; }
 
@@ -400,7 +416,7 @@ class LevelScene extends Phaser.Scene {
         if (hero.x > maxX) { hero.x = maxX; if (body.velocity.x > 0) body.setVelocityX(0); if (body.blocked.left || body.touching.left) this.liftOverObstacle(); }
 
         // --- woda ---
-        if (body.top > G + 14) { this.drown(); return; }
+        if (body.top > G + 14) { this.drown(); return; }      // rzeka albo bagno
 
         // --- kałuże ---
         if (onG && this.puddles.some(p => hero.x > p.x0 && hero.x < p.x1)) {
@@ -434,6 +450,7 @@ class LevelScene extends Phaser.Scene {
         }
         // --- meta: kościół (Level 1) albo arena z bossem (Level 2) ---
         if (L.defense) { if (!this.arena && this.heroD() >= L.arenaAt) this.startDefense(); }
+        else if (L.boss === 'adrian') { if (!this.arena && this.heroD() >= L.arenaAt) this.startAdrianArena(); }
         else if (L.boss) { if (!this.arena && this.heroD() >= L.arenaAt) this.startArena(); }
         else if (this.heroD() >= L.endAt - 6) this.finishLevel();
         this.syncSprite(time, vx);
@@ -441,6 +458,7 @@ class LevelScene extends Phaser.Scene {
 
     syncSprite(time, vx) {
         const k = this.kamil, hero = this.hero, b = hero.body;
+        if (this.kamilFree) return;                           // cutscenka steruje sprite'em Kamila (wsiadanie do auta)
         k.x = hero.x; k.y = b.bottom;
         k.setFlipX(this.facing < 0);
         const moved = Math.abs(hero.x - this.prevHeroX) > 0.3; this.prevHeroX = hero.x;
@@ -482,6 +500,8 @@ class LevelScene extends Phaser.Scene {
             this.zniczPickup(it); return;
         } else if (t === 'blessing') {
             this.blessingPickup(it); return;
+        } else if (t === 'repellent') {
+            this.repellentPickup(it, time);
         }
         this.tweens.killTweensOf(it);
         this.tweens.add({ targets: it, scale: it.scale * 1.8, alpha: 0, duration: 180, onComplete: () => it.destroy() });
@@ -599,7 +619,7 @@ class LevelScene extends Phaser.Scene {
                 e.baseY = baseY; e.phase = i * 0.9; e.t0 = this.time.now;
                 e.setVelocityX(mv * C.speed);
             }
-        } else if (this.spawnEnemy2(type, frontX, mv, mk) || this.spawnEnemy3(type, frontX, mv, mk)) {
+        } else if (this.spawnEnemy2(type, frontX, mv, mk) || this.spawnEnemy3(type, frontX, mv, mk) || this.spawnEnemy4(type, frontX, mv)) {
             /* Level 2: wrona, dzik, błędny ognik (level2.js) */
         } else if (type === 'spider') {
             const x = dir > 0 ? cam.scrollX + Phaser.Math.Between(W * 0.55, W * 0.9) : cam.scrollX + Phaser.Math.Between(W * 0.1, W * 0.45);
@@ -613,7 +633,7 @@ class LevelScene extends Phaser.Scene {
     }
     /** hitbox na dole klatki (origin 0.5,1), w px ekranu z CFG; działa też po zmianie klatki (skok wilka) */
     fitBody(e) {
-        const C = e.type === 'hans' ? CFG.boss : e.type === 'rafal' ? CFG.rafal : CFG.enemies[e.type], w = C.bodyW / Math.abs(e.scaleX), h = C.bodyH / Math.abs(e.scaleY);
+        const C = e.type === 'hans' ? CFG.boss : e.type === 'rafal' ? CFG.rafal : e.type === 'adrian' ? CFG.adrian : CFG.enemies[e.type], w = C.bodyW / Math.abs(e.scaleX), h = C.bodyH / Math.abs(e.scaleY);
         e.body.setSize(w, h, false);
         const mid = e.type === 'bat' || C.center;
         e.body.setOffset((e.frame.width - w) / 2, mid ? (e.frame.height - h) / 2 : e.frame.height - h - (e.type === 'spider' ? 2 : 0));
@@ -624,6 +644,7 @@ class LevelScene extends Phaser.Scene {
             if (!e.active || e.dead) return;
             if (e.type === 'hans') { this.updateBoss(e, time, dt); return; }
             if (e.type === 'rafal') { this.updateRafal(e, time, dt); return; }
+            if (e.type === 'adrian') { this.updateAdrian(e, time, dt); return; }
             const C = CFG.enemies[e.type];
             if (e.type === 'wolf') {
                 const onG = e.body.blocked.down || e.body.touching.down;
@@ -631,7 +652,7 @@ class LevelScene extends Phaser.Scene {
                 else if (!onG) { e.anims.stop(); e.setTexture(e.body.velocity.y < 0 ? 'enemy_wolf_jump_1' : 'enemy_wolf_jump_2'); this.fitBody(e); }
                 else if (!e.anims.isPlaying) { e.play('wolf_run'); this.fitBody(e); }
             }
-            if (this.updateEnemy2(e, C, time, dt) || this.updateEnemy3(e, C, time, dt)) return;
+            if (this.updateEnemy2(e, C, time, dt) || this.updateEnemy3(e, C, time, dt) || this.updateEnemy4(e, C, time, dt)) return;
             if (e.type === 'bat') e.body.velocity.y = Math.cos((time - e.t0) / 1000 * C.freq + e.phase) * C.amp * C.freq;
             if (e.type === 'spider') {
                 if (e.state === 'drop' && e.y >= C.dropTo) { e.state = 'hold'; e.setVelocityY(0); e.holdUntil = time + C.holdMs; }
@@ -647,6 +668,7 @@ class LevelScene extends Phaser.Scene {
         if (e.dead || !e.active) return;
         if (e.type === 'hans') { this.bossHit(e, dmg, byUlt); return; }
         if (e.type === 'rafal') { this.rafalHit(e, dmg, byUlt); return; }
+        if (e.type === 'adrian') { this.adrianHit(e, dmg, byUlt); return; }
         e.hp -= dmg;
         if (e.hp > 0) {
             WikaryAudio.sfx('hit');
@@ -756,7 +778,7 @@ class LevelScene extends Phaser.Scene {
         });
         const hasNext = L.next !== null && L.next !== undefined && LEVELS[L.next];
         const nextTxt = hasNext ? (L.nextVia === 'Church' ? 'DALEJ: KOŚCIÓŁ I ROZMOWA Z PROBOSZCZEM' : 'DALEJ: LEVEL ' + LEVELS[L.next].id + ' – ' + LEVELS[L.next].name)
-            : L.final ? 'KONIEC... NA RAZIE!' : 'CIĄG DALSZY: LEVEL ' + (L.id + 1) + ' WKRÓTCE';
+            : L.final ? 'KONIEC... NA RAZIE!' : L.nextText || 'CIĄG DALSZY: LEVEL ' + (L.id + 1) + ' WKRÓTCE';
         add(txt(this, W / 2, 214, nextTxt, L.final ? 16 : 8, '#ffd040'));
         add(txt(this, W / 2, 246, (IS_TOUCH ? 'DOTKNIJ' : 'ENTER') + (hasNext ? ' = DALEJ' : ' = ZAPISZ WYNIK'), 8, '#c8b890'));
         this.time.delayedCall(400, () => { this.summaryShown = true; });

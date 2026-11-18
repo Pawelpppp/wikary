@@ -1,6 +1,6 @@
 """Level 3 „Noc duchów”: noc i mgła, duchy (duszek / fantom / upiór), ogień nie działa, krzyż działa,
 błogosławieństwo (X) w promieniu, obrona drzwi kościoła z proboszczem (3 fale, drzwi = game over),
-Kościelny Rafał (walka, egzorcyzm, świt, KONIEC... na razie!), przenoszenie stanu z Level 2."""
+Kościelny Rafał (walka, egzorcyzm, diabeł, świt, dalej Level 4), przenoszenie stanu z Level 2."""
 import time
 
 from wikary import (beat_hans, beat_rafal, hold, reach_arena, reach_defense, skip_dialogs_until, start_l3,
@@ -120,6 +120,7 @@ def test_defense_door_hp_bar_door_look_and_game_over(game):
     game.evaluate("(()=>{const l=__wikary.level(); __wikary.defense().doorHp=Math.ceil(__wikary.defense().doorMax/2)+1; l.doorHit(l.spawnGhost('duszek', l.doorX, -1));})()")
     look1 = game.evaluate("__wikary.level().doorLook")
     assert look0 == "church_door_night_hp_1" and look1 == "church_door_night_hp_2", (look0, look1)
+    wait_js(game, "__wikary.level().doorBar.fill.width < 140", 2)       # pasek odświeża się w następnej klatce
     w0 = game.evaluate("__wikary.level().doorBar.fill.width")
     assert 60 < w0 < 140, w0
     # duch dochodzi do drzwi sam
@@ -180,10 +181,11 @@ def test_rafal_fight_attacks_phases_and_exorcism_ending(game):
     end = game.evaluate("""(()=>{const l=__wikary.level(),r=__wikary.rafal(); return {normal: !!r.normal, dawn: !!(l.dawn && l.dawn.active && l.dawn.alpha>0),
         txt: l.children.list.filter(o=>o.type==='Text').map(o=>o.text).join('|')}})()""")
     assert end["normal"] and end["dawn"], end
-    assert "KONIEC... NA RAZIE!" in end["txt"], end["txt"]
+    assert "KONIEC" not in end["txt"] and "LEVEL 4" in end["txt"], end["txt"]
+    assert game.evaluate("__wikary.level().devilGone")               # diabeł wyszedł z Rafała i odleciał
     wait_js(game, "__wikary.level().dawn.alpha === 1", 4)          # świt dochodzi do końca
     game.keyboard.press("Enter")
-    assert wait_scene(game, "Nick", 5)
+    wait_js(game, "__wikary.scene().includes('Level') && __wikary.level().L.id === 4", 8)
 
 
 def test_rafal_dialog_after_exorcism(game):

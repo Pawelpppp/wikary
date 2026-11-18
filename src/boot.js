@@ -102,11 +102,33 @@ class BootScene extends Phaser.Scene {
         A('rafal_scream', ART.frames('boss_rafal_scream_', 2), 8);
         A('rafal_exorcise', ART.frames('boss_rafal_exorcise_', 4), 8, 0);
         A('proj_key', ART.frames('proj_key_', 2), 10);
-        A('rafal_ghost', ART.frames('fx_rafal_ghost_', 3), 8);
         A('rafal_dazed', ART.frames('rafal_dazed_', 2), 3);
         A('rafal_idle', ART.frames('rafal_idle_', 2), 2);
         A('rafal_talk', ART.frames('rafal_talk_', 2), 5);
         A('rafal_walk', ART.frames('rafal_walk_', 4), 8);
+        // Czerwony Diabeł
+        A('devil_rise', ART.frames('devil_rise_', 6), 3, 0);
+        A('devil_idle', ART.frames('devil_idle_', 2), 3);
+        A('devil_talk', ART.frames('devil_talk_', 2), 6);
+        A('devil_fly', ART.frames('devil_fly_', 4), 10);
+        A('devil_exit', ART.frames('fx_devil_exit_rafal_', 4), 7, 0);
+        A('brimstone', ART.frames('fx_brimstone_', 4), 10, 0);
+        // Level 4
+        A('mosq_small', ART.frames('enemy_mosquito_small_', 3), 18);
+        A('mosq_big', ART.frames('enemy_mosquito_big_', 4), 14);
+        A('mosq_sting', ART.frames('enemy_mosquito_big_sting_', 2), 10);
+        A('frog_jump', ART.frames('enemy_frog_', 4), 10, 0);
+        A('frog_tongue', ART.frames('enemy_frog_tongue_', 2), 8, 0);
+        A('bogman_rise', ART.frames('enemy_bogman_rise_', 4), 4, 0);
+        A('bogman_walk', ART.frames('enemy_bogman_walk_', 4), 6);
+        A('splat', ART.frames('fx_splat_', 4), 12, 0);
+        A('repellent_item', ART.frames('item_repellent_', 4), 8);
+        A('adrian_idle', ART.frames('adrian_idle_', 2), 2);
+        A('adrian_talk', ART.frames('adrian_talk_', 2), 5);
+        A('adrian_cast', ART.frames('adrian_cast_', 3), 8, 0);
+        A('adrian_spell', ART.frames('proj_adrian_spell_', 3), 10);
+        A('car_empty', ART.frames('car_empty_', 2), 3);
+        A('car_drive', ART.frames('car_', 2), 10);
         const target = DEBUG && (location.search.match(/[?&]scene=(\w+)/) || [])[1];
         const lvl = DEBUG && +((location.search.match(/[?&]level=(\d)/) || [])[1] || 0);
         if (lvl && LEVELS[lvl - 1]) { debugStart(this, lvl - 1); return; }

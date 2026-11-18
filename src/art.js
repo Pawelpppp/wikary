@@ -84,6 +84,61 @@ const ART = (function () {
     seqF('rafal_talk_', 2, [118, 164], ['proboszcz_talk_1', 'proboszcz_talk_2'], RAF);
     seqF('rafal_walk_', 4, [100, 164], ['proboszcz_idle_1', 'proboszcz_idle_2'], RAF);
 
+    /* ---------- Czerwony Diabeł (koniec L3 i L4) ---------- */
+    const DEV = 0xff5040;
+    seqF('devil_rise_', 6, [98, 152], ['boss_rafal_exorcise_4', 'boss_rafal_exorcise_3', 'boss_rafal_exorcise_2', 'boss_rafal_exorcise_1', 'boss_rafal_float_1', 'boss_rafal_float_2'], DEV);
+    seqF('devil_idle_', 2, [98, 152], ['boss_rafal_float_1', 'boss_rafal_float_2'], DEV);
+    seqF('devil_talk_', 2, [98, 152], ['boss_rafal_scream_1', 'boss_rafal_scream_2'], DEV);
+    seqF('devil_fly_', 4, [118, 148], ['boss_rafal_float_1', 'boss_rafal_float_2', 'boss_rafal_float_3', 'boss_rafal_float_4'], DEV);
+    seq('fx_brimstone_', 4, [80, 80], 'fx_enemy_poof_', 0xffa040);
+    seqF('fx_devil_exit_rafal_', 4, [90, 120], ['fx_rafal_ghost_1', 'fx_rafal_ghost_2', 'fx_rafal_ghost_3', 'fx_rafal_ghost_2'], DEV);
+    Object.assign(SPEC, {
+        devil_closeup_open: { size: [192, 192], fb: 'rafal_ghost_closeup_open', tint: 0xff6050 },
+        devil_closeup_closed: { size: [192, 192], fb: 'rafal_ghost_closeup_closed', tint: 0xff6050 },
+        devil_closeup_angry: { size: [192, 192], fb: 'rafal_ghost_closeup_open', tint: 0xff3020 },
+    });
+
+    /* ---------- Level 4 „Bagna”: zmierzch, zielona mgła, komary, żaby, bagienne stwory, Adrian ---------- */
+    const SW = 0x6a9050, ADR = 0xb090f0;
+    Object.assign(SPEC, {
+        bg_l4_sky: { size: [568, 320], fb: 'bg_l1_sky', tint: 0x7a9a6a },
+        bg_l4_far: { size: [568, 200], fb: 'bg_l1_city_far', tint: 0x405a40 },
+        bg_l4_near: { size: [568, 150], fb: 'bg_l1_houses_near', tint: 0x587a50 },
+        tile_ground_swamp: { size: [64, 32], fb: 'tile_ground_cobble', tint: 0x7a8a58 },
+        bog_bank_left: { size: [16, 32], fb: 'water_bank_left', tint: SW },
+        bog_bank_right: { size: [16, 32], fb: 'water_bank_right', tint: SW },
+        platform_lily: { size: [48, 12], fb: 'platform_plank', tint: 0x50b048, stretch: true },
+        platform_log: { size: [80, 14], fb: 'platform_plank', tint: 0x8a6038, stretch: true },
+        obstacle_stump: { size: [40, 32], fb: 'obstacle_trash_bin', tint: 0x7a5a3a, stretch: true },
+        obstacle_reeds: { size: [48, 40], fb: 'obstacle_fence', tint: 0x6a9a40, stretch: true },
+        fx_swamp_fog_1: { size: [284, 64], fb: 'fx_fog_1', tint: 0x90d080 },
+        fx_swamp_fog_2: { size: [284, 64], fb: 'fx_fog_2', tint: 0x90d080 },
+        hut_adrian: { size: [260, 240], fb: 'house_krzysztof', tint: 0x7a8a68, stretch: true },
+        hut_adrian_door_1: { size: [18, 54], fb: 'house_krzysztof_door_1', tint: 0x7a8a68 },
+        hut_adrian_door_2: { size: [18, 54], fb: 'house_krzysztof_door_2', tint: 0x7a8a68 },
+        adrian_hurt_1: { size: [100, 164], fb: 'krzysztof_idle_1', tint: 0xff9090 },
+        adrian_defeated_1: { size: [100, 164], fb: 'krzysztof_idle_2', tint: 0x6a5a7a },
+        adrian_closeup_open: { size: [192, 192], fb: 'krzysztof_closeup_open', tint: 0xc0a0ff },
+        adrian_closeup_closed: { size: [192, 192], fb: 'krzysztof_closeup_closed', tint: 0xc0a0ff },
+        adrian_closeup_ashamed: { size: [192, 192], fb: 'krzysztof_closeup_ashamed', tint: 0xc0a0ff },
+        car_1: { size: [219, 100], fb: null }, car_2: { size: [219, 100], fb: null },
+        car_empty_1: { size: [219, 100], fb: null }, car_empty_2: { size: [219, 100], fb: null },
+    });
+    seq('tile_bog_', 4, [64, 32], 'tile_water_', 0x5a7a30);
+    seq('enemy_mosquito_small_', 3, [40, 32], 'enemy_bat_fly_', 0xb0a070);
+    seq('enemy_mosquito_big_', 4, [90, 74], 'enemy_crow_fly_', 0xa09060);
+    seq('enemy_mosquito_big_sting_', 2, [90, 74], 'enemy_crow_dive_', 0xc08060);
+    seq('enemy_frog_', 4, [136, 84], 'enemy_boar_run_', 0x60b040);
+    seqF('enemy_frog_tongue_', 2, [230, 84], ['enemy_boar_run_1', 'enemy_boar_run_2'], 0xa0d060);
+    seq('enemy_bogman_rise_', 4, [118, 130], 'enemy_upior_rise_', 0x80a050);
+    seq('enemy_bogman_walk_', 4, [118, 130], 'enemy_upior_walk_', 0x80a050);
+    seq('fx_splat_', 4, [48, 48], 'fx_ghost_poof_', 0x90c050);
+    seq('item_repellent_', 4, [40, 56], 'item_blessing_', 0x80ffb0);
+    seqF('adrian_idle_', 2, [100, 164], ['krzysztof_idle_1', 'krzysztof_idle_2'], ADR);
+    seqF('adrian_talk_', 2, [110, 164], ['krzysztof_talk_1', 'krzysztof_talk_2'], ADR);
+    seqF('adrian_cast_', 3, [140, 164], ['krzysztof_coin_1', 'krzysztof_coin_2', 'krzysztof_talk_2'], ADR);
+    seq('proj_adrian_spell_', 3, [40, 40], 'fx_bless_', 0xc060ff);
+
     const has = (k) => typeof ART_FILES !== 'undefined' && Object.prototype.hasOwnProperty.call(ART_FILES, k);
     const api = {
         SPEC, has,

@@ -123,7 +123,56 @@ const LEVELS = [
         endAt: 6217,                                        // środek drzwi: kościół na ekranie tam, gdzie w bg_l3_dawn (x 310)
         defense: true,
         boss: 'rafal',
-        final: true,
+        next: 3,                                            // po świcie: proboszcz wysyła Kamila za diabłem -> Level 4
+    },
+    {
+        id: 4,
+        name: 'BAGNA',
+        dir: 1,                                             // w prawo, przez bagna do chaty czarnoksiężnika Adriana
+        length: 6800,
+        startAt: 110,
+        music: 'level4',
+        weather: { swampFog: true },
+        bg: { sky: 'bg_l4_sky', far: 'bg_l4_far', near: 'bg_l4_near', ground: 'tile_ground_swamp', water: 'tile_bog_',
+            bankL: 'bog_bank_left', bankR: 'bog_bank_right', end: 'hut_adrian' },
+        hints: [
+            { at: 0, text: '\u2192 = BIEG   DO CHATY CZARNOKSIĘŻNIKA ADRIANA!', touch: '> = BIEG   DO ADRIANA!', joy: 'JOYSTICK = BIEG   DO ADRIANA!', ms: 3200 },
+            { at: 760, text: 'BAGNO! WPADNIESZ = ŻYCIE MNIEJ. SKACZ!', touch: 'BAGNO! SKACZ!', ms: 3000 },
+            { at: 1560, text: 'SKACZ PO LILIACH WODNYCH', touch: 'SKACZ PO LILIACH', ms: 3000 },
+            { at: 2620, text: 'PIEŃ! WSKOCZ, GDY PODPŁYNIE', touch: 'PIEŃ! WSKOCZ, GDY PODPŁYNIE', ms: 3000 },
+        ],
+        rivers: [
+            { at: 900, w: 140 },
+            { at: 1700, w: 260, lily: [75, 175] },          // lilie wodne (środki, px od brzegu)
+            { at: 2800, w: 330, plank: 'log' },             // pływający pień (jak kładka; ekran czeka)
+            { at: 3900, w: 300, lily: [80, 200] },
+            { at: 4900, w: 360, plank: 'log' },
+            { at: 5600, w: 160 },
+        ],
+        obstacles: [
+            { type: 'reeds', at: 480 }, { type: 'stump', at: 700 }, { type: 'reeds', at: 1250 }, { type: 'stump', at: 1500 },
+            { type: 'reeds', at: 2200 }, { type: 'stump', at: 2450 }, { type: 'reeds', at: 3300 }, { type: 'stump', at: 3600 },
+            { type: 'reeds', at: 4350 }, { type: 'stump', at: 4650 }, { type: 'reeds', at: 5350 }, { type: 'stump', at: 5900 },
+        ],
+        items: [
+            ...row(260, 4, 26, 18), ...arc(905, 6, 24, 80), { type: 'repellent', at: 1150 }, ...row(1300, 4, 26, 60),
+            ...arc(1760, 5, 30, 70), { type: 'lightning', at: 2050, h: 26 }, ...row(2300, 4, 26, 18),
+            ...row(2830, 8, 34, 50),                        // nad pniem
+            ...arc(3400, 5, 18, 56), { type: 'repellent', at: 3700 }, ...arc(3960, 5, 40, 70), ...row(4400, 4, 26, 18),
+            { type: 'lightning', at: 4750, h: 26 }, ...row(4930, 8, 38, 50), { type: 'repellent', at: 5420 }, ...arc(5610, 6, 26, 80),
+        ],
+        enemies: {
+            from: 300, to: 6150,
+            stages: [                                       // głównie komary; im dalej, tym więcej bagiennych stworów
+                { at: 0, set: ['mosquito_small', 'mosquito_small', 'mosquito_big', 'frog'], minMs: 1200, maxMs: 2200, maxAlive: 8 },
+                { at: 2000, set: ['mosquito_small', 'mosquito_big', 'frog', 'bogman', 'mosquito_small'], minMs: 1000, maxMs: 1900, maxAlive: 9 },
+                { at: 4200, set: ['mosquito_small', 'mosquito_big', 'mosquito_big', 'frog', 'bogman', 'bogman'], minMs: 850, maxMs: 1600, maxAlive: 10 },
+            ],
+        },
+        arenaAt: 6250,                                      // tu ekran staje: chata Adriana na palach i walka
+        endAt: 6662,                                        // środek chaty
+        boss: 'adrian',
         next: null,
+        nextText: 'CIĄG DALSZY: LEVEL 5 – JAZDA SAMOCHODEM WKRÓTCE',
     },
 ];

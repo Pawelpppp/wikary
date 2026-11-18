@@ -186,7 +186,7 @@ Object.assign(LevelScene.prototype, {
             if (!e.active || e.dead || !e.body || (!e.body.enable && e.state !== 'warn')) return;
             const ey = e.originY === 1 ? e.y - e.displayHeight / 2 : e.y;
             if (Math.hypot(e.x - cx, ey - cy) > B.radius) return;
-            if (e.type === 'rafal') this.damageEnemy(e, B.bossDamage);
+            if (e.type === 'rafal' || e.type === 'adrian') this.damageEnemy(e, B.bossDamage);
             else this.damageEnemy(e, e.ghost ? B.ghostDamage : B.damage);
         });
         this.hostile.getChildren().slice().forEach(kk => { if (Math.hypot(kk.x - cx, kk.y - cy) <= B.radius) kk.destroy(); });
@@ -474,27 +474,39 @@ Object.assign(LevelScene.prototype, {
             this.cameras.main.flash(500, 255, 255, 255); WikaryAudio.sfx('exorcise');
             if (this.kamil.active) this.kamil.play('k_bless');
             await sleep(this, 900);
-            const gk = 'fx_rafal_ghost_1';
-            const ghost = this.add.sprite(e.x, e.y - e.displayHeight * 0.6, ART.key(gk)).setDepth(11).play('rafal_ghost');
-            ART.fit(this, ghost, gk, R.ghostFxScale, 0.5, 0.5); ghost.setAlpha(0.9);
+            // grzmot: z ciała Rafała wychodzi Czerwony Diabeł (to on go opętał)
+            WikaryAudio.sfx('thunder'); this.cameras.main.flash(400, 255, 230, 230); this.cameras.main.shake(300, 0.01);
+            const bolt = this.add.sprite(e.x, G, 'fx_lightning_strike_1').setOrigin(0.5, 1).setDepth(11.5).play('lightning_strike');
+            bolt.once('animationcomplete', () => bolt.destroy());
+            const xk = 'fx_devil_exit_rafal_1';
+            const exit = this.add.sprite(e.x, e.y - e.displayHeight * 0.6, ART.key(xk)).setDepth(11).play('devil_exit');
+            ART.fit(this, exit, xk, CFG.devil.exitFxScale, 0.5, 0.5);
+            this.tweens.add({ targets: exit, y: exit.y - 40, duration: 700 });
+            exit.once('animationcomplete', () => exit.destroy());
             this.exorcised = true;
-            this.tweens.add({ targets: ghost, y: ghost.y - 230, alpha: 0, duration: 1800, ease: 'Sine.easeIn', onComplete: () => ghost.destroy() });
-            WikaryAudio.sfx('scream');
-            await sleep(this, 700);
+            WikaryAudio.sfx('devil');
+            await sleep(this, 600);
+            const dv = this.spawnDevil(e.x + this.L.dir * 46, G - 30);
+            dv.setAlpha(0); this.tweens.add({ targets: dv, alpha: 1, y: G - 40, duration: 500 });
+            this.brimstone(dv.x, dv.y - 40, 0.9);
             // Rafał wraca do normy: oszołomiony, ląduje na ziemi
             e.normal = true; e.ghost = false; e.setAlpha(1);
             e.setTexture(ART.key('rafal_dazed_1')); e.play('rafal_dazed');
             ART.fit(this, e, 'rafal_dazed_1', CFG.hero.scale, 0.5, 1);
             this.tweens.add({ targets: e, y: G, duration: 400, ease: 'Bounce.easeOut' });
+            await sleep(this, 600);
+            await this.devilSay('Następnym razem zniszczę ten kościół i pokonam cię, księże wikary Kamilu!', 'devil_closeup_angry');
+            await this.kamilSay('A kysz! Wynocha z naszej parafii!');
+            this.devilFlyAway(1, -160);
             await sleep(this, R.dazedMs);
             this.startDawn();
             e.play('rafal_idle'); ART.fit(this, e, 'rafal_idle_1', CFG.hero.scale, 0.5, 1);
             await sleep(this, 900);
             await this.rafalSay('Co ja tu robię? I czemu trzymam klucze od zakrystii... i od plebanii... i od lodówki proboszcza?', 'rafal_closeup_confused');
-            await this.proboszczSay('Rafał, wróciłeś do nas! Upiór cię opuścił, a Kamil go przegonił.');
-            await this.kamilSay('Panie Rafale, następnym razem proszę nie dzwonić na Anioł Pański o północy.');
-            await this.rafalSay('Dzwoniłem?! Ja nawet budzika nie umiem nastawić...');
-            await this.proboszczSay('No, Kamil, z ciebie będzie jeszcze proboszcz! A teraz wszyscy na kawę i drożdżówkę.');
+            await this.rafalSay('Chyba opętał mnie diabeł... Pewnie poleciał teraz na bagna, do czarnoksiężnika Adriana.');
+            await this.proboszczSay('Kamil, ruszaj za tym diabłem do czarnoksiężnika Adriana i rozpraw się z tymi szatanami!');
+            await this.kamilSay('Na bagna? Znowu nie wziąłem kaloszy...');
+            await this.proboszczSay('Pan Bóg cię prowadzi. A kalosze pożyczy ci Rafał.');
             await sleep(this, 400);
         } catch (err) { /* dalej do podsumowania */ }
         this.showSummary();

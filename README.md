@@ -14,11 +14,11 @@ Automatyczne testy (Python + pytest + Playwright, przeglądarka headless) są w 
 - **Phaser 3.80** z CDN (jsDelivr), czysty JavaScript bez bundlera: `index.html`, `style.css`, `src/*.js`.
 - Rozdzielczość bazowa **568×320**, `Scale.FIT` + wyśrodkowanie, `pixelArt`, `roundPixels`. Mieści się w całości na telefonie poziomo.
 - **Wszystkie parametry rozgrywki** (prędkości, skok, grawitacja, auto-scroll, obrażenia, nietykalność, koszt ultimate, spawn wrogów, punkty) są w jednym bloku `CFG` w `src/config.js`.
-- **Poziomy opisane danymi** w `src/levels.js` (kierunek `dir` w prawo/lewo, rzeki, przeszkody, znajdźki, zestaw wrogów, koniec poziomu). Są Level 1, Level 2 i Level 3 (`defense`, `boss: 'rafal'`, `final`).
-- Dźwięk: chiptune generowany w **Web Audio** (`src/audio.js`, bez plików): organy na tytule i w intro, szybki motyw w Level 1, mocny bas, efekty (skok, salto, trafienie, znajdźki, dzwonek telefonu, piorun, rzut krzyżem, ogień, szczekanie, kracz, moneta, grzmot, Grom z Nieba). Level 2 ma własny mroczny motyw, a Hans szybki motyw bossa. Level 3 ma nocny motyw (h-moll) i własne efekty: syk gasnącego ognia, błogosławieństwo, wrzask Rafała, zamach kluczami, uderzenie w drzwi, czar proboszcza, upiór spod ziemi, egzorcyzm i dzwony o świcie.
+- **Poziomy opisane danymi** w `src/levels.js` (kierunek `dir` w prawo/lewo, rzeki, przeszkody, znajdźki, zestaw wrogów, koniec poziomu). Są Level 1, Level 2, Level 3 (`defense`, `boss: 'rafal'`) i Level 4 (`boss: 'adrian'`, `nextText`: zapowiedź Level 5).
+- Dźwięk: chiptune generowany w **Web Audio** (`src/audio.js`, bez plików): organy na tytule i w intro, szybki motyw w Level 1, mocny bas, efekty (skok, salto, trafienie, znajdźki, dzwonek telefonu, piorun, rzut krzyżem, ogień, szczekanie, kracz, moneta, grzmot, Grom z Nieba). Level 2 ma własny mroczny motyw, a Hans szybki motyw bossa. Level 3 ma nocny motyw (h-moll) i własne efekty: syk gasnącego ognia, błogosławieństwo, wrzask Rafała, zamach kluczami, uderzenie w drzwi, czar proboszcza, upiór spod ziemi, egzorcyzm i dzwony o świcie. Level 4 ma powolny, bagienny motyw (g-moll) i efekty: bzyczenie komarów, rechot i język żaby, bąble bagna, aura święconej wody, czar i teleport Adriana, głos diabła i silnik auta.
 - Font: [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) (SIL OFL, `assets/fonts/`).
 - Wersja na ekranie tytułowym: `v1.N`, N = liczba commitów na `master` (`src/version.js`).
-- Pliki: `src/boot.js` (ładowanie, animacje), `title.js`, `scores.js`, `intro.js`, `church.js` (kościół), `level.js` + `level2.js` (kładka, pogoda, nowi wrogowie, ogień, Hans) + `level3.js` (noc i mgła, duchy, błogosławieństwo, obrona kościoła, Rafał, świt), `art.js` + `art_files.js` (grafiki i zamienniki), `nick.js`, `ui.js`, `leaderboard.js`, `main.js`.
+- Pliki: `src/boot.js` (ładowanie, animacje), `title.js`, `scores.js`, `intro.js`, `church.js` (kościół), `level.js` + `level2.js` (kładka, pogoda, nowi wrogowie, ogień, Hans) + `level3.js` (noc i mgła, duchy, błogosławieństwo, obrona kościoła, Rafał, świt) + `level4.js` (bagno i zielona mgła, lilie i pnie, komary / żaby / bagienne stwory, święcona woda, Adrian, Czerwony Diabeł, auto), `art.js` + `art_files.js` (grafiki i zamienniki), `nick.js`, `ui.js`, `leaderboard.js`, `main.js`.
 
 ## Sterowanie
 | Akcja | Klawiatura | Dotyk |
@@ -34,7 +34,7 @@ Automatyczne testy (Python + pytest + Playwright, przeglądarka headless) są w 
 | Wycisz | M | przycisk M |
 | Menu | ↑ ↓ + Enter / Spacja | dotknij przycisk |
 
-Na dotyku przyciski są półprzezroczyste i pionowo na środku ekranu: GROM / (OGIEŃ od Level 2) / (BŁOG. w Level 3) / KRZYŻ / SKOK przy prawej krawędzi. Kamil nie wchodzi pod przyciski (margines `CFG.touch.heroMargin`).
+Na dotyku przyciski są półprzezroczyste i pionowo na środku ekranu: GROM / (OGIEŃ od Level 2) / (BŁOG. od Level 3) / KRZYŻ / SKOK przy prawej krawędzi. Kamil nie wchodzi pod przyciski (margines `CFG.touch.heroMargin`).
 
 **Telefon w pionie:** gra się zatrzymuje (fizyka, animacje, timery i czas poziomu stoją, dźwięk jest wstrzymany), a na całym ekranie widać komunikat „OBRÓĆ TELEFON POZIOMO”. Po obróceniu gra dopasowuje się do ekranu i rusza dalej od tego samego miejsca, także w trakcie dymka. Trzymany joystick i przyciski są wtedy puszczane, więc Kamil nie biegnie sam. Działa na każdym ekranie (tytuł, intro, kościół, poziomy, wyniki, nick), tylko na urządzeniach dotykowych; na komputerze komunikat nigdy się nie pokazuje. Ustawienia: `CFG.orientation` (`enabled`, `debounceMs`). Na iPhonie pole gry omija notch (`viewport-fit=cover` + `env(safe-area-inset-*)`), strona się nie przewija ani nie powiększa. Po wejściu w pełny ekran gra prosi o blokadę poziomej orientacji (Android; iOS po cichu odmawia). Sprawdzone w emulacji iPhone SE 2./3. gen (375×667), 13 mini (375×812) i 15 Pro Max (430×932). Minimalna testowana szerokość: 667 px w poziomie (iPhone SE 2./3. gen, 667×375); mniejszych urządzeń nie testujemy.
 
@@ -44,7 +44,7 @@ Na dotyku przyciski są półprzezroczyste i pionowo na środku ekranu: GROM / (
 |---|---|---|
 | Intro | Spacja = pomiń, Enter = dalej | dotknij = pomiń |
 | Kościół | Spacja / Esc = pomiń, Enter / klik = dalej | dotknij = dalej, POMIŃ |
-| Rozmowy w Level 2 | Enter / Spacja / klik = dalej | dotknij = dalej |
+| Rozmowy w poziomach (Level 2–4) | Enter / Spacja / klik = dalej | dotknij = dalej |
 
 ## Status (co już działa)
 - ✅ Ekran tytułowy: złoty migoczący tytuł, kościół, mrugająca twarz Kamila, rząd świeczek, START NEW GAME / HIGH SCORES, wersja, M i F.
@@ -57,10 +57,11 @@ Na dotyku przyciski są półprzezroczyste i pionowo na środku ekranu: GROM / (
 - ✅ Kościół po Level 1: rozmowa z proboszczem (dymki z mrugającymi portretami, animacja mówienia, błogosławieństwo), Kamil wychodzi w lewo do Level 2.
 - ✅ Level 2 „Wizyta u skąpego parafianina”: ekran w lewo, wieczór, deszcz i dalekie błyskawice, rozkopana droga, zwalone drzewa, dwie rzeki (druga z ruchomą kładką), wrony, dziki, błędne ogniki, znicz i kula ognia (Z), dom Krzysztofa, boss Hans z paskiem życia, zakończenie z dziesięcioma złotymi.
 - ✅ Punkty, życia, pasek, krzyż i czas przechodzą z poziomu na poziom; game over w Level 2 prowadzi do wpisania nicku.
-- ✅ Level 3 „Noc duchów”: noc, mgła i księżyc, duszki / fantomy / upiory (ogień na nie nie działa), błogosławieństwo (X), obrona drzwi kościoła z proboszczem (3 fale, pasek drzwi), boss kościelny Rafał, egzorcyzm, świt z dzwonami i „KONIEC... NA RAZIE!”.
-- ⏳ Następne: nowe zakończenie Level 3 z Czerwonym Diabłem, Level 4 „Bagna” i Level 5 (jazda samochodem) (scenariusz niżej), wspólna tablica na Azure.
+- ✅ Level 3 „Noc duchów”: noc, mgła i księżyc, duszki / fantomy / upiory (ogień na nie nie działa), błogosławieństwo (X), obrona drzwi kościoła z proboszczem (3 fale, pasek drzwi), boss kościelny Rafał, egzorcyzm, Czerwony Diabeł wychodzi z Rafała i ucieka na bagna, świt z dzwonami, proboszcz wysyła Kamila do Level 4.
+- ✅ Level 4 „Bagna”: zmierzch i zielona mgła, bagienne doły (wpadnięcie = -1 życie), lilie wodne i pływające pnie, komary (małe roje i duże z żądłem), żaby z językiem, bagienne stwory spod ziemi, święcona woda (aura na komary), chata Adriana na palach, boss czarnoksiężnik Adrian (kule, roje, teleport, 3 fazy, pasek), czerwony ekran i diabeł spod ziemi, auto Adriana, „CIĄG DALSZY: LEVEL 5 – JAZDA SAMOCHODEM WKRÓTCE” i wpisanie nicku. Grafiki Adriana jeszcze nie dotarły (zamienniki).
+- ⏳ Następne: grafiki Adriana, Level 5 (jazda samochodem, scenariusz niżej), wspólna tablica na Azure.
 
-**Debug:** `?debug=1` na ekranie tytułowym: 1 = Level 1, 2 = kościół, 3 = Level 2, 4 = Level 2 tuż przed Hansem, 5 = Level 3, 6 = Level 3 obrona kościoła, 7 = Level 3 od razu Rafał (także `?debug=1&level=2` / `level=3`).
+**Debug:** `?debug=1` na ekranie tytułowym: 1 = Level 1, 2 = kościół, 3 = Level 2, 4 = Level 2 tuż przed Hansem, 5 = Level 3, 6 = Level 3 obrona kościoła, 7 = Level 3 od razu Rafał, 8 = Level 4, 9 = Level 4 tuż przed chatą Adriana (także `?debug=1&level=2` / `level=3` / `level=4`). W konsoli: `__wikary.startL4('boss')`, `__wikary.adrian()`, `__wikary.devil()`.
 
 ## Bohater
 Główną postacią jest **wikary Kamil**: rude krótkie włosy, czarna sutanna, plecak.
@@ -123,7 +124,7 @@ Działa jak w Fibi Run:
 ### Kościelny Rafał (boss Level 3, „Upiorny Kościelny”)
 - Parafialny **kościelny Rafał**, na co dzień poczciwy opiekun kluczy i dzwonów. W Level 3 jest **opętany przez upiora**: blada, sina twarz, świecące oczy i upiorna poświata.
 - Walczy **pękiem kluczy**: **zamach wręcz** z bliska, **rzut kluczem** na dystans i **wrzask**, który przywołuje **duszki**.
-- Po pokonaniu następuje **egzorcyzm**: upiór z niego **wylatuje**, a Rafał wraca do normy, zdezorientowany: „Co ja tu robię?”. Potem dołącza do końcowej sceny o świcie z proboszczem.
+- Po pokonaniu następuje **egzorcyzm**: uderza piorun i z Rafała **wychodzi Czerwony Diabeł**, a Rafał wraca do normy, zdezorientowany: „Co ja tu robię?”. Potem dołącza do końcowej sceny o świcie z proboszczem.
 - Grafiki są w grze: upiorna wersja (`boss_rafal_*`: lot, chód, zamach, rzut, wrzask, trafienie, egzorcyzm; klucze `proj_key_1..2`; uciekający duch `fx_rafal_ghost_1..3`), normalna wersja po egzorcyzmie (`rafal_idle/talk/walk/dazed_*`) i portrety (`rafal_closeup_open/closed/confused`, `rafal_ghost_closeup_open/closed`). Podgląd: `docs/contact_rafal_ghost.png`, `docs/contact_rafal_normal.png`, `docs/contact_rafal_portraits.png`.
 
 ### Kościół po Level 1 (cutscenka z dymkami)
@@ -161,19 +162,17 @@ Działa jak w Fibi Run:
 - Rozgrywka typu **obrona**: duchy nadlatują **falami** z obu stron (3 fale), a gracz z proboszczem bronią **drzwi kościoła**. Drzwi mają własny pasek życia, a grafika drzwi zmienia się wraz z ich stanem. **Gdy pasek spadnie do zera, to koniec gry** (game over i wpisanie nicku). Ustawienia: `CFG.defense`.
 - Proboszcz strzela sam, ale co jakiś czas **się męczy** (siada i ociera pot, rzuca żart w dymku), a wtedy cała obrona spada na wikarego.
 - **Boss: kościelny Rafał, opętany przez upiora („Upiorny Kościelny”)**. Wychodzi z drzwi kościoła, lewituje i podlatuje do Kamila, walczy pękiem kluczy: zamach wręcz, rzut wirującymi kluczami i wrzask, który przywołuje duszki. Ma pasek życia i trzy fazy (szybszy, więcej kluczy, na końcu szał). Grom z Nieba zabiera mu tylko kawałek paska. Po wygranej egzorcyzm: upiór z niego wylatuje, a Rafał siedzi oszołomiony i wraca do normy („Co ja tu robię?”). Ustawienia: `CFG.rafal`.
-- **Zakończenie:** świt, biją dzwony, a Rafał dołącza do proboszcza i wikarego. Proboszcz **gratuluje** wikaremu („No, Kamil, z ciebie będzie jeszcze proboszcz!”) Potem podsumowanie, „KONIEC... NA RAZIE!” i wpisanie nicku do tablicy.
+- **Zakończenie (zrobione):** po pokonaniu Rafała **uderza grzmot** (błysk, wstrząs) i okazuje się, że kościelnego opętał sam **Czerwony Diabeł**: wychodzi z Rafała w kłębach siarki. Diabeł grozi: „Następnym razem zniszczę ten kościół i pokonam cię, księże wikary Kamilu!”, Kamil: „A kysz! Wynocha z naszej parafii!”, a diabeł **ucieka w prawo**. Rafał, jeszcze oszołomiony: „Co ja tu robię?...”, „Chyba opętał mnie diabeł... Pewnie poleciał teraz na bagna, do czarnoksiężnika Adriana”. Świt, biją dzwony, proboszcz: „Kamil, ruszaj za tym diabłem do czarnoksiężnika Adriana i rozpraw się z tymi szatanami!”. Podsumowanie („DALEJ: LEVEL 4 – BAGNA”) i od razu Level 4, z tymi samymi punktami, życiami i mocami.
 
-**Planowana zmiana zakończenia Level 3 (scenariusz – do zrobienia):**
-- Po pokonaniu Rafała **uderza grzmot** i okazuje się, że kościelnego opętał sam **Czerwony Diabeł**.
-- Diabeł grozi: „Następnym razem zniszczę ten kościół i pokonam cię, księże wikary Kamilu!” i **ucieka w prawo**.
-- Rafał, jeszcze oszołomiony: „Chyba opętał mnie diabeł... Pewnie poleciał teraz na bagna, do czarnoksiężnika Adriana”.
+### Level 4: „Bagna”
+- Kamil idzie **w prawo przez bagna**, o zmierzchu, w **zielonej mgle** (`CFG.swampFog`). Ma wszystkie trzy moce: krzyż, ogień (na bagiennych stworach działa) i błogosławieństwo.
+- **Bagienne doły:** wpadnięcie = -1 życie i powrót przed dół. Przez szersze doły prowadzą **lilie wodne** (stoją w miejscu) albo **pływające pnie** (pływają jak kładka w Level 2, ekran czeka). Na drodze **pnie** i **trzciny**. Ustawienia: `CFG.bog`.
+- **Wrogowie:** **małe komary** (roje, lecą zygzakiem na Kamila), **duże komary** (krążą wyżej i nurkują z żądłem), **żaby** (skaczą w stronę Kamila, z bliska strzelają językiem), **bagienne stwory** (najpierw bąble, potem wychodzą spod ziemi i idą). Im bliżej chaty, tym więcej stworów.
+- **Święcona woda** (item): na chwilę złota-zielona aura wokół Kamila, która zabija małe komary i odpycha duże (`CFG.repellent`).
+- **Koniec:** chata czarnoksiężnika **Adriana na palach**. Ekran staje, drzwi się otwierają, Adrian wychodzi na próg i po krótkiej rozmowie zeskakuje na bagno.
+- **Boss: czarnoksiężnik Adrian** (pasek życia): rzuca **fioletowe kule**, które lekko się naprowadzają, **przywołuje roje komarów** i **teleportuje się** w kłębach dymu (wtedy jest nietykalny). Trzy fazy: więcej kul, częstsze teleporty, na końcu szał. Grom z Nieba zabiera mu tylko kawałek paska. Ustawienia: `CFG.adrian`. Grafiki Adriana jeszcze nie dotarły: w grze jest przyciemniony, fioletowy Krzysztof (portret i kule: zamienniki).
 
-### Level 4: „Bagna” (scenariusz – do zrobienia)
-- **Początek:** proboszcz każe Kamilowi ruszyć za diabłem do **czarnoksiężnika Adriana** i rozprawić się z tymi szatanami.
-- Kamil idzie **w prawo przez bagna**. Atakują go głównie **komary** (większe i mniejsze) oraz inne **bagienne stwory**.
-- **Cel:** przejść bagna i dotrzeć do czarnoksiężnika Adriana. Grafiki Adriana dołączy autor później.
-
-**Po pokonaniu Adriana (scenariusz – do zrobienia):**
+**Po pokonaniu Adriana:**
 - Ekran powoli **robi się czerwony**, ziemia drży, a z ziemi **powoli wyłania się Czerwony Diabeł**.
 - Krótki dialog (propozycja):
   - Diabeł: „Brawo, księżulku. Pokonałeś mojego czarnoksiężnika... Ale to dopiero początek!”
@@ -182,7 +181,7 @@ Działa jak w Fibi Run:
   - Diabeł: „Milcz, Adrianie! Zemszczę się, wikary! Jeszcze o mnie usłyszysz!” I **odlatuje** w kłębach siarki.
 - Pokonany Adrian przyznaje: „Diabeł wie, gdzie mieszka moja rodzina... Sam mu powiedziałem, przy herbatce. Teraz tego żałuję”.
 - Żeby Kamil mógł **uratować jego rodzinę**, Adrian oddaje mu **swój samochód**: „Weź moje auto. Tylko uważaj na sprzęgło, trochę bierze wysoko”.
-- Ksiądz Kamil wsiada do auta i **rusza w lewo**.
+- Ksiądz Kamil wsiada do auta i **rusza w lewo**. Potem podsumowanie, „CIĄG DALSZY: LEVEL 5 – JAZDA SAMOCHODEM WKRÓTCE” i wpisanie nicku do tablicy.
 - Grafiki samochodu (czerwony hatchback, 219×100, przodem w prawo, więc jazda w lewo = odbicie w poziomie) już są w repo:
   - `assets/game/car_1.png`, `car_2.png` (auto z Kamilem za kierownicą, 2 klatki jazdy) oraz `car_empty_1.png`, `car_empty_2.png` (puste auto),
   - `assets/sprites/ksiadz_kamil_car.png`, `ksiadz_kamil_car_1.png`, `ksiadz_kamil_car_2.png` (Kamil w aucie; z wersjami `_x4`).
@@ -219,4 +218,8 @@ Assety w `assets/` (skopiowane z Fibi-Run). Nowe grafiki wikarego Kamila (patrzy
 - **Level 2, postacie** (`assets/sprites/`, skala jak Kamil, wersje `_x4`): `enemy_crow_fly_1..4`, `enemy_crow_dive_1..2` (wrona w grze ×0.6, bo jest mała: `CFG.enemies.crow.scale`), `enemy_boar_run_1..4`, `enemy_wisp_1..4`, `item_znicz_1..4`, `boss_hans_run_1..4`, `boss_hans_bark_1..2`, `boss_hans_hurt_1`, `boss_hans_defeated_1`.
 - **Level 3, otoczenie** (`assets/game/`, piksele ekranu 1:1, wersje `_x4`): `bg_l3_sky` (od 0,0, księżyc w lewym górnym rogu), `bg_l3_city_far` (od y=16), `bg_l3_houses_near` (od y=138), `tile_ground_night` (od y=288), mgła `fx_fog_1` (284×64, niżej i gęściej, y≈256) i `fx_fog_2` (wyżej i rzadziej, y≈232), `church_exterior_night` (240×250, dół na podłodze 288) + `church_door_night_hp_1..3` (48×72, drzwi coraz bardziej zniszczone, w kościele na 51,162; proboszcz stoi stopami na 75,238), `bg_l3_dawn` (cała scena o świcie, kościół w tym samym miejscu).
 - **Level 3, postacie i efekty** (`assets/sprites/`, patrzą w prawo, w grze ×0.45, wersje `_x4`): `enemy_duszek_1..4` (56×64, origin 0.5,0.5), `enemy_phantom_1..4` + `enemy_phantom_attack_1..2` (114×110, 0.5,0.5), `enemy_upior_rise_1..4` + `enemy_upior_walk_1..4` (158×130, 0.5,1), `fx_ghost_poof_1..4`, `item_blessing_1..4`, `fx_blessing_wave_1..4`, `proboszcz_cast_1..3` + `fx_proboszcz_spell_1..3`, `proboszcz_tired_sit_1..2` (linia siedzenia y=151 stoi na stopniu: origin 0.5,151/164), `wikary_kamil_blessing_1..3` (110×180; plik dostarczony jako `wikary_kamil_bless_1..3`, w repo pod tą nazwą, bo stare `wikary_kamil_bless_1..4` zostają dla krzyża, znicza i ultimate). Rafał: patrz wyżej.
-- **Podmiana grafik:** `python3 tools/art_manifest.py` skanuje `assets/` i zapisuje listę plików do `src/art_files.js`. Gra ładuje tylko pliki z listy, a dla brakujących używa zamienników z `src/art.js` (`ART.SPEC`: istniejąca grafika + odcień/skala). Nową grafikę wystarczy wrzucić pod docelową nazwą i uruchomić skrypt. W `?debug=1` `__wikary.artMissing()` pokazuje, które zamienniki są w użyciu (teraz: żadne).
+- **Czerwony Diabeł** (`assets/sprites/`, w grze ×0.45, wersje `_x4`): `devil_rise_1..6` (wyłania się z ziemi), `devil_idle_1..2`, `devil_talk_1..2`, `devil_fly_1..4`, `fx_brimstone_1..4` (siarka), `fx_devil_exit_rafal_1..4` (wyjście z Rafała); portrety `assets/portraits/devil_closeup_open/closed/angry`. Podgląd: `docs/contact_devil.png`, `docs/contact_devil_portraits.png`.
+- **Level 4, otoczenie** (`assets/game/`, piksele ekranu 1:1, wersje `_x4`): `bg_l4_sky` (od 0,0), `bg_l4_far` (od y=16), `bg_l4_near` (od y=138), `tile_ground_swamp` (od y=288), `tile_bog_1..4` (64×32, od y=288, pętla) + `bog_bank_left/right` (16×32), `platform_lily` (48×12) i `platform_log` (80×14) (środek y≈294 na tafli), `obstacle_stump` (40×32), `obstacle_reeds` (48×40), mgła `fx_swamp_fog_1..2` (284×64, y≈256 / 232), `hut_adrian` (260×240, dół na podłodze 288) + `hut_adrian_door_1..2` (18×54, zamknięte / otwarte, w chacie na 83,100; drzwi są małe, więc Kamil przez nie nie wchodzi, wychodzi z nich tylko Adrian).
+- **Level 4, wrogowie** (`assets/sprites/`, patrzą w prawo, w grze ×0.45, wersje `_x4`): `enemy_mosquito_small_1..3` (40×32), `enemy_mosquito_big_1..4` + `enemy_mosquito_big_sting_1..2` (90×74), `enemy_frog_1..4` (136×84, origin 0.5,1, podskok wrysowany) + `enemy_frog_tongue_1..2` (230×84, te same stopy, czubek języka 81 / 112 px przed stopami), `enemy_bogman_rise_1..4` + `enemy_bogman_walk_1..4` (118×130, 0.5,1), `fx_splat_1..4` (48×48), `item_repellent_1..4` (40×56).
+- **Adrian** (jeszcze nie ma; zamienniki: przyciemniony fioletowy Krzysztof, portret Krzysztofa, kule = czar proboszcza na fioletowo): `adrian_idle_1..2`, `adrian_talk_1..2`, `adrian_cast_1..3`, `adrian_hurt_1`, `adrian_defeated_1`, `adrian_closeup_open/closed/ashamed`, `proj_adrian_spell_1..3`.
+- **Podmiana grafik:** `python3 tools/art_manifest.py` skanuje `assets/` i zapisuje listę plików do `src/art_files.js`. Gra ładuje tylko pliki z listy, a dla brakujących używa zamienników z `src/art.js` (`ART.SPEC`: istniejąca grafika + odcień/skala). Nową grafikę wystarczy wrzucić pod docelową nazwą i uruchomić skrypt. W `?debug=1` `__wikary.artMissing()` pokazuje, które zamienniki są w użyciu (teraz: tylko grafiki Adriana `adrian_*` i `proj_adrian_spell_*`).

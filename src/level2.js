@@ -7,23 +7,37 @@
 Object.assign(LevelScene.prototype, {
 
     /* ---------- ruchoma kładka nad rzeką ---------- */
-    createPlank(x0, x1) {
-        const P = CFG.plank, G = CFG.GROUND_Y, [w, h] = ART.SPEC.platform_plank.size;
-        const minX = x0 + w / 2 + P.margin, maxX = x1 - w / 2 - P.margin, x = this.L.dir > 0 ? minX : maxX;
-        const p = ART.has('platform_plank') ? this.add.image(x, G + 1, 'platform_plank')
-            : this.add.tileSprite(x, G + 1, w, h, 'tile_ground_cobble').setTint(ART.SPEC.platform_plank.tint);
+    /** pływająca platforma nad rzeką / bagnem: kładka (L2) albo pień (L4); ekran czeka, aż Kamil przepłynie */
+    createPlank(x0, x1, key) {
+        key = key || 'platform_plank';
+        const log = key === 'platform_log', speed = log ? CFG.bog.logSpeed : CFG.plank.speed, margin = log ? CFG.bog.logMargin : CFG.plank.margin;
+        const [w] = ART.SPEC[key].size;
+        const minX = x0 + w / 2 + margin, maxX = x1 - w / 2 - margin, x = this.L.dir > 0 ? minX : maxX;
+        const p = this.createPlatform(x, key);
+        p.minX = minX; p.maxX = maxX; p.speed = speed;
+        p.body.setVelocityX(this.L.dir * speed);
+        return p;
+    },
+    /** platforma na poziomie ziemi (wierzch hitboxu = ziemia); bez prędkości stoi (lilia wodna w L4) */
+    createPlatform(x, key) {
+        const G = CFG.GROUND_Y, [w, h] = ART.SPEC[key].size, y = key === 'platform_plank' ? G + 1 : CFG.bog.surfaceY;
+        const p = key === 'platform_plank' && !ART.has(key)
+            ? this.add.tileSprite(x, y, w, h, 'tile_ground_cobble').setTint(ART.SPEC.platform_plank.tint)
+            : ART.image(this, x, y, key, 1, 0.5, 0.5);
         p.setDepth(3.6);
         this.physics.add.existing(p);
-        p.body.setSize(w, h - 4, false); p.body.setOffset(0, 4);       // wierzch hitboxu = poziom ziemi (stopy jak na bruku)
+        const sx = Math.abs(p.scaleX) || 1, sy = Math.abs(p.scaleY) || 1, top = G - (y - h / 2);      // od wierzchu obrazka do poziomu ziemi
+        const bw = key === 'platform_lily' ? CFG.bog.lilyW : w, bh = key === 'platform_lily' ? CFG.bog.lilyH : h - top;
+        p.body.setSize(bw / sx, bh / sy, false); p.body.setOffset((w - bw) / 2 / sx, top / sy);
         p.body.setAllowGravity(false); p.body.setImmovable(true); p.body.setFriction(0, 0);   // przenoszenie robi carryOnPlank
         p.body.checkCollision.down = false; p.body.checkCollision.left = false; p.body.checkCollision.right = false;
-        p.minX = minX; p.maxX = maxX; p.prevX = x; p.dx = 0;
-        p.body.setVelocityX(this.L.dir * P.speed);
+        p.minX = x; p.maxX = x; p.prevX = x; p.dx = 0; p.speed = 0; p.kind = key;
         this.planks.push(p);
+        return p;
     },
     updatePlanks() {
-        const S = CFG.plank.speed;
         this.planks.forEach(p => {
+            const S = p.speed;
             if (p.x >= p.maxX && p.body.velocity.x > 0) p.body.setVelocityX(-S);
             else if (p.x <= p.minX && p.body.velocity.x < 0) p.body.setVelocityX(S);
             p.dx = p.x - p.prevX; p.prevX = p.x;

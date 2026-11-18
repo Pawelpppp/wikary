@@ -101,7 +101,7 @@ const CFG = {
     rafal: {                        // boss Level 3: kościelny Rafał opętany przez upiora
         hp: 24, scale: 0.45, bodyW: 34, bodyH: 66, gromDamage: 5, hurtMs: 140,
         floatSpeed: 70, keepDist: 90, bobAmp: 4, bobFreq: 1.6, hover: 0, arenaPad: 30,   // hover: grafika float sama unosi stopy 6-8 px
-        keyScale: 1, ghostFxScale: 0.9,
+        keyScale: 1,
         swingRange: 70, swingWindupMs: 420, swingMs: 300, swingReach: 64,
         throwWindupMs: 380, keySpeed: 210, keySpin: 720, keyLifeMs: 2600, keyW: 16, keyH: 16,
         screamMs: 1000, enterMs: 1200,
@@ -113,7 +113,45 @@ const CFG = {
         dazedMs: 1600,
     },
 
-    dawn: { fadeMs: 2600, depth: 5.5 },   // świt: bg_l3_dawn nad kościołem i drzwiami, pod postaciami (proboszcz 6, Kamil 10)
+    dawn: { fadeMs: 2600, depth: 5.5 },
+
+    devil: {                        // Czerwony Diabeł (koniec Level 3 i Level 4): tylko cutscenki
+        scale: 0.45, exitFxScale: 0.9, brimstoneScale: 0.8,
+        flyMs: 1800, riseMs: 2600, riseDepth: 1.5,
+        redAlpha: 0.38, redMs: 900, redColor: 0xb01010,
+    },
+
+    swampFog: [                     // Level 4: zielona mgła nad bagnem (fx_swamp_fog_1/2, zamiennik = mgła z L3 w zieleni)
+        { key: 'fx_swamp_fog_2', y: 230, speed: 6, par: 0.6, alpha: 0.55, depth: 7.3 },
+        { key: 'fx_swamp_fog_1', y: 256, speed: 12, par: 0.9, alpha: 0.65, depth: 7.4 },
+    ],
+
+    bog: {                          // Level 4: bagienne doły (jak rzeki: wpadnięcie = życie mniej, powrót przed dołem)
+        lilyW: 40, lilyH: 8, surfaceY: 294,   // surfaceY: środek lilii / pnia na tafli bagna
+                                             // lilie wodne: stałe platformy (hitbox px)
+        logSpeed: 55, logMargin: 8,                               // pnie: pływają tam i z powrotem jak kładka
+    },
+
+    repellent: {                    // Level 4: święcona woda na komary (item_repellent): aura wokół Kamila
+        ms: 9000, radius: 46, bigPush: 220, auraScale: 0.55, warnMs: 2000,
+    },
+
+    adrian: {                       // boss Level 4: czarnoksiężnik Adrian
+        hp: 26, scale: 0.45, bodyW: 30, bodyH: 66, gromDamage: 5, hurtMs: 140, blessDamage: 2,
+        spots: [130, 290, 450],     // miejsca teleportu: x na ekranie areny
+        enterMs: 900, castWindupMs: 520, orbSpeed: 120, orbTurn: 2.6, orbLifeMs: 4200, orbW: 14, orbH: 14, orbScale: 0.7,
+        summonMs: 900, teleportMs: 420, keepAway: 110,
+        phases: [
+            { from: 1.0, orbs: 1, swarm: 1, restMs: 1500, teleportEvery: 3 },
+            { from: 0.6, orbs: 2, swarm: 2, restMs: 1200, teleportEvery: 2 },
+            { from: 0.3, orbs: 3, swarm: 2, restMs: 900, teleportEvery: 1, enraged: true },
+        ],
+        heroStandOff: 210,
+    },
+
+    hut: { floorY: 288, door: { x: 83, y: 100 } },   // chata Adriana na palach: lewy górny róg drzwi w obrazku (260x240)
+
+    car: { scale: 0.45, driveMs: 2600, enterMs: 500 }, // auto Adriana (car_*.png 219x100, przodem w prawo)   // świt: bg_l3_dawn nad kościołem i drzwiami, pod postaciami (proboszcz 6, Kamil 10)
 
     church: { floorY: 288, kamilFrom: -30, kamilTo: 340, proboszczX: 450, basketX: 404, blessMs: 1500 },
 
@@ -148,7 +186,8 @@ const CFG = {
 
     score: { diamond: 50, lightning: 100, cross: 500, znicz: 500, dog: 100, wolf: 200, bat: 80, spider: 120,
         crow: 90, boar: 180, wisp: 110, hans: 3000, tenZloty: 1000,
-        duszek: 60, phantom: 120, upior: 200, blessing: 500, rafal: 5000 },
+        duszek: 60, phantom: 120, upior: 200, blessing: 500, rafal: 5000,
+        mosquito_small: 40, mosquito_big: 130, frog: 150, bogman: 220, repellent: 200, adrian: 6000 },
 
     enemies: {
         // skala postaci = jak Kamil (0.45); bodyW/bodyH = hitbox na ekranie (px)
@@ -163,6 +202,12 @@ const CFG = {
         duszek:  { hp: 1, scale: 0.45, weight: 4, ghost: true, speed: 70, bob: 18, bobFreq: 3, yMin: 150, yMax: 230, bodyW: 20, bodyH: 22, center: true },
         phantom: { hp: 2, scale: 0.45, weight: 2, ghost: true, center: true, groundGap: 2, appearMs: 300, flickerMs: 750, dashSpeed: 240, bodyW: 46, bodyH: 30 },
         upior:   { hp: 3, scale: 0.45, weight: 2, ghost: true, warnMs: 800, riseMs: 900, speed: 38, bodyW: 26, bodyH: 50 },
+        // Level 4: bagno (ogień działa)
+        mosquito_small: { hp: 1, scale: 0.45, weight: 4, swarm: 4, gap: 22, speed: 120, home: 1.6, amp: 16, freq: 5, yMin: 150, yMax: 235, bodyW: 12, bodyH: 10, center: true },
+        mosquito_big:   { hp: 2, scale: 0.45, weight: 2, speed: 90, yMin: 110, yMax: 160, diveRange: 120, diveSpeed: 240, stingMs: 500, pullUpY: 255, bodyW: 30, bodyH: 22, center: true },
+        frog:           { hp: 2, scale: 0.45, weight: 2, jumpEveryMs: 1400, jumpVX: 110, jumpV: 260, tongueRange: 58, tongueReach: 50, tongueMs: 420,   // tongueReach: czubek długiego języka 112 px płótna × 0.45
+                           tongueCdMs: 1600, bodyW: 30, bodyH: 20 },
+        bogman:         { hp: 3, scale: 0.45, weight: 2, warnMs: 900, riseMs: 1000, speed: 42, bodyW: 28, bodyH: 54 },
         wisp:   { hp: 1, scale: 0.45, weight: 2, radius0: 150, radius1: 30, shrinkPerS: 16, angSpeed: 2.2, follow: 3.0, lifeMs: 9000, yMin: 150, yMax: 220, bodyW: 16, bodyH: 18, center: true },
     },
     spawn: { minMs: 1300, maxMs: 2600, maxAlive: 6 },
@@ -173,6 +218,8 @@ const CFG = {
         trash_bin: { w: 22, h: 30 },
         dug_road: { w: 64, h: 16 },
         fallen_tree: { w: 80, h: 30 },
+        stump: { w: 32, h: 26 },
+        reeds: { w: 30, h: 22 },
     },
     debug: false,
 };

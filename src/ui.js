@@ -77,6 +77,9 @@ function hintBubble(scene, s, ms, y) {
     const pad = 8;
     const bg = scene.add.rectangle(CFG.W / 2, y || 62, t.width + pad * 2, t.height + pad * 2, 0x140c1c, 0.88).setStrokeStyle(2, 0xd8a640);
     const c = scene.add.container(0, 0, [bg, t]).setScrollFactor(0).setDepth(1900).setAlpha(0);
+    const slot = (scene.hintSlots = scene.hintSlots || {}), key = y || 62;
+    if (slot[key] && slot[key].active) slot[key].destroy();     // nowa podpowiedź w tym samym miejscu zastępuje starą
+    slot[key] = c;
     scene.tweens.add({ targets: c, alpha: 1, duration: 200 });
     scene.time.delayedCall(ms || 3000, () => {
         scene.tweens.add({ targets: c, alpha: 0, duration: 300, onComplete: () => c.destroy() });
@@ -159,5 +162,6 @@ function debugStart(scene, idx, startAt, extra) {
     GS.reset();
     if (idx >= 1) GS.hasCross = true;
     if (idx >= 2) GS.hasFire = true;
+    if (idx >= 3) GS.hasBless = true;
     scene.scene.start('Level', Object.assign({ level: idx, startAt }, extra || {}));
 }

@@ -36,6 +36,9 @@
                 rafal: () => { const l = game.scene.getScene('Level'); return l && l.rafal; },
                 defense: () => { const l = game.scene.getScene('Level'); return l && l.defense; },
                 startL3: (part) => { const s = game.scene.getScenes(true)[0]; debugStart(s, 2, part ? LEVELS[2].arenaAt - 60 : undefined, part === 'boss' ? { skipTo: 'boss' } : null); GS.hasBless = !!part; },
+                adrian: () => { const l = game.scene.getScene('Level'); return l && l.adrian; },
+                devil: () => { const l = game.scene.getScene('Level'); return l && l.devil; },
+                startL4: (part) => { const s = game.scene.getScenes(true)[0]; debugStart(s, 3, part ? LEVELS[3].arenaAt - 60 : undefined); },
                 orientation: () => ({ overlay: Orientation.paused, gamePaused: game.isPaused, byUs: Orientation.pausedByUs }),
                 teleport: (d) => game.scene.getScene('Level').debugTeleport(d),
             };

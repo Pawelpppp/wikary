@@ -207,7 +207,7 @@ def beat_rafal(page):
 
 
 def finish_game(page):
-    """Cała gra do wpisania nicku: Level 1 -> kościół -> Level 2 (Hans) -> Level 3 (obrona, Rafał)."""
+    """Cała gra do wpisania nicku: Level 1 -> kościół -> Level 2 (Hans) -> Level 3 (obrona, Rafał) -> Level 4 (Adrian)."""
     finish_level1(page)
     skip_church(page)
     reach_arena(page)
@@ -220,5 +220,36 @@ def finish_game(page):
     skip_waves(page)
     beat_rafal(page)
     page.keyboard.press("Enter")
+    wait_js(page, "__wikary.scene().includes('Level') && __wikary.level().L.id === 4", 8)
+    time.sleep(0.5)
+    page.evaluate("__wikary.level().invulnUntil = 1e12")
+    reach_adrian(page)
+    beat_adrian(page)
+    page.keyboard.press("Enter")
     assert wait_scene(page, "Nick", 5)
     time.sleep(0.5)
+
+
+def start_l4(page, part=None):
+    """Level 4 z debug: part=None (start), 'boss' (tuż przed chatą Adriana)."""
+    page.evaluate(f"__wikary.startL4({repr(part) if part else ''})")
+    wait_js(page, "__wikary.scene().includes('Level') && __wikary.level().L.id === 4", 8)
+    time.sleep(0.6)
+
+
+def reach_adrian(page):
+    """Level 4: skok pod chatę, pominięcie rozmowy, czekanie aż Adrian zacznie walkę."""
+    page.evaluate("__wikary.GS.lives = Math.max(__wikary.GS.lives, 1)")
+    if not page.evaluate("__wikary.level().arena"):
+        teleport(page, page.evaluate("__wikary.LEVELS[3].arenaAt") - 60)
+        hold(page, "ArrowRight", 0.8)
+        wait_js(page, "__wikary.level().arena", 5)
+    skip_dialogs_until(page, "!!__wikary.adrian() && __wikary.adrian().state !== 'enter' && !__wikary.level().cutscene", 30)
+
+
+def beat_adrian(page):
+    """Adrian z 1 HP, trafiony; diabeł, wyznanie, auto, podsumowanie."""
+    page.evaluate("""(()=>{const l=__wikary.level(),a=__wikary.adrian(); l.invulnUntil=1e12;
+        a.hp=1; a.harmless=false; l.damageEnemy(a, 1);})()""")
+    wait_js(page, "__wikary.adrian().dead", 3)
+    skip_dialogs_until(page, "__wikary.level().summaryShown", 60)

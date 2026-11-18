@@ -94,6 +94,7 @@ def test_plank_moves_and_carries_kamil(game):
 
 def test_screen_waits_at_plank_river(game):
     start_l2(game)
+    game.evaluate("(()=>{const l=__wikary.level(); l.nextSpawn=1e12; l.enemies.getChildren().slice().forEach(e=>e.destroy());})()")   # bez wrogów: liczy się tylko rzeka
     teleport(game, 3230)
     time.sleep(4.0)
     lv = game.evaluate("(()=>{const l=__wikary.level();return {front:l.frontD(), lives:__wikary.GS.lives}})()")
