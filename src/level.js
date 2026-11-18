@@ -274,6 +274,15 @@ class LevelScene extends Phaser.Scene {
         if (CFG.touch.joystick.tapJump) this.jumpAt = this.time.now;
     }
 
+    /** puszczenie wszystkiego, co trzymane (np. po obróceniu telefonu): Kamil nie biegnie dalej sam */
+    resetHeldInput() {
+        if (!this.touch) return;
+        this.touch.left = this.touch.right = this.touch.down = this.touch.ult = false;
+        if (this.joy) this.joyRelease();
+        const a = CFG.touch.alpha;
+        Object.values(this.touchButtons || {}).forEach(r => r.setFillStyle(0x140c1c, a));
+    }
+
     /* ---------- kucanie (strzałka w dół / przycisk ↓) ---------- */
     setCrouch(on, time) {
         if (on === this.crouching) return;

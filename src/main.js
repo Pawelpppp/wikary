@@ -19,6 +19,7 @@
         game.events.once('ready', () => ['keydown', 'keyup'].forEach(t => window.addEventListener(t, (e) => {
             if (e.key === 'Alt' || e.code === 'AltLeft' || e.code === 'AltRight') e.preventDefault();
         })));
+        game.events.once('ready', () => Orientation.init(game));
         if (DEBUG) {                                        // tylko do testów: ?debug=1
             window.__wikary = {
                 game, GS, CFG, LEVELS,
@@ -32,6 +33,7 @@
                 startScene: (key, data) => { const s = game.scene.getScenes(true)[0]; s.scene.start(key, data || {}); },
                 boss: () => { const l = game.scene.getScene('Level'); return l && l.boss; },
                 artMissing: () => ART.missing(),
+                orientation: () => ({ overlay: Orientation.paused, gamePaused: game.isPaused, byUs: Orientation.pausedByUs }),
                 teleport: (d) => game.scene.getScene('Level').debugTeleport(d),
             };
         }

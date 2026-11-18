@@ -46,6 +46,12 @@ const CFG = {
         },
     },
 
+    orientation: {                  // telefon w pionie = pauza + komunikat „OBRÓĆ TELEFON POZIOMO” (tylko dotyk)
+        enabled: true,
+        debounceMs: 150,            // iOS podaje nowe wymiary z opóźnieniem
+        refreshLateMs: 400,         // drugie odświeżenie skali po obrocie
+    },
+
     scrollSpeed: 55,                // auto-scroll ekranu
     puddle: { slowMult: 0.5, slowMs: 600 },
     boost: { mult: 1.55, ms: 4500 },       // piorun = przyspieszenie biegu

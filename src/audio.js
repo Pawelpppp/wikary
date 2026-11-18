@@ -267,6 +267,10 @@ const WikaryAudio = (function () {
 
     return {
         get muted() { return muted; },
+        get state() { return ctx ? ctx.state : 'none'; },
+        /** wstrzymanie dźwięku (telefon w pionie); zwraca true, gdy to my wstrzymaliśmy */
+        suspend() { if (!ctx || ctx.state !== 'running') return false; try { ctx.suspend(); } catch (e) { return false; } return true; },
+        resumeSuspended() { if (ctx && ctx.state === 'suspended') { try { ctx.resume(); } catch (e) { /* */ } } },
         unlock() {
             if (!init()) return;
             if (ctx.state === 'suspended') ctx.resume();

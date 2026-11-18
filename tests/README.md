@@ -41,6 +41,7 @@ Przydatne opcje pytest-playwright: `--headed` (widoczna przeglądarka), `--brows
 | `test_restart_state.py` | kolejne podejścia po wygranej i game over mają czysty stan |
 | `test_touch_mobile.py` | dotyk (START, pominięcie intro, skok, przycisk ↓), stary układ przycisków z `?touch=buttons` (pionowo na środku przy krawędziach, OGIEŃ w Level 2 w obu trybach, półprzezroczyste, Kamil nie wchodzi pod nie), `?touch=1`, skalowanie 1280×720 |
 | `test_touch_joystick.py` | joystick (test): prędkość zależna od wychylenia, martwa strefa, palec poza strefą, kucanie w dół; dotknięcie = skok, 2× = salto; dotknięcie w strefie joysticka nie skacze; dymek przewijany bez skoku; KRZYŻ / SKOK / GROM / OGIEŃ razem z joystickiem (wielodotyk przez CDP); tryb `?touch=buttons` |
+| `test_orientation.py` | telefon w pionie (iPhone SE 2./3. gen jako minimum, 13 mini, 15 Pro Max w emulacji Chromium; mniejszych nie testujemy): komunikat i pauza (czas, kamera, Kamil stoją, dźwięk wstrzymany), wznowienie po obróceniu, dopasowanie FIT bez przewijania, przyciski i joystick na ekranie i z dala od notcha, obrót w trakcie dymka, wznawianie tylko własnej pauzy, puszczenie joysticka, każda scena, brak komunikatu na komputerze, meta viewport i CSS pod iOS |
 | `test_console_errors.py` | zwykłe uruchomienie bez debug, krótka rozgrywka, ładowanie wszystkich grafik |
 
 ## CI
