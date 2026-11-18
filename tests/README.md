@@ -34,7 +34,7 @@ Przydatne opcje pytest-playwright: `--headed` (widoczna przeglądarka), `--brows
 | `test_highscores.py` | tablica wyników: pusta, sanityzacja nicku, sortowanie i limit 20, zapis nicku z polską literą |
 | `test_intro.py` | start intro, Enter w dialogach, pomijanie Spacją |
 | `test_level1.py` | ruch, kamera, rzeka (utonięcie, zwykły skok, salto), krzyż, wrogowie, dojście do kościoła (przejście do sceny Church) |
-| `test_level2.py` | kościół (dymki, Enter, Spacja, przejście do Level 2), przenoszenie stanu L1→L2, kierunek w lewo, błyskawice, kładka (ruch, wożenie Kamila, ekran czeka), znicz → ogień przebijający 3 psy, wrony / dziki / ogniki, game over w L2 → nick, Hans (pasek, fala szczeknięcia ogłusza, fazy, wygrana → zakończenie → nick) |
+| `test_level2.py` | kościół (dymki, Enter, Spacja, przejście do Level 2), przenoszenie stanu L1→L2, kierunek w lewo, błyskawice, kładka (ruch, wożenie Kamila, ekran czeka), znicz → ogień przebijający 3 psy, wrony / dziki / ogniki, game over w L2 → nick, Hans (pasek, fala szczeknięcia ogłusza, fazy, wygrana → zakończenie → Level 3) |
 | `test_art.py` | `src/art_files.js` aktualny (lokalnie), wszystkie grafiki docelowe załadowane, brak zamienników |
 | `test_crouch.py` | kucanie: niższy hitbox, brak biegu, skok z kucnięcia, nietoperz i pająk nad głową kucającego / trafiają stojącego |
 | `test_ultimate.py` | Grom z Nieba: ładowanie, wyzwolenie, anulowanie, brak bez pełnego paska |
@@ -42,6 +42,7 @@ Przydatne opcje pytest-playwright: `--headed` (widoczna przeglądarka), `--brows
 | `test_touch_mobile.py` | dotyk (START, pominięcie intro, skok, przycisk ↓), stary układ przycisków z `?touch=buttons` (pionowo na środku przy krawędziach, OGIEŃ w Level 2 w obu trybach, półprzezroczyste, Kamil nie wchodzi pod nie), `?touch=1`, skalowanie 1280×720 |
 | `test_touch_joystick.py` | joystick (test): prędkość zależna od wychylenia, martwa strefa, palec poza strefą, kucanie w dół; dotknięcie = skok, 2× = salto; dotknięcie w strefie joysticka nie skacze; dymek przewijany bez skoku; KRZYŻ / SKOK / GROM / OGIEŃ razem z joystickiem (wielodotyk przez CDP); tryb `?touch=buttons` |
 | `test_orientation.py` | telefon w pionie (iPhone SE 2./3. gen jako minimum, 13 mini, 15 Pro Max w emulacji Chromium; mniejszych nie testujemy): komunikat i pauza (czas, kamera, Kamil stoją, dźwięk wstrzymany), wznowienie po obróceniu, dopasowanie FIT bez przewijania, przyciski i joystick na ekranie i z dala od notcha, obrót w trakcie dymka, wznawianie tylko własnej pauzy, puszczenie joysticka, każda scena, brak komunikatu na komputerze, meta viewport i CSS pod iOS |
+| `test_level3.py` | Level 3: przejście z Level 2 i przenoszenie stanu, noc i mgła, coraz więcej duchów, ogień syczy na duchach (dymek), krzyż je zabija, upiór (kurz, wyjście spod ziemi, chód), fantom przelatuje przez przeszkody, błogosławieństwo (zdobycie, promień, cooldown), drzwi z paskiem i grafiką wg HP, drzwi = 0 to game over, proboszcz rzuca czary i się męczy, 3 fale, Rafał (pasek, fazy, limit Gromu, klucze, wrzask), egzorcyzm, świt, dialog „Co ja tu robię?”, „KONIEC... NA RAZIE!” -> nick, `?debug=1&level=3` |
 | `test_console_errors.py` | zwykłe uruchomienie bez debug, krótka rozgrywka, ładowanie wszystkich grafik |
 
 ## CI

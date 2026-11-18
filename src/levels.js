@@ -40,7 +40,7 @@ const LEVELS = [
         enemies: { from: 1420, to: 5150, set: ['dog', 'wolf', 'bat', 'spider'] },
         endAt: 5450,                                        // drzwi kościoła (środek drzwi)
         endText: 'Zdążyłem!',
-        next: 1,                                            // po podsumowaniu: kościół (rozmowa) -> Level 2
+        next: 1, nextVia: 'Church',                         // po podsumowaniu: kościół (rozmowa) -> Level 2
     },
     {
         id: 2,
@@ -77,6 +77,53 @@ const LEVELS = [
         arenaAt: 5880,                                      // tu ekran staje: dom Krzysztofa i walka z Hansem
         endAt: 6250,                                        // drzwi domu Krzysztofa
         boss: 'hans',
+        next: 2,                                            // po podsumowaniu: od razu Level 3
+    },
+    {
+        id: 3,
+        name: 'NOC DUCHÓW',
+        dir: 1,                                             // znów w prawo: ta sama droga z powrotem, na końcu kościół
+        length: 6400,
+        startAt: 110,
+        music: 'level3',
+        weather: { fog: true },
+        night: true,
+        bg: { sky: 'bg_l3_sky', far: 'bg_l3_city_far', near: 'bg_l3_houses_near', ground: 'tile_ground_night', water: 'tile_water_', end: 'church_exterior_night', dawn: 'bg_l3_dawn' },
+        waterTint: 0x6a70a8,
+        hints: [
+            { at: 0, text: '\u2192 = BIEG   NOC DUCHÓW: WRACAJ DO KOŚCIOŁA!', touch: '> = BIEG   DO KOŚCIOŁA!', joy: 'JOYSTICK = BIEG   DO KOŚCIOŁA!', ms: 3200 },
+            { at: 700, text: 'DUCHÓW NIE SPALISZ: NA DUCHY KRZYŻ (ALT)', touch: 'NA DUCHY: KRZYŻ', ms: 3000 },
+            { at: 2580, text: 'KŁADKA! WSKOCZ, GDY PODPŁYNIE', touch: 'KŁADKA! WSKOCZ, GDY PODPŁYNIE', ms: 3000 },
+        ],
+        rivers: [{ at: 2770, w: 330, plank: true }, { at: 5100, w: 150 }],
+        obstacles: [
+            { type: 'fence', at: 980 }, { type: 'dug_road', at: 1220 }, { type: 'puddle', at: 1450 }, { type: 'fallen_tree', at: 1680 },
+            { type: 'trash_bin', at: 1920 }, { type: 'dug_road', at: 2150 }, { type: 'puddle', at: 2380 }, { type: 'fallen_tree', at: 2580 },
+            { type: 'dug_road', at: 3500 }, { type: 'puddle', at: 3700 }, { type: 'fence', at: 4020 }, { type: 'fallen_tree', at: 4280 },
+            { type: 'puddle', at: 4500 }, { type: 'dug_road', at: 4680 }, { type: 'trash_bin', at: 4900 }, { type: 'fallen_tree', at: 5520 },
+        ],
+        items: [
+            ...row(260, 4, 26, 18), ...arc(560, 5, 18, 50), ...arc(965, 5, 18, 56), ...row(1300, 4, 26, 60),
+            ...arc(1665, 5, 18, 56), { type: 'lightning', at: 2000, h: 26 }, ...row(2250, 4, 26, 18),
+            ...row(2800, 8, 34, 50),                        // nad kładką
+            { type: 'blessing', at: 3300 },                 // błogosławieństwo: piorun + przyciemnienie -> trzecia moc (X)
+            ...arc(3485, 5, 18, 56), ...row(3800, 5, 26, 18), ...arc(4005, 5, 18, 56), ...arc(4265, 5, 18, 56),
+            { type: 'lightning', at: 4560, h: 26 }, ...arc(5110, 6, 26, 80), ...arc(5505, 5, 18, 56),
+        ],
+        enemies: {
+            from: 300, to: 5650,
+            stages: [                                       // im bliżej kościoła, tym więcej duchów
+                { at: 0, set: ['dog', 'wolf', 'bat', 'crow', 'duszek'], minMs: 1300, maxMs: 2300, maxAlive: 6 },
+                { at: 1800, set: ['wolf', 'bat', 'duszek', 'duszek', 'phantom', 'crow'], minMs: 1100, maxMs: 2000, maxAlive: 7 },
+                { at: 3600, set: ['duszek', 'phantom', 'upior', 'duszek', 'bat'], minMs: 900, maxMs: 1700, maxAlive: 8 },
+                { at: 4800, set: ['duszek', 'phantom', 'upior', 'upior', 'phantom'], minMs: 750, maxMs: 1400, maxAlive: 9 },
+            ],
+        },
+        arenaAt: 5700,                                      // tu ekran staje: obrona drzwi kościoła, potem Rafał
+        endAt: 6217,                                        // środek drzwi: kościół na ekranie tam, gdzie w bg_l3_dawn (x 310)
+        defense: true,
+        boss: 'rafal',
+        final: true,
         next: null,
     },
 ];

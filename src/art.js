@@ -1,6 +1,6 @@
 'use strict';
 /* =====================================================================
-   Grafiki Level 2 i kościoła: docelowe klucze + zamienniki.
+   Grafiki kościoła, Level 2 i Level 3: docelowe klucze + zamienniki.
    Gra wczytuje plik tylko, gdy jest w ART_FILES (src/art_files.js, generowany przez
    tools/art_manifest.py). Brakujący plik = zamiennik z istniejących grafik
    (przyciemniony tint / skala), więc po wrzuceniu nowej grafiki do assets/ i
@@ -36,6 +36,53 @@ const ART = (function () {
     seq('enemy_wisp_', 4, [48, 64], 'fx_pray_aura_', 0x80e0ff);
     seq('item_znicz_', 4, [40, 56], 'candle_', 0xff9a80);
     seq('boss_hans_run_', 4, [240, 150], 'enemy_dog_run_', 0x8a6a6a);
+
+    /* ---------- Level 3 „Noc duchów”: noc = przyciemnione grafiki Level 1, duchy = podbarwione wrogowie ---------- */
+    const NIGHT = 0x5a5a90, GHOST = 0xb0e8ff, ZOMBIE = 0x7aa080, RAF_G = 0x90ffc0, RAF = 0xc8a890;
+    Object.assign(SPEC, {
+        bg_l3_sky: { size: [568, 320], fb: 'bg_l1_sky', tint: 0x34345e },
+        bg_l3_city_far: { size: [568, 200], fb: 'bg_l1_city_far', tint: 0x2e2e56 },
+        bg_l3_houses_near: { size: [568, 150], fb: 'bg_l1_houses_near', tint: 0x48487a },
+        tile_ground_night: { size: [64, 32], fb: 'tile_ground_cobble', tint: 0x6a6a90 },
+        fx_fog_1: { size: [284, 64], fb: null }, fx_fog_2: { size: [284, 64], fb: null },
+        church_exterior_night: { size: [240, 250], fb: 'church_exterior', tint: NIGHT },
+        church_door_night_hp_1: { size: [48, 72], fb: 'church_door_1', tint: NIGHT },
+        church_door_night_hp_2: { size: [48, 72], fb: 'church_door_1', tint: 0x8a5a70 },
+        church_door_night_hp_3: { size: [48, 72], fb: 'church_door_2', tint: 0x7a3048 },
+        bg_l3_dawn: { size: [568, 320], fb: 'bg_l1_sky' },
+        boss_rafal_hurt_1: { size: [120, 170], fb: 'proboszcz_idle_1', tint: 0xff9090 },
+        rafal_closeup_open: { size: [192, 192], fb: 'proboszcz_closeup_open', tint: RAF },
+        rafal_closeup_closed: { size: [192, 192], fb: 'proboszcz_closeup_closed', tint: RAF },
+        rafal_closeup_confused: { size: [192, 192], fb: 'proboszcz_closeup_closed', tint: RAF },
+        rafal_ghost_closeup_open: { size: [192, 192], fb: 'proboszcz_closeup_open', tint: RAF_G },
+        rafal_ghost_closeup_closed: { size: [192, 192], fb: 'proboszcz_closeup_closed', tint: RAF_G },
+    });
+    const seqF = (p, n, size, fbs, tint) => { for (let i = 1; i <= n; i++) SPEC[p + i] = { size, fb: fbs[(i - 1) % fbs.length], tint }; };
+    seq('enemy_duszek_', 4, [56, 64], 'enemy_wisp_', GHOST);
+    seq('enemy_phantom_', 4, [114, 110], 'enemy_wolf_run_', 0x8090ff);
+    seqF('enemy_phantom_attack_', 2, [114, 110], ['enemy_wolf_jump_1', 'enemy_wolf_jump_2'], 0xa0b0ff);
+    seqF('enemy_upior_rise_', 4, [158, 130], ['krzysztof_idle_1', 'krzysztof_idle_2'], ZOMBIE);
+    seqF('enemy_upior_walk_', 4, [158, 130], ['krzysztof_talk_1', 'krzysztof_idle_1', 'krzysztof_talk_2', 'krzysztof_idle_2'], ZOMBIE);
+    seq('fx_ghost_poof_', 4, [64, 64], 'fx_enemy_poof_', 0xa0ffe0);
+    seq('item_blessing_', 4, [40, 56], 'fx_bless_', 0xa0e0ff);
+    seq('fx_blessing_wave_', 4, [120, 120], 'fx_pray_aura_', 0xc0f0ff);
+    seqF('proboszcz_cast_', 3, [160, 164], ['proboszcz_bless_1', 'proboszcz_bless_2', 'proboszcz_bless_2'], null);
+    seq('fx_proboszcz_spell_', 3, [40, 40], 'fx_bless_', 0x9ad0ff);
+    seqF('proboszcz_tired_sit_', 2, [106, 164], ['proboszcz_idle_1', 'proboszcz_idle_2'], 0x9a9ab0);
+    // Kamil błogosławi w Level 3 (110×180); stare wikary_kamil_bless_1..4 zostają dla krzyża / znicza / ultimate
+    seqF('wikary_kamil_blessing_', 3, [110, 180], ['wikary_kamil_bless_1', 'wikary_kamil_bless_2', 'wikary_kamil_bless_3'], null);
+    seqF('boss_rafal_float_', 4, [120, 170], ['proboszcz_idle_1', 'proboszcz_idle_2'], RAF_G);
+    seqF('boss_rafal_walk_', 4, [120, 170], ['proboszcz_idle_1', 'proboszcz_idle_2'], RAF_G);
+    seqF('boss_rafal_swing_', 3, [150, 170], ['proboszcz_bless_1', 'proboszcz_bless_2', 'proboszcz_talk_2'], RAF_G);
+    seqF('boss_rafal_throw_', 2, [130, 170], ['proboszcz_talk_1', 'proboszcz_talk_2'], RAF_G);
+    seqF('boss_rafal_scream_', 2, [130, 170], ['proboszcz_talk_2', 'proboszcz_talk_1'], 0xc0ffd0);
+    seqF('boss_rafal_exorcise_', 4, [130, 170], ['proboszcz_bless_1', 'proboszcz_bless_2'], 0xffffff);
+    seq('proj_key_', 2, [24, 12], 'fx_cross_', 0xe0c060);
+    seq('fx_rafal_ghost_', 3, [64, 96], 'enemy_wisp_', RAF_G);
+    seqF('rafal_dazed_', 2, [100, 164], ['proboszcz_idle_1', 'proboszcz_idle_2'], 0xb0a090);
+    seqF('rafal_idle_', 2, [100, 164], ['proboszcz_idle_1', 'proboszcz_idle_2'], RAF);
+    seqF('rafal_talk_', 2, [118, 164], ['proboszcz_talk_1', 'proboszcz_talk_2'], RAF);
+    seqF('rafal_walk_', 4, [100, 164], ['proboszcz_idle_1', 'proboszcz_idle_2'], RAF);
 
     const has = (k) => typeof ART_FILES !== 'undefined' && Object.prototype.hasOwnProperty.call(ART_FILES, k);
     const api = {

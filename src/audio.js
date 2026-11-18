@@ -46,6 +46,15 @@ const WikaryAudio = (function () {
                      F5 . A5 . D6 - C6 A5 | Bb5 . G5 . D5 - G5 Bb5 | A5 - E5 - C#5 - E5 - | D5 - - - - - . . |`.replace(/\|/g, ' ')),
             bass: 'r r o r r o r o',
         },
+        level3: { // "Noc duchów": h-moll, organy i tajemniczy puls
+            bpm: 120, organVol: 0.04, arpVol: 0.03, leadVol: 0.075, bassVol: 0.34, drums: 'beat', leadWave: 'pulse',
+            chords: T('Bm G Em F# Bm G A F# Em G Bm F# G Em F# Bm'),
+            lead: T(`B4 . D5 . F#5 - E5 D5 | D5 - B4 - G4 . B4 . | G4 . B4 . E5 - D5 B4 | A#4 - - - C#5 . F#5 . |
+                     B4 . D5 . F#5 - B5 A5 | G5 - D5 - B4 - D5 - | C#5 . E5 . A5 - G5 E5 | F#5 - - - - - . . |
+                     E5 . G5 . B5 - A5 G5 | D5 - B4 - G4 - B4 D5 | F#5 - D5 - B4 - D5 - | C#5 - E5 - A#5 - F#5 - |
+                     G5 . B5 . D6 - B5 G5 | E5 . G5 . B5 - G5 E5 | F#5 - C#5 - A#4 - C#5 - | B4 - - - - - . . |`.replace(/\|/g, ' ')),
+            bass: 'r r o r r o r o',
+        },
         boss: {   // Hans: szybko i groźnie, e-moll
             bpm: 168, organVol: 0.0, arpVol: 0.03, leadVol: 0.085, bassVol: 0.4, drums: 'beat', leadWave: 'pulse',
             chords: T('Em Em C D Em Em B B'),
@@ -252,6 +261,15 @@ const WikaryAudio = (function () {
         coin: () => { const t = ctx.currentTime; sweep('square', 988, 988, 0.08, 0.1, t); sweep('square', 1319, 1319, 0.3, 0.1, t + 0.08); },
         rumble: () => { const t = ctx.currentTime; noise(sfxBus, t, 1.6, 0.35, 'lowpass', 300, 60); sweep('sine', 55, 30, 1.4, 0.25); },
         door: () => { sweep('square', 220, 140, 0.25, 0.06); noise(sfxBus, ctx.currentTime, 0.2, 0.15, 'lowpass', 800, 300); },
+        fizzle: () => { const t = ctx.currentTime; noise(sfxBus, t, 0.35, 0.25, 'highpass', 4000, 1500); sweep('sine', 600, 200, 0.2, 0.06); },
+        bless: () => { const t = ctx.currentTime; ['E5', 'G#5', 'B5', 'E6'].forEach((n, i) => bell(t + i * 0.05, hz(n), 0.1)); sweep('triangle', 300, 1200, 0.4, 0.12); },
+        scream: () => { const t = ctx.currentTime; sweep('sawtooth', 900, 300, 0.7, 0.12, t); sweep('square', 1300, 500, 0.7, 0.05, t); noise(sfxBus, t, 0.7, 0.25, 'bandpass', 1500, 600); },
+        bells: () => { const t = ctx.currentTime; ['G4', 'D5', 'G4', 'B4', 'D5', 'G5'].forEach((n, i) => bell(t + i * 0.42, hz(n), 0.2)); },
+        exorcise: () => { const t = ctx.currentTime; sweep('triangle', 200, 1600, 1.2, 0.18, t); ['C6', 'E6', 'G6'].forEach((n, i) => bell(t + 0.3 + i * 0.12, hz(n), 0.12)); noise(sfxBus, t, 1.0, 0.2, 'highpass', 2000, 6000); },
+        swing: () => { const t = ctx.currentTime; noise(sfxBus, t, 0.2, 0.3, 'bandpass', 800, 2400); },
+        doorhit: () => { kick(sfxBus, ctx.currentTime, 0.8); noise(sfxBus, ctx.currentTime, 0.25, 0.4, 'lowpass', 900, 200); },
+        spell: () => { const t = ctx.currentTime; sweep('sine', 700, 1500, 0.18, 0.1, t); bell(t, hz('A6'), 0.06); },
+        rise: () => { const t = ctx.currentTime; noise(sfxBus, t, 0.6, 0.2, 'lowpass', 400, 120); sweep('sine', 90, 60, 0.6, 0.15); },
         wave: () => { kick(sfxBus, ctx.currentTime, 0.7); noise(sfxBus, ctx.currentTime, 0.35, 0.3, 'lowpass', 700, 120); },
     };
     function ringBurst() {        // retro dzwonek telefonu: szybki tryl dwóch tonów

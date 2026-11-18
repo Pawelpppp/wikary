@@ -1,4 +1,4 @@
-"""Grafiki: lista src/art_files.js aktualna, wszystkie grafiki Level 2 docelowe (bez zamienników)."""
+"""Grafiki: lista src/art_files.js aktualna, wszystkie grafiki docelowe (Level 1–3) załadowane, bez zamienników."""
 import sys
 
 import pytest
@@ -15,7 +15,7 @@ def test_art_manifest_up_to_date(game, is_local):
         "uruchom: python3 tools/art_manifest.py"
 
 
-def test_all_level2_art_loaded_no_fallbacks(game):
+def test_all_art_loaded_no_fallbacks(game):
     missing = game.evaluate("__wikary.artMissing()")
     assert missing == [], missing
     bad = game.evaluate("Object.keys(ART.SPEC).filter(k => !__wikary.game.textures.exists(ART.key(k)))")

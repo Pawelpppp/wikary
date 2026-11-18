@@ -151,12 +151,74 @@ def beat_hans(page):
     raise AssertionError("brak podsumowania po Hansie")
 
 
+def skip_dialogs_until(page, expr, timeout=20, key="Space"):
+    """Pomija dymki (Spacja), aż warunek JS będzie prawdziwy."""
+    end = time.time() + timeout
+    while time.time() < end:
+        if page.evaluate(expr):
+            return
+        if page.evaluate("!!(__wikary.level() && __wikary.level().talk.dialog)"):
+            page.keyboard.press(key)
+        time.sleep(0.25)
+    raise AssertionError("nie doczekano: " + expr)
+
+
+def start_l3(page, part=None):
+    """Level 3 z debug: part=None (start), 'defense' (pod kościołem), 'boss' (od razu Rafał)."""
+    page.evaluate(f"__wikary.startL3({repr(part) if part else ''})")
+    wait_js(page, "__wikary.scene().includes('Level') && __wikary.level().L.id === 3", 8)
+    time.sleep(0.6)
+
+
+def reach_defense(page):
+    """Level 3: pod kościół, pominięcie rozmowy z proboszczem, start 1. fali (albo Rafała przy skipTo)."""
+    page.evaluate("__wikary.GS.lives = Math.max(__wikary.GS.lives, 1)")
+    if not page.evaluate("!!__wikary.defense()"):
+        teleport(page, page.evaluate("__wikary.LEVELS[2].arenaAt") - 60)
+        hold(page, "ArrowRight", 0.8)
+    wait_js(page, "!!__wikary.defense()", 5)
+    skip_dialogs_until(page, "__wikary.defense().state !== 'intro' && !__wikary.level().cutscene")
+
+
+def skip_waves(page):
+    """Ostatnia fala 'zaliczona' od ręki -> Rafał wychodzi z drzwi; czeka aż zacznie walczyć."""
+    page.evaluate("""(()=>{const l=__wikary.level(),Df=__wikary.defense(),W=__wikary.CFG.defense.waves;
+        if (Df.state !== 'boss') { Df.wave=W.length-1; Df.state='wave'; Df.spawned=W[Df.wave].n; Df.cleared=W.length-1; }
+        l.enemies.getChildren().slice().forEach(e=>{ if (e.ghost) e.destroy(); });})()""")
+    wait_rafal(page)
+
+
+def wait_rafal(page):
+    skip_dialogs_until(page, "!!__wikary.rafal() && __wikary.rafal().state !== 'enter' && !__wikary.level().cutscene")
+
+
+def beat_rafal(page):
+    """Rafał z 1 HP, trafiony krzyżem; egzorcyzm, świt, rozmowa, podsumowanie."""
+    page.evaluate("""(()=>{const l=__wikary.level(),r=__wikary.rafal(); r.hp=1; l.invulnUntil=l.time.now+60000; __wikary.GS.hasCross=true;})()""")
+    for _ in range(25):
+        if page.evaluate("__wikary.rafal().dead"):
+            break
+        page.evaluate("""(()=>{const l=__wikary.level(),r=__wikary.rafal(); l.facing=Math.sign(r.x-l.hero.x)||1; l.lastThrow=-99999;
+            r.y=Math.max(r.y, l.hero.y);})()""")
+        page.keyboard.press("Alt")
+        time.sleep(0.4)
+    assert page.evaluate("__wikary.rafal().dead"), "Rafał nie padł"
+    skip_dialogs_until(page, "__wikary.level().summaryShown", 40)
+
+
 def finish_game(page):
-    """Cała gra od Level 1 do wpisania nicku (Level 1 -> kościół -> Level 2 -> Hans)."""
+    """Cała gra do wpisania nicku: Level 1 -> kościół -> Level 2 (Hans) -> Level 3 (obrona, Rafał)."""
     finish_level1(page)
     skip_church(page)
     reach_arena(page)
     beat_hans(page)
+    page.keyboard.press("Enter")
+    wait_js(page, "__wikary.scene().includes('Level') && __wikary.level().L.id === 3", 8)
+    time.sleep(0.5)
+    page.evaluate("__wikary.level().invulnUntil = 1e12")
+    reach_defense(page)
+    skip_waves(page)
+    beat_rafal(page)
     page.keyboard.press("Enter")
     assert wait_scene(page, "Nick", 5)
     time.sleep(0.5)

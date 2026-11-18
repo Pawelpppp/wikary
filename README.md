@@ -14,11 +14,11 @@ Automatyczne testy (Python + pytest + Playwright, przeglądarka headless) są w 
 - **Phaser 3.80** z CDN (jsDelivr), czysty JavaScript bez bundlera: `index.html`, `style.css`, `src/*.js`.
 - Rozdzielczość bazowa **568×320**, `Scale.FIT` + wyśrodkowanie, `pixelArt`, `roundPixels`. Mieści się w całości na telefonie poziomo.
 - **Wszystkie parametry rozgrywki** (prędkości, skok, grawitacja, auto-scroll, obrażenia, nietykalność, koszt ultimate, spawn wrogów, punkty) są w jednym bloku `CFG` w `src/config.js`.
-- **Poziomy opisane danymi** w `src/levels.js` (kierunek `dir` w prawo/lewo, rzeki, przeszkody, znajdźki, zestaw wrogów, koniec poziomu). Level 1 i Level 2 już są, Level 3 dojdzie jako kolejny wpis.
-- Dźwięk: chiptune generowany w **Web Audio** (`src/audio.js`, bez plików): organy na tytule i w intro, szybki motyw w Level 1, mocny bas, efekty (skok, salto, trafienie, znajdźki, dzwonek telefonu, piorun, rzut krzyżem, ogień, szczekanie, kracz, moneta, grzmot, Grom z Nieba). Level 2 ma własny mroczny motyw, a Hans szybki motyw bossa.
+- **Poziomy opisane danymi** w `src/levels.js` (kierunek `dir` w prawo/lewo, rzeki, przeszkody, znajdźki, zestaw wrogów, koniec poziomu). Są Level 1, Level 2 i Level 3 (`defense`, `boss: 'rafal'`, `final`).
+- Dźwięk: chiptune generowany w **Web Audio** (`src/audio.js`, bez plików): organy na tytule i w intro, szybki motyw w Level 1, mocny bas, efekty (skok, salto, trafienie, znajdźki, dzwonek telefonu, piorun, rzut krzyżem, ogień, szczekanie, kracz, moneta, grzmot, Grom z Nieba). Level 2 ma własny mroczny motyw, a Hans szybki motyw bossa. Level 3 ma nocny motyw (h-moll) i własne efekty: syk gasnącego ognia, błogosławieństwo, wrzask Rafała, zamach kluczami, uderzenie w drzwi, czar proboszcza, upiór spod ziemi, egzorcyzm i dzwony o świcie.
 - Font: [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) (SIL OFL, `assets/fonts/`).
 - Wersja na ekranie tytułowym: `v1.N`, N = liczba commitów na `master` (`src/version.js`).
-- Pliki: `src/boot.js` (ładowanie, animacje), `title.js`, `scores.js`, `intro.js`, `church.js` (kościół), `level.js` + `level2.js` (kładka, pogoda, nowi wrogowie, ogień, Hans), `art.js` + `art_files.js` (grafiki i zamienniki), `nick.js`, `ui.js`, `leaderboard.js`, `main.js`.
+- Pliki: `src/boot.js` (ładowanie, animacje), `title.js`, `scores.js`, `intro.js`, `church.js` (kościół), `level.js` + `level2.js` (kładka, pogoda, nowi wrogowie, ogień, Hans) + `level3.js` (noc i mgła, duchy, błogosławieństwo, obrona kościoła, Rafał, świt), `art.js` + `art_files.js` (grafiki i zamienniki), `nick.js`, `ui.js`, `leaderboard.js`, `main.js`.
 
 ## Sterowanie
 | Akcja | Klawiatura | Dotyk |
@@ -27,13 +27,14 @@ Automatyczne testy (Python + pytest + Playwright, przeglądarka headless) są w 
 | Kucnięcie (trzymaj; nietoperze i pająki mijają głowę, krzyż leci nisko, można z niego skoczyć) | ↓ | joystick w dół (test); tryb przycisków: `↓` |
 | Skok / salto | Spacja, 2× Spacja (w powietrzu) | dotknięcie ekranu poza joystickiem i przyciskami (test), 2× = salto; zawsze też SKOK, 2× SKOK |
 | Rzut krzyżem (po zdobyciu krzyża) | Alt | KRZYŻ |
-| Kula ognia, przebija kilku wrogów (po zdobyciu znicza w Level 2) | Z | OGIEŃ |
+| Kula ognia, przebija kilku wrogów (po zdobyciu znicza w Level 2; na duchy nie działa) | Z | OGIEŃ |
+| Błogosławieństwo: fala wokół Kamila, zabija duchy w promieniu (po zdobyciu w Level 3, dłuższy cooldown) | X | BŁOG. |
 | Grom z Nieba (pełny pasek) | trzymaj Shift 1 s, puść | trzymaj GROM, puść |
 | Pełny ekran | F | przycisk F |
 | Wycisz | M | przycisk M |
 | Menu | ↑ ↓ + Enter / Spacja | dotknij przycisk |
 
-Na dotyku przyciski są półprzezroczyste i pionowo na środku ekranu: GROM / (OGIEŃ w Level 2) / KRZYŻ / SKOK przy prawej krawędzi. Kamil nie wchodzi pod przyciski (margines `CFG.touch.heroMargin`).
+Na dotyku przyciski są półprzezroczyste i pionowo na środku ekranu: GROM / (OGIEŃ od Level 2) / (BŁOG. w Level 3) / KRZYŻ / SKOK przy prawej krawędzi. Kamil nie wchodzi pod przyciski (margines `CFG.touch.heroMargin`).
 
 **Telefon w pionie:** gra się zatrzymuje (fizyka, animacje, timery i czas poziomu stoją, dźwięk jest wstrzymany), a na całym ekranie widać komunikat „OBRÓĆ TELEFON POZIOMO”. Po obróceniu gra dopasowuje się do ekranu i rusza dalej od tego samego miejsca, także w trakcie dymka. Trzymany joystick i przyciski są wtedy puszczane, więc Kamil nie biegnie sam. Działa na każdym ekranie (tytuł, intro, kościół, poziomy, wyniki, nick), tylko na urządzeniach dotykowych; na komputerze komunikat nigdy się nie pokazuje. Ustawienia: `CFG.orientation` (`enabled`, `debounceMs`). Na iPhonie pole gry omija notch (`viewport-fit=cover` + `env(safe-area-inset-*)`), strona się nie przewija ani nie powiększa. Po wejściu w pełny ekran gra prosi o blokadę poziomej orientacji (Android; iOS po cichu odmawia). Sprawdzone w emulacji iPhone SE 2./3. gen (375×667), 13 mini (375×812) i 15 Pro Max (430×932). Minimalna testowana szerokość: 667 px w poziomie (iPhone SE 2./3. gen, 667×375); mniejszych urządzeń nie testujemy.
 
@@ -56,9 +57,10 @@ Na dotyku przyciski są półprzezroczyste i pionowo na środku ekranu: GROM / (
 - ✅ Kościół po Level 1: rozmowa z proboszczem (dymki z mrugającymi portretami, animacja mówienia, błogosławieństwo), Kamil wychodzi w lewo do Level 2.
 - ✅ Level 2 „Wizyta u skąpego parafianina”: ekran w lewo, wieczór, deszcz i dalekie błyskawice, rozkopana droga, zwalone drzewa, dwie rzeki (druga z ruchomą kładką), wrony, dziki, błędne ogniki, znicz i kula ognia (Z), dom Krzysztofa, boss Hans z paskiem życia, zakończenie z dziesięcioma złotymi.
 - ✅ Punkty, życia, pasek, krzyż i czas przechodzą z poziomu na poziom; game over w Level 2 prowadzi do wpisania nicku.
-- ⏳ Następne: Level 3, wspólna tablica na Azure.
+- ✅ Level 3 „Noc duchów”: noc, mgła i księżyc, duszki / fantomy / upiory (ogień na nie nie działa), błogosławieństwo (X), obrona drzwi kościoła z proboszczem (3 fale, pasek drzwi), boss kościelny Rafał, egzorcyzm, świt z dzwonami i „KONIEC... NA RAZIE!”.
+- ⏳ Następne: nowe zakończenie Level 3 z Czerwonym Diabłem, Level 4 „Bagna” (scenariusz niżej), wspólna tablica na Azure.
 
-**Debug:** `?debug=1` na ekranie tytułowym: 1 = Level 1, 2 = kościół, 3 = Level 2, 4 = Level 2 tuż przed Hansem (także `?debug=1&level=2`).
+**Debug:** `?debug=1` na ekranie tytułowym: 1 = Level 1, 2 = kościół, 3 = Level 2, 4 = Level 2 tuż przed Hansem, 5 = Level 3, 6 = Level 3 obrona kościoła, 7 = Level 3 od razu Rafał (także `?debug=1&level=2` / `level=3`).
 
 ## Bohater
 Główną postacią jest **wikary Kamil**: rude krótkie włosy, czarna sutanna, plecak.
@@ -122,7 +124,7 @@ Działa jak w Fibi Run:
 - Parafialny **kościelny Rafał**, na co dzień poczciwy opiekun kluczy i dzwonów. W Level 3 jest **opętany przez upiora**: blada, sina twarz, świecące oczy i upiorna poświata.
 - Walczy **pękiem kluczy**: **zamach wręcz** z bliska, **rzut kluczem** na dystans i **wrzask**, który przywołuje **duszki**.
 - Po pokonaniu następuje **egzorcyzm**: upiór z niego **wylatuje**, a Rafał wraca do normy, zdezorientowany: „Co ja tu robię?”. Potem dołącza do końcowej sceny o świcie z proboszczem.
-- Grafiki (boss, wersja „po egzorcyzmie”, portrety) są zamówione w Pixel Art i jeszcze ich nie ma.
+- Grafiki są w grze: upiorna wersja (`boss_rafal_*`: lot, chód, zamach, rzut, wrzask, trafienie, egzorcyzm; klucze `proj_key_1..2`; uciekający duch `fx_rafal_ghost_1..3`), normalna wersja po egzorcyzmie (`rafal_idle/talk/walk/dazed_*`) i portrety (`rafal_closeup_open/closed/confused`, `rafal_ghost_closeup_open/closed`). Podgląd: `docs/contact_rafal_ghost.png`, `docs/contact_rafal_normal.png`, `docs/contact_rafal_portraits.png`.
 
 ### Kościół po Level 1 (cutscenka z dymkami)
 1. Wikary wbiega do kościoła, przy ołtarzu czeka **proboszcz** (obok koszyczek z tacy). Proboszcz: „No, jesteś wreszcie! Zuch chłopak, dobrze się spisałeś”.
@@ -142,7 +144,7 @@ Działa jak w Fibi Run:
   - Krzysztof: „Guzik to też pieniądz! Inflacja, proszę księdza!”. Kamil: „Dwa grosze i guzik od kalesonów? Panie Krzysztofie...”.
   - Krzysztof: „Dość gadania! HANS! Do nogi! To znaczy... BIERZ GO!”.
 - **Boss: pies-bestia Hans** (pasek życia u góry): chodzi za wikarym, **szarżuje** (trzeba przeskoczyć saltem) i **szczeka**, a szczeknięcie puszcza po ziemi **falę**, którą trzeba przeskoczyć (trafienie ogłusza i zabiera życie). Ma trzy fazy: im mniej życia, tym szybsze szarże, podwójne fale, a na końcu wpada w szał (czerwienieje). Grom z Nieba zabiera mu tylko kawałek paska.
-- **Po wygranej** Krzysztof ze wstydem: „Hans... mój Hans... No dobrze już, dobrze, proszę księdza. Wstyd mi”. Wyjmuje monetę i dorzuca na tacę **całe dziesięć złotych** (+1000 pkt): „Tylko niech proboszcz nikomu nie mówi”. Kamil: „Bóg zapłać, panie Krzysztofie! A guzik oddaję, przyda się do kalesonów”. Potem podsumowanie, „CIĄG DALSZY: LEVEL 3 WKRÓTCE” i wpisanie nicku.
+- **Po wygranej** Krzysztof ze wstydem: „Hans... mój Hans... No dobrze już, dobrze, proszę księdza. Wstyd mi”. Wyjmuje monetę i dorzuca na tacę **całe dziesięć złotych** (+1000 pkt): „Tylko niech proboszcz nikomu nie mówi”. Kamil: „Bóg zapłać, panie Krzysztofie! A guzik oddaję, przyda się do kalesonów”. Potem podsumowanie („DALEJ: LEVEL 3 – NOC DUCHÓW”) i od razu Level 3, z tymi samymi punktami, życiami i mocami.
 
 ### Level 3: „Noc duchów” (powrót na plebanię i obrona kościoła)
 **Część A, droga powrotna:**
@@ -151,20 +153,29 @@ Działa jak w Fibi Run:
   - **duszki** (lekkie, latają falą, giną od jednego trafienia),
   - **duchy przenikające** (przechodzą przez przeszkody i pojawiają się znikąd, chwilę migają przed atakiem),
   - **upiory z cmentarza** (wolne, wytrzymałe, wychodzą spod ziemi).
-- Duchy są odporne na zwykły ogień, a najlepiej działa na nie **krzyż** i **błogosławieństwo**. Gracz musi więc mądrze dobierać ataki.
-- Tutaj wikary zdobywa trzecią moc, **błogosławieństwo krzyżem** (atak obszarowy wokół siebie). Działa jak przy krzyżu i zniczu: piorun i przyciemnienie ekranu.
+- Duchy są odporne na zwykły ogień (kula syczy i gaśnie, dymek „OGIEŃ NIE DZIAŁA NA DUCHY”), a działa na nie **krzyż** i **błogosławieństwo**. Gracz musi więc mądrze dobierać ataki. Upiór najpierw zapowiada się pęknięciem i kurzem, a fantom miga, zanim zaatakuje.
+- Tutaj wikary zdobywa trzecią moc, **błogosławieństwo krzyżem** (X / BŁOG.): fala wokół Kamila zabija duchy w promieniu, ma dłuższy cooldown (`CFG.bless`). Zdobycie wygląda jak przy krzyżu i zniczu: piorun i przyciemnienie ekranu.
 
 **Część B, obrona kościoła (arena):**
 - Przed kościołem ekran się zatrzymuje. **Proboszcz** stoi na schodach i **ciska w duchy czary na dystans** (świetliste kule). Krótki dymek, proboszcz: „Kamil! Nie stój jak słup soli, pomóż mi!”.
-- Rozgrywka typu **obrona**: duchy nadlatują **falami** z obu stron (3 fale), a gracz z proboszczem bronią **drzwi kościoła**. Drzwi mają własny pasek życia, a gdy spadnie do zera, trzeba powtórzyć część B.
-- Proboszcz strzela sam, ale co jakiś czas **się męczy** (siada i ociera pot), a wtedy cała obrona spada na wikarego.
-- **Boss: kościelny Rafał, opętany przez upiora („Upiorny Kościelny”)**. Walczy pękiem kluczy: zamach wręcz, rzut kluczem i wrzask, który przywołuje duszki. Najlepiej pokonać go **ultimatem** (Grom z Nieba). Po wygranej egzorcyzm: upiór z niego wylatuje, a Rafał wraca do normy („Co ja tu robię?”).
-- **Zakończenie:** świt, biją dzwony, a Rafał dołącza do proboszcza i wikarego. Proboszcz **gratuluje** wikaremu („No, Kamil, z ciebie będzie jeszcze proboszcz!”) i daje kolejne zadanie.
+- Rozgrywka typu **obrona**: duchy nadlatują **falami** z obu stron (3 fale), a gracz z proboszczem bronią **drzwi kościoła**. Drzwi mają własny pasek życia, a grafika drzwi zmienia się wraz z ich stanem. **Gdy pasek spadnie do zera, to koniec gry** (game over i wpisanie nicku). Ustawienia: `CFG.defense`.
+- Proboszcz strzela sam, ale co jakiś czas **się męczy** (siada i ociera pot, rzuca żart w dymku), a wtedy cała obrona spada na wikarego.
+- **Boss: kościelny Rafał, opętany przez upiora („Upiorny Kościelny”)**. Wychodzi z drzwi kościoła, lewituje i podlatuje do Kamila, walczy pękiem kluczy: zamach wręcz, rzut wirującymi kluczami i wrzask, który przywołuje duszki. Ma pasek życia i trzy fazy (szybszy, więcej kluczy, na końcu szał). Grom z Nieba zabiera mu tylko kawałek paska. Po wygranej egzorcyzm: upiór z niego wylatuje, a Rafał siedzi oszołomiony i wraca do normy („Co ja tu robię?”). Ustawienia: `CFG.rafal`.
+- **Zakończenie:** świt, biją dzwony, a Rafał dołącza do proboszcza i wikarego. Proboszcz **gratuluje** wikaremu („No, Kamil, z ciebie będzie jeszcze proboszcz!”) Potem podsumowanie, „KONIEC... NA RAZIE!” i wpisanie nicku do tablicy.
+
+**Planowana zmiana zakończenia Level 3 (scenariusz – do zrobienia):**
+- Po pokonaniu Rafała **uderza grzmot** i okazuje się, że kościelnego opętał sam **Czerwony Diabeł**.
+- Diabeł grozi: „Następnym razem zniszczę ten kościół i pokonam cię, księże wikary Kamilu!” i **ucieka w prawo**.
+- Rafał, jeszcze oszołomiony: „Chyba opętał mnie diabeł... Pewnie poleciał teraz na bagna, do czarnoksiężnika Adriana”.
+
+### Level 4: „Bagna” (scenariusz – do zrobienia)
+- **Początek:** proboszcz każe Kamilowi ruszyć za diabłem do **czarnoksiężnika Adriana** i rozprawić się z tymi szatanami.
+- Kamil idzie **w prawo przez bagna**. Atakują go głównie **komary** (większe i mniejsze) oraz inne **bagienne stwory**.
+- **Cel:** przejść bagna i dotrzeć do czarnoksiężnika Adriana. Grafiki Adriana dołączy autor później.
 
 ### Pomysły na później (do dopracowania)
-- Kolejne moce (błogosławieństwo krzyżem, modlitwa) jako itemy w następnych poziomach, z podobnym efektem pioruna i przyciemnienia.
+- Kolejne moce (modlitwa) jako itemy w następnych poziomach, z podobnym efektem pioruna i przyciemnienia.
 - Na końcu Level 1 mały mini-boss, np. **przywódca watahy wilków**.
-- Dzwony kościoła na końcu poziomu jako dźwięk wygranej.
 
 ## Atak specjalny (ultimate)
 - Wikary **zbiera punkty** do ataku specjalnego (pasek w HUD).
@@ -189,4 +200,6 @@ Assety w `assets/` (skopiowane z Fibi-Run). Nowe grafiki wikarego Kamila (patrzy
 - **Level 1, otoczenie i efekty** (piksele ekranu 1:1), `assets/game/`: `bg_l1_sky` (568×320, stałe), `bg_l1_city_far` (568×200, paralaksa wolna), `bg_l1_houses_near` (568×150, paralaksa szybsza), `tile_ground_cobble` (64×32), `tile_water_1..4` (64×28) + `water_bank_left/right` (16×32), `obstacle_fence` (48×28), `obstacle_trash_bin` (26×32), `obstacle_puddle` (56×8), `church_exterior` (240×250) + `church_door_1..3` (48×72: zamknięte / uchylone / otwarte), `fx_lightning_strike_1..3` (64×300), `fx_grom_pillar_1..4` (140×320), `fx_grom_cross` (96×128). Podgląd: `docs/level1_game.png`, `docs/level1_scene.png`.
 - **Kościół i Level 2** (`assets/game/`, piksele ekranu 1:1, wersje `_x4`): `bg_church_interior` (568×320, proboszcz stoi stopami w x=450, y=288), `prop_collection_basket`, `bg_l2_sky` (od 0,0), `bg_l2_city_far` (od y=16), `bg_l2_houses_near` (od y=138), `tile_ground_wet` (od y=288), `fx_rain_1..3` (64×64, kafelki deszczu), `obstacle_dug_road` (y=264), `obstacle_fallen_tree` (y=252), `platform_plank` (64×10, origin 0.5,0.5), `house_krzysztof` (260×230, dół na podłodze 288) + `house_krzysztof_door_1..2` (27×58, zamknięte / otwarte, w domu na 134,130).
 - **Level 2, postacie** (`assets/sprites/`, skala jak Kamil, wersje `_x4`): `enemy_crow_fly_1..4`, `enemy_crow_dive_1..2` (wrona w grze ×0.6, bo jest mała: `CFG.enemies.crow.scale`), `enemy_boar_run_1..4`, `enemy_wisp_1..4`, `item_znicz_1..4`, `boss_hans_run_1..4`, `boss_hans_bark_1..2`, `boss_hans_hurt_1`, `boss_hans_defeated_1`.
+- **Level 3, otoczenie** (`assets/game/`, piksele ekranu 1:1, wersje `_x4`): `bg_l3_sky` (od 0,0, księżyc w lewym górnym rogu), `bg_l3_city_far` (od y=16), `bg_l3_houses_near` (od y=138), `tile_ground_night` (od y=288), mgła `fx_fog_1` (284×64, niżej i gęściej, y≈256) i `fx_fog_2` (wyżej i rzadziej, y≈232), `church_exterior_night` (240×250, dół na podłodze 288) + `church_door_night_hp_1..3` (48×72, drzwi coraz bardziej zniszczone, w kościele na 51,162; proboszcz stoi stopami na 75,238), `bg_l3_dawn` (cała scena o świcie, kościół w tym samym miejscu).
+- **Level 3, postacie i efekty** (`assets/sprites/`, patrzą w prawo, w grze ×0.45, wersje `_x4`): `enemy_duszek_1..4` (56×64, origin 0.5,0.5), `enemy_phantom_1..4` + `enemy_phantom_attack_1..2` (114×110, 0.5,0.5), `enemy_upior_rise_1..4` + `enemy_upior_walk_1..4` (158×130, 0.5,1), `fx_ghost_poof_1..4`, `item_blessing_1..4`, `fx_blessing_wave_1..4`, `proboszcz_cast_1..3` + `fx_proboszcz_spell_1..3`, `proboszcz_tired_sit_1..2` (linia siedzenia y=151 stoi na stopniu: origin 0.5,151/164), `wikary_kamil_blessing_1..3` (110×180; plik dostarczony jako `wikary_kamil_bless_1..3`, w repo pod tą nazwą, bo stare `wikary_kamil_bless_1..4` zostają dla krzyża, znicza i ultimate). Rafał: patrz wyżej.
 - **Podmiana grafik:** `python3 tools/art_manifest.py` skanuje `assets/` i zapisuje listę plików do `src/art_files.js`. Gra ładuje tylko pliki z listy, a dla brakujących używa zamienników z `src/art.js` (`ART.SPEC`: istniejąca grafika + odcień/skala). Nową grafikę wystarczy wrzucić pod docelową nazwą i uruchomić skrypt. W `?debug=1` `__wikary.artMissing()` pokazuje, które zamienniki są w użyciu (teraz: żadne).

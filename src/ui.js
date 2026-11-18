@@ -9,7 +9,7 @@ const TOUCH_MODE = (() => { const m = (location.search.match(/[?&]touch=(buttons
 const GS = {          // stan jednej rozgrywki (od START NEW GAME do końca)
     reset() {
         this.score = 0; this.lives = CFG.hero.lives; this.timeMs = 0; this.meter = 0;
-        this.hasCross = false; this.hasFire = false; this.diamonds = 0; this.kills = 0; this.level = 0;
+        this.hasCross = false; this.hasFire = false; this.hasBless = false; this.diamonds = 0; this.kills = 0; this.level = 0;
     },
 };
 GS.reset();
@@ -52,7 +52,8 @@ function dialogBox(scene, opts) {
     c.add(bg);
     let tx = x + 12;
     if (opts.portrait) {
-        const p = scene.add.image(x + 8 + 24, y + h / 2, opts.portrait).setScale(48 / 192);
+        const p = scene.add.image(x + 8 + 24, y + h / 2, ART.key(opts.portrait)).setScale(48 / 192);   // brak portretu = zamiennik z art.js
+        const pt = ART.tint(opts.portrait); if (pt) p.setTint(pt);
         c.add(p); tx = x + 64;
         c.portrait = p;
     }
@@ -61,7 +62,7 @@ function dialogBox(scene, opts) {
     c.add(body);
     // pisanie na maszynie
     const full = opts.text || ''; let n = 0;
-    c.done = false;
+    c.done = false; c.full = full; c.name = opts.name || '';
     const ev = scene.time.addEvent({ delay: 28, repeat: full.length - 1, callback: () => { if (!body.active) return; n++; body.setText(full.slice(0, n)); if (n >= full.length) c.done = true; } });
     if (!full.length) c.done = true;
     c.finish = () => { ev.remove(false); if (body.active) body.setText(full); c.done = true; };
@@ -122,13 +123,14 @@ function makeTalker(scene, defaults) {
         t.dialog = dialogBox(scene, { portrait, name, text, y: o.y === undefined ? 26 : o.y, hint: IS_TOUCH ? '' : 'ENTER', depth: o.depth || 4900 });
         t.resolve = res; t.onEnd = o.onEnd || null;
         if (o.onStart) o.onStart();
-        const closed = portrait && /_open$/.test(portrait) ? portrait.replace(/_open$/, '_closed') : null;
+        const closedName = portrait && /_open$/.test(portrait) ? portrait.replace(/_open$/, '_closed') : null;
+        const closed = closedName ? ART.key(closedName) : null, open = ART.key(portrait);
         if (closed && scene.textures.exists(closed)) {
             const d = t.dialog;
             t.blink = scene.time.addEvent({ delay: 2100, loop: true, callback: () => {
                 if (!d.portrait || !d.active) return;
                 d.portrait.setTexture(closed);
-                scene.time.delayedCall(140, () => { if (d.active && d.portrait) d.portrait.setTexture(portrait); });
+                scene.time.delayedCall(140, () => { if (d.active && d.portrait) d.portrait.setTexture(open); });
             } });
         }
         t.auto = scene.time.delayedCall(o.ms || (1600 + text.length * 60), () => t.close());
@@ -153,8 +155,9 @@ function makeTalker(scene, defaults) {
 const sleep = (scene, ms) => new Promise(res => scene.time.delayedCall(ms, res));
 
 /** Tylko ?debug=1: start wybranego poziomu z nowym stanem gry (w Level 2 krzyż już jest). */
-function debugStart(scene, idx, startAt) {
+function debugStart(scene, idx, startAt, extra) {
     GS.reset();
     if (idx >= 1) GS.hasCross = true;
-    scene.scene.start('Level', { level: idx, startAt });
+    if (idx >= 2) GS.hasFire = true;
+    scene.scene.start('Level', Object.assign({ level: idx, startAt }, extra || {}));
 }

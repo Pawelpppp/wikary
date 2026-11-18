@@ -164,6 +164,7 @@ Object.assign(LevelScene.prototype, {
     /* ---------- pociski: krzyż (1 cel) i ogień (przebija kilku) ---------- */
     shotHits(s, e) {
         if (e.dead || !s.active) return;
+        if (s.kind === 'fire' && e.ghost) { this.fireFizzle(s, e); return; }      // Level 3: ogień nie działa na duchy
         if (s.kind === 'fire') {
             if (s.hitSet.has(e)) return;
             s.hitSet.add(e);
@@ -291,9 +292,9 @@ Object.assign(LevelScene.prototype, {
         WikaryAudio.sfx('bark');
         this.createBossBar();
     },
-    createBossBar() {
-        const D = 4000, x = CFG.W / 2 - 100, y = 34;
-        const lab = txt(this, x - 8, y + 4, 'HANS', 8, '#ff9070', { ox: 1, oy: 0.5 }).setScrollFactor(0).setDepth(D);
+    createBossBar(name, y) {
+        const D = 4000, x = CFG.W / 2 - 100; y = y || 34;
+        const lab = txt(this, x - 8, y + 4, name || 'HANS', 8, '#ff9070', { ox: 1, oy: 0.5 }).setScrollFactor(0).setDepth(D);
         const bg = this.add.rectangle(x, y, 200, 9, 0x221420, 1).setOrigin(0).setStrokeStyle(1, 0xd8a640).setScrollFactor(0).setDepth(D);
         const fill = this.add.rectangle(x + 1, y + 1, 198, 7, 0xe04030, 1).setOrigin(0).setScrollFactor(0).setDepth(D);
         this.bossBar = { lab, bg, fill };

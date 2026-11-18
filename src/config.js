@@ -65,6 +65,56 @@ const CFG = {
         standDy: -8, crouchUp: 20, bodyW: 26, bodyH: 18,
     },
 
+    bless: {                        // Level 3: błogosławieństwo (X / BŁOG.) po zdobyciu item_blessing: fala wokół Kamila
+        radius: 120, cooldownMs: 2600, ghostDamage: 99, damage: 1, bossDamage: 2,
+        waveMs: 420, waveScale0: 0.3, waveScale1: 2.4, castMs: 260,
+    },
+
+    ghosts: {                       // Level 3: duchy (ogień nie działa, krzyż i błogosławieństwo tak)
+        fireHintMs: 2200,
+        alpha: 0.82,
+    },
+
+    fog: [                          // mgła Level 3: dwie warstwy (tylko gdy są fx_fog_1/2); speed = dryf px/s, par = paralaksa
+        { key: 'fx_fog_2', y: 232, speed: 8, par: 0.6, alpha: 0.65, depth: 7.3 },     // wyżej, rzadsza
+        { key: 'fx_fog_1', y: 256, speed: 15, par: 0.9, alpha: 0.75, depth: 7.4 },   // niżej, gęstsza
+    ],
+
+    defense: {                      // Level 3, część B: obrona drzwi kościoła
+        doorHp: 20, doorReach: 22, dmg: { duszek: 1, phantom: 2, upior: 3 },
+        heroStandOff: 150,          // Kamil staje tyle px przed drzwiami (od strony drogi)
+        churchFloorY: 288,          // nocny kościół: dół obrazka na podłodze 288 (jak w bg_l3_dawn: lewy górny róg 310,38)
+        proboszczAt: [75, 238],     // stopy proboszcza na schodach (px w obrazku kościoła 240x250)
+        castMs: 1700, castWindupMs: 260, spellSpeed: 260, spellDamage: 1, spellRange: 330,
+        tiredEvery: 5,              // po tylu czarach proboszcz siada
+        sitOriginY: 151 / 164,      // proboszcz_tired_sit: linia siedzenia (13 px nad dołem płótna) ląduje na stopniu
+        tiredMs: 4200,
+        waveBreakMs: 2400,
+        waves: [
+            { n: 6, set: ['duszek'], gapMs: 1000 },
+            { n: 8, set: ['duszek', 'duszek', 'phantom'], gapMs: 850 },
+            { n: 10, set: ['duszek', 'phantom', 'upior'], gapMs: 750 },
+        ],
+        doorBonus: 100,             // punkty za każdy punkt życia drzwi na koniec
+    },
+
+    rafal: {                        // boss Level 3: kościelny Rafał opętany przez upiora
+        hp: 24, scale: 0.45, bodyW: 34, bodyH: 66, gromDamage: 5, hurtMs: 140,
+        floatSpeed: 70, keepDist: 90, bobAmp: 4, bobFreq: 1.6, hover: 0, arenaPad: 30,   // hover: grafika float sama unosi stopy 6-8 px
+        keyScale: 1, ghostFxScale: 0.9,
+        swingRange: 70, swingWindupMs: 420, swingMs: 300, swingReach: 64,
+        throwWindupMs: 380, keySpeed: 210, keySpin: 720, keyLifeMs: 2600, keyW: 16, keyH: 16,
+        screamMs: 1000, enterMs: 1200,
+        phases: [
+            { from: 1.0, speedMul: 1.0, keys: 1, summon: 2, restMs: 1400 },
+            { from: 0.6, speedMul: 1.2, keys: 2, summon: 3, restMs: 1100 },
+            { from: 0.3, speedMul: 1.4, keys: 3, summon: 3, restMs: 800, enraged: true },
+        ],
+        dazedMs: 1600,
+    },
+
+    dawn: { fadeMs: 2600, depth: 5.5 },   // świt: bg_l3_dawn nad kościołem i drzwiami, pod postaciami (proboszcz 6, Kamil 10)
+
     church: { floorY: 288, kamilFrom: -30, kamilTo: 340, proboszczX: 450, basketX: 404, blessMs: 1500 },
 
     weather: {                      // Level 2: deszcz (gdy jest fx_rain) i dalekie błyskawice (tylko błysk ekranu)
@@ -97,7 +147,8 @@ const CFG = {
     },
 
     score: { diamond: 50, lightning: 100, cross: 500, znicz: 500, dog: 100, wolf: 200, bat: 80, spider: 120,
-        crow: 90, boar: 180, wisp: 110, hans: 3000, tenZloty: 1000 },
+        crow: 90, boar: 180, wisp: 110, hans: 3000, tenZloty: 1000,
+        duszek: 60, phantom: 120, upior: 200, blessing: 500, rafal: 5000 },
 
     enemies: {
         // skala postaci = jak Kamil (0.45); bodyW/bodyH = hitbox na ekranie (px)
@@ -108,6 +159,10 @@ const CFG = {
         // Level 2
         crow:   { hp: 1, speed: 120, scale: 0.6,  weight: 3, yMin: 90, yMax: 140, diveRange: 150, diveSpeed: 230, pullUpY: 250, bodyW: 30, bodyH: 18, center: true },
         boar:   { hp: 2, speed: 70, chargeSpeed: 260, chargeRange: 250, windupMs: 380, scale: 0.45, weight: 2, bodyW: 52, bodyH: 30 },
+        // Level 3: duchy (ghost: true = ogień nie działa, przenikają przeszkody)
+        duszek:  { hp: 1, scale: 0.45, weight: 4, ghost: true, speed: 70, bob: 18, bobFreq: 3, yMin: 150, yMax: 230, bodyW: 20, bodyH: 22, center: true },
+        phantom: { hp: 2, scale: 0.45, weight: 2, ghost: true, center: true, groundGap: 2, appearMs: 300, flickerMs: 750, dashSpeed: 240, bodyW: 46, bodyH: 30 },
+        upior:   { hp: 3, scale: 0.45, weight: 2, ghost: true, warnMs: 800, riseMs: 900, speed: 38, bodyW: 26, bodyH: 50 },
         wisp:   { hp: 1, scale: 0.45, weight: 2, radius0: 150, radius1: 30, shrinkPerS: 16, angSpeed: 2.2, follow: 3.0, lifeMs: 9000, yMin: 150, yMax: 220, bodyW: 16, bodyH: 18, center: true },
     },
     spawn: { minMs: 1300, maxMs: 2600, maxAlive: 6 },

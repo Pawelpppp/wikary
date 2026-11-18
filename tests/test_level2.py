@@ -175,12 +175,12 @@ def test_hans_phases_and_grom_cap(game):
     assert game.evaluate("__wikary.boss().enraged")
 
 
-def test_hans_win_ending_and_nick(game):
+def test_hans_win_ending_goes_to_level3(game):
     start_l2(game)
     reach_arena(game)
     s0 = game.evaluate("__wikary.GS.score")
     beat_hans(game)
     gain = game.evaluate("__wikary.GS.score") - s0
     assert gain >= game.evaluate("__wikary.CFG.score.hans + __wikary.CFG.score.tenZloty"), gain
-    game.keyboard.press("Enter")
-    assert wait_scene(game, "Nick", 5)
+    game.keyboard.press("Enter")                               # dalej: Level 3 – Noc duchów
+    wait_js(game, "__wikary.scene().includes('Level') && __wikary.level().L.id === 3", 8)

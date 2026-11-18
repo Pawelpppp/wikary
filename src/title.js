@@ -49,11 +49,14 @@ class TitleScene extends Phaser.Scene {
         kb.on('keydown-SPACE', onKey(() => this.items[this.sel].go()));
 
         if (DEBUG) {                                    // wybór poziomu tylko do testów (?debug=1)
-            txt(this, W / 2, 238, 'DEBUG: 1 LEVEL 1  2 KOŚCIÓŁ  3 LEVEL 2  4 HANS', 8, '#80ff80');
+            txt(this, W / 2, 238, 'DEBUG: 1 L1  2 KOŚCIÓŁ  3 L2  4 HANS  5 L3  6 OBRONA  7 RAFAŁ', 8, '#80ff80');
             kb.on('keydown-ONE', onKey(() => debugStart(this, 0)));
             kb.on('keydown-TWO', onKey(() => { GS.reset(); this.scene.start('Church', { next: 1 }); }));
             kb.on('keydown-THREE', onKey(() => debugStart(this, 1)));
             kb.on('keydown-FOUR', onKey(() => debugStart(this, 1, LEVELS[1].arenaAt - 140)));
+            kb.on('keydown-FIVE', onKey(() => debugStart(this, 2)));
+            kb.on('keydown-SIX', onKey(() => { debugStart(this, 2, LEVELS[2].arenaAt - 60); GS.hasBless = true; }));
+            kb.on('keydown-SEVEN', onKey(() => { debugStart(this, 2, LEVELS[2].arenaAt - 60, { skipTo: 'boss' }); GS.hasBless = true; }));
         }
         WikaryAudio.play('title');
     }

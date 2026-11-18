@@ -38,7 +38,7 @@ class BootScene extends Phaser.Scene {
         ['wikary_kamil_closeup_open', 'wikary_kamil_closeup_closed', 'proboszcz_closeup_open', 'proboszcz_closeup_closed',
             'krzysztof_closeup_open', 'krzysztof_closeup_closed', 'krzysztof_closeup_ashamed']
             .forEach(k => this.load.image(k, POR + k + '.png'));
-        // docelowe grafiki Level 2 / kościoła, które już są w repo (reszta = zamienniki z src/art.js)
+        // docelowe grafiki kościoła / Level 2 / Level 3, które już są w repo (reszta = zamienniki z src/art.js)
         ART.toLoad().forEach(([k, path]) => this.load.image(k, path));
     }
     create() {
@@ -82,6 +82,31 @@ class BootScene extends Phaser.Scene {
         A('znicz', ART.frames('item_znicz_', 4), 8);
         A('hans_run', ART.frames('boss_hans_run_', 4), 10);
         A('hans_bark', ART.frames('boss_hans_bark_', 2), 8);
+        // Level 3: duchy, błogosławieństwo, proboszcz w obronie, Rafał (klatki docelowe albo zamienniki)
+        A('duszek', ART.frames('enemy_duszek_', 4), 8);
+        A('phantom', ART.frames('enemy_phantom_', 4), 10);
+        A('phantom_attack', ART.frames('enemy_phantom_attack_', 2), 8);
+        A('upior_rise', ART.frames('enemy_upior_rise_', 4), 5, 0);
+        A('upior_walk', ART.frames('enemy_upior_walk_', 4), 6);
+        A('ghost_poof', ART.frames('fx_ghost_poof_', 4), 16, 0);
+        A('blessing_item', ART.frames('item_blessing_', 4), 8);
+        A('blessing_wave', ART.frames('fx_blessing_wave_', 4), 12, 0);
+        A('proboszcz_cast', ART.frames('proboszcz_cast_', 3), 10, 0);
+        A('proboszcz_spell', ART.frames('fx_proboszcz_spell_', 3), 12);
+        A('proboszcz_tired', ART.frames('proboszcz_tired_sit_', 2), 2);
+        A('k_blessing', ART.frames('wikary_kamil_blessing_', 3), 9, 0);
+        A('rafal_float', ART.frames('boss_rafal_float_', 4), 6);
+        A('rafal_walk_b', ART.frames('boss_rafal_walk_', 4), 8);
+        A('rafal_swing', ART.frames('boss_rafal_swing_', 3), 12, 0);
+        A('rafal_throw', ART.frames('boss_rafal_throw_', 2), 8, 0);
+        A('rafal_scream', ART.frames('boss_rafal_scream_', 2), 8);
+        A('rafal_exorcise', ART.frames('boss_rafal_exorcise_', 4), 8, 0);
+        A('proj_key', ART.frames('proj_key_', 2), 10);
+        A('rafal_ghost', ART.frames('fx_rafal_ghost_', 3), 8);
+        A('rafal_dazed', ART.frames('rafal_dazed_', 2), 3);
+        A('rafal_idle', ART.frames('rafal_idle_', 2), 2);
+        A('rafal_talk', ART.frames('rafal_talk_', 2), 5);
+        A('rafal_walk', ART.frames('rafal_walk_', 4), 8);
         const target = DEBUG && (location.search.match(/[?&]scene=(\w+)/) || [])[1];
         const lvl = DEBUG && +((location.search.match(/[?&]level=(\d)/) || [])[1] || 0);
         if (lvl && LEVELS[lvl - 1]) { debugStart(this, lvl - 1); return; }

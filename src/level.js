@@ -5,7 +5,10 @@
    ===================================================================== */
 class LevelScene extends Phaser.Scene {
     constructor() { super('Level'); }
-    init(data) { this.levelIndex = (data && data.level) || 0; this.startAtD = (data && data.startAt) || null; }
+    init(data) {
+        this.levelIndex = (data && data.level) || 0; this.startAtD = (data && data.startAt) || null;
+        this.skipTo = (data && data.skipTo) || null;       // tylko debug: 'defense' / 'boss' w Level 3
+    }
 
     create() {
         const L = this.L = LEVELS[this.levelIndex], W = CFG.W, H = CFG.H, G = CFG.GROUND_Y, HC = CFG.hero;
@@ -23,6 +26,9 @@ class LevelScene extends Phaser.Scene {
         this.firePressed = false; this.lastFire = -99999; this.stunUntil = 0;
         this.arena = false; this.boss = null; this.krzysztof = null; this.autoWalk = null; this.planks = [];
         this.nextFlash = 0; this.rain = null; this.bossBar = null; this.ending = false;
+        this.blessPressed = false; this.lastBless = -99999; this.fireHintAt = -99999; this.fog = null;
+        this.fizzles = 0; this.blessCasts = 0; this.rafalScreams = 0; this.keysThrown = 0; this.exorcised = false;
+        this.defense = null; this.doorBar = null; this.proboszcz = null; this.rafal = null; this.dawn = null; this.door = null;
         GS.level = this.levelIndex;
 
         bindGlobalKeys(this);
@@ -99,6 +105,11 @@ class LevelScene extends Phaser.Scene {
                 s = this.add.sprite(x, G - 30, ART.key('item_znicz_1')).play('znicz').setDepth(6);
                 ART.fit(this, s, 'item_znicz_1', CFG.items.scale, 0.5, 0.5);
                 this.tweens.add({ targets: s, y: s.y - 4, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+            } else if (it.type === 'blessing') {
+                if (GS.hasBless) return;
+                s = this.add.sprite(x, G - 32, ART.key('item_blessing_1')).play('blessing_item').setDepth(6);
+                ART.fit(this, s, 'item_blessing_1', CFG.items.scale, 0.5, 0.5);
+                this.tweens.add({ targets: s, y: s.y - 5, duration: 650, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
             } else if (it.type === 'cross') {
                 if (GS.hasCross) return;
                 s = this.add.image(x, G - 24, 'fx_bless_3').setScale(0.4).setDepth(6);
@@ -109,12 +120,15 @@ class LevelScene extends Phaser.Scene {
 
         // --- koniec poziomu: kościół (Level 1) albo dom Krzysztofa (Level 2) ---
         const ex = this.wx(L.endAt), flip = L.dir < 0;
-        if (BG.end !== 'church_exterior') this.createHouse(ex);
-        else {
+        if (!/^church_exterior/.test(BG.end)) this.createHouse(ex);
+        else {                                                        // kościół: Level 1 (dzień) i Level 3 (noc)
         const doorLeft = flip ? 240 - 51 - 48 : 51;                  // lewa krawędź drzwi w obrazku kościoła
-        const churchX = ex - (doorLeft + 24) + 120, churchY = G + 2;
-        this.add.image(churchX, churchY, BG.end).setOrigin(0.5, 1).setDepth(2.5).setFlipX(flip);
-        this.door = this.add.image(churchX - 120 + doorLeft, churchY - 250 + 162, 'church_door_1').setOrigin(0).setDepth(2.6).setFlipX(flip);
+        const churchX = ex - (doorLeft + 24) + 120, churchY = L.night ? CFG.defense.churchFloorY : G + 2;
+        this.churchTop = churchY - 250; this.churchLeft = churchX - 120;
+        this.church = ART.image(this, churchX, churchY, BG.end, 1, 0.5, 1).setDepth(2.5).setFlipX(flip);
+        this.doorKey = L.night ? 'church_door_night_hp_1' : 'church_door_1';
+        this.door = ART.image(this, churchX - 120 + doorLeft, churchY - 250 + 162, this.doorKey, 1, 0, 0).setDepth(2.6).setFlipX(flip);
+        this.doorLook = this.doorKey;
         this.doorX = ex;
         }
 
@@ -131,8 +145,12 @@ class LevelScene extends Phaser.Scene {
         // --- wrogowie i pociski ---
         this.enemies = this.physics.add.group();
         this.shots = this.physics.add.group({ allowGravity: false });
-        this.physics.add.collider(this.enemies, this.groundSolids);
-        this.physics.add.overlap(this.hero, this.enemies, (h, e) => { if (!e.dead) this.hurt(e.x); });
+        this.physics.add.collider(this.enemies, this.groundSolids, null, (e) => !e.ghost);     // duchy nie stoją na ziemi
+        this.physics.add.overlap(this.hero, this.enemies, (h, e) => { if (!e.dead && !e.harmless) this.hurt(e.x); });
+        this.hostile = this.physics.add.group({ allowGravity: false });        // klucze Rafała
+        this.physics.add.overlap(this.hero, this.hostile, (h, k) => { if (k.active) { k.destroy(); this.hurt(k.x); } });
+        this.allyShots = this.physics.add.group({ allowGravity: false });      // czary proboszcza
+        this.physics.add.overlap(this.allyShots, this.enemies, (s, e) => this.spellHits(s, e));
         this.physics.add.overlap(this.shots, this.enemies, (s, e) => this.shotHits(s, e));
         this.waves = this.physics.add.group({ allowGravity: false });
         this.physics.add.overlap(this.hero, this.waves, (h, w) => this.waveHit(w));
@@ -147,6 +165,7 @@ class LevelScene extends Phaser.Scene {
         kb.on('keydown-UP', onKey(() => { this.jumpAt = this.time.now; }));
         kb.on('keydown-ALT', onKey(() => { this.attackPressed = true; }));
         kb.on('keydown-Z', onKey(() => { this.firePressed = true; }));
+        kb.on('keydown-X', onKey(() => { this.blessPressed = true; }));
         kb.on('keydown-ENTER', onKey(() => this.onConfirm()));
         kb.on('keydown-SPACE', onKey(() => { if (this.talk.dialog) this.talk.skip(); }));
         this.input.on('pointerdown', (p, over) => this.onPointerDown(p, over));
@@ -155,6 +174,7 @@ class LevelScene extends Phaser.Scene {
         this.createHud();
         if (IS_TOUCH) this.createTouch();
         this.createWeather();
+        this.createNight();
         WikaryAudio.play(L.music);
         hintBubble(this, 'POZIOM ' + L.id + ': ' + L.name, 2200, 112);
     }
@@ -176,6 +196,7 @@ class LevelScene extends Phaser.Scene {
         this.hudTime = txt(this, 262, 8, '', 8, '#ffe8a0', { ox: 0.5, oy: 0 }).setScrollFactor(0).setDepth(D);
         this.hudCross = this.add.image(332, 12, 'fx_cross_1').setScale(0.5).setScrollFactor(0).setDepth(D);
         this.hudFire = this.add.image(312, 12, 'fx_fireball_1').setScale(0.6).setScrollFactor(0).setDepth(D);
+        this.hudBless = ART.image(this, 294, 12, 'item_blessing_1', 0.28, 0.5, 0.5).setScrollFactor(0).setDepth(D);
         this.hudGromLabel = txt(this, 350, 8, 'GROM', 8, '#ffd040', { ox: 0, oy: 0 }).setScrollFactor(0).setDepth(D);
         this.hudBarBg = this.add.rectangle(396, 7, 106, 10, 0x221420, 1).setOrigin(0).setStrokeStyle(1, 0xd8a640).setScrollFactor(0).setDepth(D);
         this.hudBar = this.add.rectangle(397, 8, 0, 8, 0xffc830, 1).setOrigin(0).setScrollFactor(0).setDepth(D);
@@ -188,6 +209,7 @@ class LevelScene extends Phaser.Scene {
         this.hudTime.setText(Leaderboard.fmt(GS.timeMs / 1000));
         this.hudCross.setVisible(GS.hasCross);
         this.hudFire.setVisible(GS.hasFire);
+        this.hudBless.setVisible(GS.hasBless);
         if (this.bossBar) this.updateBossBar();
         const full = GS.meter >= CFG.ult.max;
         this.hudBar.width = Math.round(104 * Math.min(1, GS.meter / CFG.ult.max));
@@ -202,7 +224,9 @@ class LevelScene extends Phaser.Scene {
         const midY = 24 + (CFG.H - 24) / 2;            // środek pola gry pod HUD-em
         const ys = [midY - T.h - T.gap, midY, midY + T.h + T.gap];
         const withFire = GS.hasFire || (this.L.items || []).some(i => i.type === 'znicz');
-        const ry = withFire ? [0, 1, 2, 3].map(i => midY + (i - 1.5) * (T.h + T.gap)) : ys;
+        const withBless = GS.hasBless || (this.L.items || []).some(i => i.type === 'blessing');
+        const nR = 3 + (withFire ? 1 : 0) + (withBless ? 1 : 0);
+        const ry = Array.from({ length: nR }, (_, i) => midY + (i - (nR - 1) / 2) * (T.h + T.gap));
         this.touchButtons = {};
         const btn = (name, x, y, w, label, size, down, up) => {
             const r = this.add.rectangle(x, y, w, T.h, 0x140c1c, a).setStrokeStyle(1, 0xd8a640, 0.55).setScrollFactor(0).setDepth(D).setInteractive();
@@ -223,6 +247,7 @@ class LevelScene extends Phaser.Scene {
         let ri = 0;
         btn('ult', rx, ry[ri++], T.rightW, 'GROM', 8, () => this.touch.ult = true, () => this.touch.ult = false);
         if (withFire) btn('fire', rx, ry[ri++], T.rightW, 'OGIEŃ', 8, () => this.firePressed = true);
+        if (withBless) btn('bless', rx, ry[ri++], T.rightW, 'BŁOG.', 8, () => this.blessPressed = true);
         btn('attack', rx, ry[ri++], T.rightW, 'KRZYŻ', 8, () => this.attackPressed = true);
         btn('jump', rx, ry[ri++], T.rightW, 'SKOK', 8, () => this.jumpAt = this.time.now);
     }
@@ -306,6 +331,7 @@ class LevelScene extends Phaser.Scene {
         this.updateEnemies(time, dt);
         this.updatePlanks(dt);
         this.updateWeather(time, delta);
+        this.updateLevel3(time, delta);
         this.shots.getChildren().forEach(s => { if (time > s.dieAt) s.destroy(); });
         if (this.dead || this.ended || this.respawning) { this.syncSprite(time, 0); return; }
 
@@ -360,7 +386,10 @@ class LevelScene extends Phaser.Scene {
         if (this.firePressed && !this.praying) {
             if (GS.hasFire && time - this.lastFire >= CFG.fire.cooldownMs) this.throwFire(time);
         }
-        this.attackPressed = false; this.firePressed = false;
+        if (this.blessPressed && !this.praying) {
+            if (GS.hasBless && time - this.lastBless >= CFG.bless.cooldownMs) this.castBlessing(time);
+        }
+        this.attackPressed = false; this.firePressed = false; this.blessPressed = false;
         body.setVelocityX(vx);
         this.carryOnPlank();
 
@@ -393,16 +422,19 @@ class LevelScene extends Phaser.Scene {
         // --- spawner wrogów (dopiero gdy wikary ma krzyż) ---
         const E = L.enemies, fd = this.frontD();
         const SP = L.spawn || CFG.spawn;
+        const ST = E && E.stages ? E.stages.filter(st => this.heroD() >= st.at).pop() || E.stages[0] : null;   // Level 3: etapy
+        const SPs = ST || SP;
         if (E && GS.hasCross && !this.arena && fd > E.from && fd < E.to) {
             this.spawnAcc += delta;
-            if (this.spawnAcc >= this.nextSpawn && this.enemies.countActive(true) < SP.maxAlive) {
-                this.spawnAcc = 0; this.nextSpawn = Phaser.Math.Between(SP.minMs, SP.maxMs);
-                const set = E.late && this.heroD() >= E.late.at ? E.late.set : E.set;
+            if (this.spawnAcc >= this.nextSpawn && this.enemies.countActive(true) < SPs.maxAlive) {
+                this.spawnAcc = 0; this.nextSpawn = Phaser.Math.Between(SPs.minMs, SPs.maxMs);
+                const set = ST ? ST.set : E.late && this.heroD() >= E.late.at ? E.late.set : E.set;
                 this.spawnEnemy(this.pickEnemy(set));
             }
         }
         // --- meta: kościół (Level 1) albo arena z bossem (Level 2) ---
-        if (L.boss) { if (!this.arena && this.heroD() >= L.arenaAt) this.startArena(); }
+        if (L.defense) { if (!this.arena && this.heroD() >= L.arenaAt) this.startDefense(); }
+        else if (L.boss) { if (!this.arena && this.heroD() >= L.arenaAt) this.startArena(); }
         else if (this.heroD() >= L.endAt - 6) this.finishLevel();
         this.syncSprite(time, vx);
     }
@@ -448,6 +480,8 @@ class LevelScene extends Phaser.Scene {
             this.crossPickup(it); return;
         } else if (t === 'znicz') {
             this.zniczPickup(it); return;
+        } else if (t === 'blessing') {
+            this.blessingPickup(it); return;
         }
         this.tweens.killTweensOf(it);
         this.tweens.add({ targets: it, scale: it.scale * 1.8, alpha: 0, duration: 180, onComplete: () => it.destroy() });
@@ -565,7 +599,7 @@ class LevelScene extends Phaser.Scene {
                 e.baseY = baseY; e.phase = i * 0.9; e.t0 = this.time.now;
                 e.setVelocityX(mv * C.speed);
             }
-        } else if (this.spawnEnemy2(type, frontX, mv, mk)) {
+        } else if (this.spawnEnemy2(type, frontX, mv, mk) || this.spawnEnemy3(type, frontX, mv, mk)) {
             /* Level 2: wrona, dzik, błędny ognik (level2.js) */
         } else if (type === 'spider') {
             const x = dir > 0 ? cam.scrollX + Phaser.Math.Between(W * 0.55, W * 0.9) : cam.scrollX + Phaser.Math.Between(W * 0.1, W * 0.45);
@@ -579,7 +613,7 @@ class LevelScene extends Phaser.Scene {
     }
     /** hitbox na dole klatki (origin 0.5,1), w px ekranu z CFG; działa też po zmianie klatki (skok wilka) */
     fitBody(e) {
-        const C = e.type === 'hans' ? CFG.boss : CFG.enemies[e.type], w = C.bodyW / Math.abs(e.scaleX), h = C.bodyH / Math.abs(e.scaleY);
+        const C = e.type === 'hans' ? CFG.boss : e.type === 'rafal' ? CFG.rafal : CFG.enemies[e.type], w = C.bodyW / Math.abs(e.scaleX), h = C.bodyH / Math.abs(e.scaleY);
         e.body.setSize(w, h, false);
         const mid = e.type === 'bat' || C.center;
         e.body.setOffset((e.frame.width - w) / 2, mid ? (e.frame.height - h) / 2 : e.frame.height - h - (e.type === 'spider' ? 2 : 0));
@@ -589,6 +623,7 @@ class LevelScene extends Phaser.Scene {
         this.enemies.getChildren().slice().forEach(e => {
             if (!e.active || e.dead) return;
             if (e.type === 'hans') { this.updateBoss(e, time, dt); return; }
+            if (e.type === 'rafal') { this.updateRafal(e, time, dt); return; }
             const C = CFG.enemies[e.type];
             if (e.type === 'wolf') {
                 const onG = e.body.blocked.down || e.body.touching.down;
@@ -596,7 +631,7 @@ class LevelScene extends Phaser.Scene {
                 else if (!onG) { e.anims.stop(); e.setTexture(e.body.velocity.y < 0 ? 'enemy_wolf_jump_1' : 'enemy_wolf_jump_2'); this.fitBody(e); }
                 else if (!e.anims.isPlaying) { e.play('wolf_run'); this.fitBody(e); }
             }
-            if (this.updateEnemy2(e, C, time, dt)) return;
+            if (this.updateEnemy2(e, C, time, dt) || this.updateEnemy3(e, C, time, dt)) return;
             if (e.type === 'bat') e.body.velocity.y = Math.cos((time - e.t0) / 1000 * C.freq + e.phase) * C.amp * C.freq;
             if (e.type === 'spider') {
                 if (e.state === 'drop' && e.y >= C.dropTo) { e.state = 'hold'; e.setVelocityY(0); e.holdUntil = time + C.holdMs; }
@@ -611,6 +646,7 @@ class LevelScene extends Phaser.Scene {
     damageEnemy(e, dmg, byUlt) {
         if (e.dead || !e.active) return;
         if (e.type === 'hans') { this.bossHit(e, dmg, byUlt); return; }
+        if (e.type === 'rafal') { this.rafalHit(e, dmg, byUlt); return; }
         e.hp -= dmg;
         if (e.hp > 0) {
             WikaryAudio.sfx('hit');
@@ -622,7 +658,7 @@ class LevelScene extends Phaser.Scene {
         const pts = CFG.score[e.type] || 50;
         GS.score += pts; GS.kills++; if (!byUlt) this.addMeter(CFG.ult.perKill);
         WikaryAudio.sfx('kill'); this.popup(e.x, e.y - e.displayHeight - 4, '+' + pts);
-        const poof = this.add.sprite(e.x, e.y - e.displayHeight / 2, 'fx_enemy_poof_1').setScale(CFG.items.scale).setDepth(8).play('poof');
+        const poof = this.makePoof(e);
         poof.once('animationcomplete', () => poof.destroy());
         e.destroy();
     }
@@ -719,7 +755,9 @@ class LevelScene extends Phaser.Scene {
             add(txt(this, W / 2 + 140, 120 + i * 20, b, 8, '#ffffff', { ox: 1 }));
         });
         const hasNext = L.next !== null && L.next !== undefined && LEVELS[L.next];
-        add(txt(this, W / 2, 214, hasNext ? 'DALEJ: KOŚCIÓŁ I ROZMOWA Z PROBOSZCZEM' : 'CIĄG DALSZY: LEVEL ' + (L.id + 1) + ' WKRÓTCE', 8, '#ffd040'));
+        const nextTxt = hasNext ? (L.nextVia === 'Church' ? 'DALEJ: KOŚCIÓŁ I ROZMOWA Z PROBOSZCZEM' : 'DALEJ: LEVEL ' + LEVELS[L.next].id + ' – ' + LEVELS[L.next].name)
+            : L.final ? 'KONIEC... NA RAZIE!' : 'CIĄG DALSZY: LEVEL ' + (L.id + 1) + ' WKRÓTCE';
+        add(txt(this, W / 2, 214, nextTxt, L.final ? 16 : 8, '#ffd040'));
         add(txt(this, W / 2, 246, (IS_TOUCH ? 'DOTKNIJ' : 'ENTER') + (hasNext ? ' = DALEJ' : ' = ZAPISZ WYNIK'), 8, '#c8b890'));
         this.time.delayedCall(400, () => { this.summaryShown = true; });
     }
@@ -730,7 +768,10 @@ class LevelScene extends Phaser.Scene {
         WikaryAudio.sfx('select');
         const L = this.L;
         this.cameras.main.once('camerafadeoutcomplete', () => {
-            if (L.next !== null && L.next !== undefined && LEVELS[L.next]) this.scene.start('Church', { next: L.next });
+            if (L.next !== null && L.next !== undefined && LEVELS[L.next]) {
+                if (L.nextVia === 'Church') this.scene.start('Church', { next: L.next });
+                else this.scene.start('Level', { level: L.next });
+            }
             else this.scene.start('Nick', { result: 'win' });
         });
         this.cameras.main.fade(350, 0, 0, 0, true);
