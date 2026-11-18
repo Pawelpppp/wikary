@@ -70,6 +70,8 @@ Główną postacią jest **wikary Kamil**: rude krótkie włosy, czarna sutanna,
 - **Chodzenie i bieg** w lewo i w prawo (strzałki).
 - **Podskok:** jedno wciśnięcie Spacji = zwykły podskok.
 - **Skok z saltem:** dwa wciśnięcia Spacji = wyższy skok z saltem.
+- **Naskok (stomp):** gdy Kamil spada i trafia stopami w wierzch wroga, nie traci życia. Wróg z 1 HP ginie (punkty, poof, czasem serduszko), a Kamil lekko się odbija. Twardszy wróg traci 1 HP (białe mignięcie), a Kamil odbija się wyżej; po odbiciu można jeszcze zrobić salto. Przez chwilę po odbiciu wrogowie go nie ranią. Działa na wszystkich zwykłych wrogach, także latających (nietoperze, wrony, komary, ogniki) i na duchach w Level 3; nie działa na bossach (Hans, Rafał, Adrian). Wejście we wroga z boku nadal zabiera życie. HP wrogów: pies, nietoperz, pająk, wrona, ognik, duszek, mały komar = 1; wilk, dzik, fantom, duży komar, żaba = 2; upiór, bagienny stwór = 3. Ustawienia: `CFG.stomp` (`bounceKill`, `bounceHit`, `tolerancePx`, `invulnMs`, `exclude`).
+- **Życia:** start z 3 (`CFG.hero.lives`), najwyżej 6 (`CFG.hero.maxLives`); w HUD-zie puste miejsca są przyciemnione. Na poziomach leżą **serduszka** (+1 życie; 1 / 2 / 4 / 6 w Level 1–4, `CFG.lifePickup.countByLevel`), a pokonany wróg czasem upuszcza serduszko (15% w Level 1, rosnąco do 30% w Level 4, `dropChanceByLevel`). Przy komplecie żyć serduszka znikają.
 - **Moce:**
   - uderzenie **ogniem**,
   - uderzenie **krzyżem**,

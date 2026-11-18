@@ -29,6 +29,14 @@ const CFG = {
         crouchDownMs: 90,           // klatka przejściowa (półprzysiad) przy kucaniu
     },
 
+    stomp: {                        // naskok na wroga (stopy w górną część, Kamil spada): 1 HP = ginie, więcej = -1 HP i odbicie
+        bounceKill: 260,            // odbicie po zabiciu (px/s w górę, lekkie)
+        bounceHit: 400,             // odbicie od twardszego wroga (wyżej)
+        tolerancePx: 10,            // stopy (z poprzedniej klatki) mogą być tyle px poniżej wierzchu hitboxu wroga
+        invulnMs: 250,              // po odbiciu wrogowie nie ranią Kamila (bez migania)
+        exclude: ['hans', 'rafal', 'adrian'],   // bossy: bez stompa, zachowanie jak dotąd
+    },
+
     lifePickup: {                   // znajdźki i dropy życia rosną z każdym poziomem
         countByLevel: [1, 2, 4, 6],
         dropChanceByLevel: [0.15, 0.20, 0.25, 0.30],

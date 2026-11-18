@@ -2,7 +2,7 @@
 przenoszenie stanu między poziomami, game over w Level 2."""
 import time
 
-from wikary import (beat_hans, finish_level1, fmt, hold, reach_arena, skip_church, start_level, state,
+from wikary import (beat_hans, no_life_pickups, finish_level1, fmt, hold, reach_arena, skip_church, start_level, state,
                     teleport, wait_js, wait_scene)
 
 
@@ -93,6 +93,7 @@ def test_plank_moves_and_carries_kamil(game):
 
 
 def test_screen_waits_at_plank_river(game):
+    no_life_pickups(game)
     start_l2(game)
     game.evaluate("(()=>{const l=__wikary.level(); l.nextSpawn=1e12; l.enemies.getChildren().slice().forEach(e=>e.destroy());})()")   # bez wrogów: liczy się tylko rzeka
     teleport(game, 3230)

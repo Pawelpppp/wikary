@@ -253,3 +253,8 @@ def beat_adrian(page):
         a.hp=1; a.harmless=false; l.damageEnemy(a, 1);})()""")
     wait_js(page, "__wikary.adrian().dead", 3)
     skip_dialogs_until(page, "__wikary.level().summaryShown", 60)
+
+
+def no_life_pickups(page):
+    """Wyłącza serduszka (znajdźki i dropy) w tej karcie: dla testów, które liczą życia. Wołać przed startem poziomu."""
+    page.evaluate("(()=>{const C=__wikary.CFG.lifePickup; C.countByLevel=C.countByLevel.map(()=>0); C.dropChanceByLevel=C.dropChanceByLevel.map(()=>0);})()")

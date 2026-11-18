@@ -10,7 +10,8 @@ def _assert_fresh(game):
     s = state(game)
     assert s["lives"] == 3 and s["score"] == 0 and not s["cross"] and s["time"] < 2500 and s["meter"] == 0, fmt(s)
     assert game.evaluate(CLEAN)
-    assert game.evaluate("__wikary.level().lifeIcons.length") == 3
+    assert game.evaluate("__wikary.level().lifeIcons.length") == game.evaluate("__wikary.CFG.hero.maxLives")
+    assert game.evaluate("__wikary.level().lifeIcons.filter(i=>i.alpha===1).length") == 3
     assert game.evaluate("__wikary.game.scene.getScenes(false).filter(s=>s.scene.key==='Level').length") == 1
 
 

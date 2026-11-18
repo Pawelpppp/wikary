@@ -15,7 +15,7 @@ class LevelScene extends Phaser.Scene {
         // --- reset CAŁEGO stanu sceny (scena przy restarcie zachowuje pola instancji) ---
         this.ended = false; this.dead = false; this.cutscene = false; this.respawning = false;
         this.praying = false; this.charged = false; this.prayStart = 0; this.aura = null;
-        this.invulnUntil = 0; this.lastGroundAt = 0; this.jumpAt = -99999; this.jumps = 0; this.flipping = false;
+        this.invulnUntil = 0; this.stompSafeUntil = 0; this.stomps = 0; this.stompLog = []; this.lastGroundAt = 0; this.jumpAt = -99999; this.jumps = 0; this.flipping = false;
         this.attackUntil = 0; this.lastThrow = -99999; this.attackPressed = false;
         this.boostUntil = 0; this.slowUntil = 0; this.facing = L.dir;
         this.spawnAcc = 0; this.nextSpawn = 1200; this.hintsShown = {}; this.hintSlots = {}; this.summaryShown = false;
@@ -165,7 +165,11 @@ class LevelScene extends Phaser.Scene {
         this.enemies = this.physics.add.group();
         this.shots = this.physics.add.group({ allowGravity: false });
         this.physics.add.collider(this.enemies, this.groundSolids, null, (e) => !e.ghost);     // duchy nie stoją na ziemi
-        this.physics.add.overlap(this.hero, this.enemies, (h, e) => { if (!e.dead && !e.harmless) this.hurt(e.x); });
+        this.physics.add.overlap(this.hero, this.enemies, (h, e) => {
+            if (e.dead || e.harmless) return;
+            if (this.tryStomp(e) || this.time.now < this.stompSafeUntil) return;
+            this.hurt(e.x);
+        });
         this.hostile = this.physics.add.group({ allowGravity: false });        // klucze Rafała
         this.physics.add.overlap(this.hero, this.hostile, (h, k) => { if (k.active) { k.destroy(); this.hurt(k.x); } });
         this.allyShots = this.physics.add.group({ allowGravity: false });      // czary proboszcza
@@ -225,6 +229,7 @@ class LevelScene extends Phaser.Scene {
         if (!count || GS.lives >= CFG.hero.maxLives) return [];
         const L = this.L, last = Math.min(L.endAt || L.length, L.length) - C.safeMargin;
         const blocked = (L.rivers || []).map(r => [r.at - C.safeMargin, r.at + r.w + C.safeMargin]);
+        blocked.push([0, (this.startAtD || L.startAt || 100) + C.safeMargin]);     // nie na miejscu startu Kamila
         (L.obstacles || []).forEach(o => {
             const width = CFG.obstacles[o.type] ? CFG.obstacles[o.type].w : 52;
             blocked.push([o.at - width / 2 - C.safeMargin, o.at + width / 2 + C.safeMargin]);
@@ -753,6 +758,23 @@ class LevelScene extends Phaser.Scene {
             this.createLifePickup(e.x, CFG.GROUND_Y - CFG.lifePickup.pickupY);
         }
         e.destroy();
+    }
+
+    /** naskok: Kamil spada stopami na wierzch wroga -> wróg z 1 HP ginie, z większą liczbą traci 1 HP, Kamil się odbija */
+    tryStomp(e) {
+        const S = CFG.stomp, hb = this.hero.body, eb = e.body;
+        if (!eb || S.exclude.includes(e.type) || this.dead || this.ended || this.cutscene || this.respawning) return false;
+        if (hb.velocity.y <= 0 || hb.center.y >= eb.center.y) return false;
+        const footPrev = hb.prev.y + hb.height, top = Math.min(eb.top, eb.prev.y);
+        if (footPrev > top + S.tolerancePx) return false;
+        const kill = !(e.hp > 1);
+        this.damageEnemy(e, kill ? Math.max(1, e.hp || 1) : 1);
+        hb.setVelocityY(-(kill ? S.bounceKill : S.bounceHit));
+        this.jumps = 1; this.flipping = false; this.lastGroundAt = -99999;   // po odbiciu można jeszcze zrobić salto
+        this.stompSafeUntil = this.time.now + S.invulnMs; this.stomps++;
+        this.stompLog.push({ type: e.type, kill, hpLeft: kill ? 0 : e.hp });
+        WikaryAudio.sfx('jump');
+        return true;
     }
 
     /* ---------- obrażenia, woda, koniec ---------- */

@@ -1,7 +1,7 @@
 """Kucanie (strzałka w dół): niższy hitbox, brak biegu, skok z kucnięcia, nietoperze nad głową."""
 import time
 
-from wikary import fmt, hold, start_level, state
+from wikary import fmt, hold, no_life_pickups, start_level, state
 
 BODY = "(()=>{const l=__wikary.level(),b=l.hero.body;return {crouching:l.crouching,h:b.height,bottom:b.bottom,top:b.top,tex:l.kamil.texture.key,anim:l.kamil.anims.currentAnim&&l.kamil.anims.currentAnim.key}})()"
 
@@ -63,6 +63,7 @@ def _bat_at_lowest_reach(page):
 
 
 def test_lowest_bat_passes_over_crouched_hero(game):
+    no_life_pickups(game)
     start_level(game)
     game.keyboard.down("ArrowDown")
     time.sleep(0.4)
@@ -79,6 +80,7 @@ def test_lowest_bat_passes_over_crouched_hero(game):
 
 
 def test_lowest_bat_hits_standing_hero(game):
+    no_life_pickups(game)
     start_level(game)
     lives0 = state(game)["lives"]
     _bat_at_lowest_reach(game)
