@@ -20,12 +20,21 @@ const CFG = {
         edgeMargin: 14,             // odległość od krawędzi ekranu
         followAt: 0.55,             // kamera dogania gracza, gdy jest dalej niż 55% ekranu
         lives: 3,
+        maxLives: 6,
         invulnMs: 1600,             // nietykalność po każdej utracie życia (też woda)
         knockback: 140,
         respawnBeforeRiver: 60,     // powrót przed rzekę (px przed brzegiem)
         crouchH: 38,                // hitbox w kucnięciu (strzałka w dół) - nietoperze przelatują nad głową
         crouchSpeed: 0,             // bieg w kucnięciu (0 = stoi w miejscu; auto-scroll i tak pcha)
         crouchDownMs: 90,           // klatka przejściowa (półprzysiad) przy kucaniu
+    },
+
+    lifePickup: {                   // znajdźki i dropy życia rosną z każdym poziomem
+        countByLevel: [1, 2, 4, 6],
+        dropChanceByLevel: [0.15, 0.20, 0.25, 0.30],
+        pickupY: 30,
+        safeMargin: 100,
+        minGap: 90,
     },
 
     touch: {                        // przyciski dotykowe: pionowo na środku, przy lewej i prawej krawędzi
