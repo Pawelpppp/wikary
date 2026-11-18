@@ -58,7 +58,7 @@ Na dotyku przyciski są półprzezroczyste i pionowo na środku ekranu: GROM / (
 - ✅ Level 2 „Wizyta u skąpego parafianina”: ekran w lewo, wieczór, deszcz i dalekie błyskawice, rozkopana droga, zwalone drzewa, dwie rzeki (druga z ruchomą kładką), wrony, dziki, błędne ogniki, znicz i kula ognia (Z), dom Krzysztofa, boss Hans z paskiem życia, zakończenie z dziesięcioma złotymi.
 - ✅ Punkty, życia, pasek, krzyż i czas przechodzą z poziomu na poziom; game over w Level 2 prowadzi do wpisania nicku.
 - ✅ Level 3 „Noc duchów”: noc, mgła i księżyc, duszki / fantomy / upiory (ogień na nie nie działa), błogosławieństwo (X), obrona drzwi kościoła z proboszczem (3 fale, pasek drzwi), boss kościelny Rafał, egzorcyzm, świt z dzwonami i „KONIEC... NA RAZIE!”.
-- ⏳ Następne: nowe zakończenie Level 3 z Czerwonym Diabłem, Level 4 „Bagna” (scenariusz niżej), wspólna tablica na Azure.
+- ⏳ Następne: nowe zakończenie Level 3 z Czerwonym Diabłem, Level 4 „Bagna” i Level 5 (jazda samochodem) (scenariusz niżej), wspólna tablica na Azure.
 
 **Debug:** `?debug=1` na ekranie tytułowym: 1 = Level 1, 2 = kościół, 3 = Level 2, 4 = Level 2 tuż przed Hansem, 5 = Level 3, 6 = Level 3 obrona kościoła, 7 = Level 3 od razu Rafał (także `?debug=1&level=2` / `level=3`).
 
@@ -172,6 +172,23 @@ Działa jak w Fibi Run:
 - **Początek:** proboszcz każe Kamilowi ruszyć za diabłem do **czarnoksiężnika Adriana** i rozprawić się z tymi szatanami.
 - Kamil idzie **w prawo przez bagna**. Atakują go głównie **komary** (większe i mniejsze) oraz inne **bagienne stwory**.
 - **Cel:** przejść bagna i dotrzeć do czarnoksiężnika Adriana. Grafiki Adriana dołączy autor później.
+
+**Po pokonaniu Adriana (scenariusz – do zrobienia):**
+- Ekran powoli **robi się czerwony**, ziemia drży, a z ziemi **powoli wyłania się Czerwony Diabeł**.
+- Krótki dialog (propozycja):
+  - Diabeł: „Brawo, księżulku. Pokonałeś mojego czarnoksiężnika... Ale to dopiero początek!”
+  - Kamil: „Proszę pana, ja tu jestem służbowo. Mam w kieszeni święconą wodę i nie zawaham się jej użyć!”
+  - Adrian: „Szefie, mówiłeś, że to będzie łatwa robota...”
+  - Diabeł: „Milcz, Adrianie! Zemszczę się, wikary! Jeszcze o mnie usłyszysz!” I **odlatuje** w kłębach siarki.
+- Pokonany Adrian przyznaje: „Diabeł wie, gdzie mieszka moja rodzina... Sam mu powiedziałem, przy herbatce. Teraz tego żałuję”.
+- Żeby Kamil mógł **uratować jego rodzinę**, Adrian oddaje mu **swój samochód**: „Weź moje auto. Tylko uważaj na sprzęgło, trochę bierze wysoko”.
+- Ksiądz Kamil wsiada do auta i **rusza w lewo**.
+- Grafiki samochodu (czerwony hatchback, 219×100, przodem w prawo, więc jazda w lewo = odbicie w poziomie) już są w repo:
+  - `assets/game/car_1.png`, `car_2.png` (auto z Kamilem za kierownicą, 2 klatki jazdy) oraz `car_empty_1.png`, `car_empty_2.png` (puste auto),
+  - `assets/sprites/ksiadz_kamil_car.png`, `ksiadz_kamil_car_1.png`, `ksiadz_kamil_car_2.png` (Kamil w aucie; z wersjami `_x4`).
+
+### Level 5: jazda samochodem (scenariusz – do zrobienia)
+- Następna misja: Kamil **jedzie samochodem w lewo**, żeby zdążyć przed diabłem do rodziny Adriana. Szczegóły rozgrywki zostaną jeszcze wymyślone.
 
 ### Pomysły na później (do dopracowania)
 - Kolejne moce (modlitwa) jako itemy w następnych poziomach, z podobnym efektem pioruna i przyciemnienia.
