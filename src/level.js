@@ -33,6 +33,7 @@ class LevelScene extends Phaser.Scene {
         this.kamilFree = false; this.repelUntil = 0; this.repelAura = null; this.repelKills = 0; this.swamp = null;
         this.orbsCast = 0; this.swarmsSummoned = 0; this.teleports = 0; this.tongues = 0; this.carGone = false;
         GS.level = this.levelIndex;
+        this.ensureLifeTexture();
 
         bindGlobalKeys(this);
         const cam = this.cameras.main;
@@ -99,10 +100,15 @@ class LevelScene extends Phaser.Scene {
         });
 
         // --- znajdźki ---
-        (L.items || []).forEach(it => {
+        const placedLifePickups = this.lifePickupDistances();
+        const sceneItems = (L.items || []).concat(placedLifePickups.map(at => ({ type: 'life', at })));
+        sceneItems.forEach(it => {
             const x = this.wx(it.at);
             let s;
-            if (it.type === 'diamond') {
+            if (it.type === 'life') {
+                s = this.add.image(x, G - CFG.lifePickup.pickupY, 'item_life_heart').setScale(1.25).setDepth(6);
+                this.tweens.add({ targets: s, y: s.y - 5, duration: 550, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+            } else if (it.type === 'diamond') {
                 s = this.add.sprite(x, G - (it.h || 18) - 6, 'item_diamond_1').setScale(CFG.items.scale).setDepth(6).play({ key: 'diamond_spin', startFrame: it.at % 6 });
                 this.tweens.add({ targets: s, y: s.y - 4, duration: 600 + (it.at % 5) * 60, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
             } else if (it.type === 'lightning') {
@@ -200,13 +206,69 @@ class LevelScene extends Phaser.Scene {
     playK(key) { if (!this.kamil.anims.currentAnim || this.kamil.anims.currentAnim.key !== key || !this.kamil.anims.isPlaying) this.kamil.play(key); }
     onGround() { const b = this.hero.body; return b.blocked.down || b.touching.down; }
 
+    ensureLifeTexture() {
+        if (this.textures.exists('item_life_heart')) return;
+        const g = this.make.graphics({ x: 0, y: 0, add: false });
+        const rows = ['00100100', '01111110', '11111111', '11111111', '01111110', '00111100', '00011000', '00000000'];
+        rows.forEach((row, y) => Array.from(row).forEach((px, x) => {
+            if (px === '1') {
+                g.fillStyle(y < 2 ? 0xffb4c0 : 0xf0445e, 1);
+                g.fillRect(x * 2, y * 2, 2, 2);
+            }
+        }));
+        g.generateTexture('item_life_heart', 16, 16);
+        g.destroy();
+    }
+
+    lifePickupDistances() {
+        const C = CFG.lifePickup, count = C.countByLevel[this.levelIndex] || 0;
+        if (!count || GS.lives >= CFG.hero.maxLives) return [];
+        const L = this.L, last = Math.min(L.endAt || L.length, L.length) - C.safeMargin;
+        const blocked = (L.rivers || []).map(r => [r.at - C.safeMargin, r.at + r.w + C.safeMargin]);
+        (L.obstacles || []).forEach(o => {
+            const width = CFG.obstacles[o.type] ? CFG.obstacles[o.type].w : 52;
+            blocked.push([o.at - width / 2 - C.safeMargin, o.at + width / 2 + C.safeMargin]);
+        });
+        const placed = (L.items || []).map(i => i.at);
+        const candidates = [];
+        for (let d = C.safeMargin; d < last; d += 20) {
+            if (blocked.some(([a, b]) => d >= a && d <= b)) continue;
+            if (placed.some(p => Math.abs(p - d) < C.minGap)) continue;
+            candidates.push(d);
+        }
+        Phaser.Utils.Array.Shuffle(candidates);
+        const selected = [];
+        candidates.forEach(d => {
+            if (selected.length < count && selected.every(p => Math.abs(p - d) >= C.minGap)) selected.push(d);
+        });
+        return selected;
+    }
+
+    createLifePickup(x, y) {
+        if (GS.lives >= CFG.hero.maxLives) return null;
+        this.ensureLifeTexture();
+        const it = this.add.image(x, y, 'item_life_heart').setScale(1.25).setDepth(6);
+        it.itemType = 'life'; it.taken = false;
+        this.tweens.add({ targets: it, y: y - 5, duration: 550, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        this.items.push(it);
+        return it;
+    }
+
+    removeLifePickups(except) {
+        this.items.filter(i => i.itemType === 'life' && i.active).forEach(i => {
+            if (i === except) return;
+            this.tweens.killTweensOf(i); i.destroy();
+        });
+        this.items = this.items.filter(i => i.active && !i.taken);
+    }
+
     /* ---------- HUD ---------- */
     createHud() {
         const D = 4000, W = CFG.W;
         this.add.rectangle(0, 0, W, 24, 0x0c0610, 0.55).setOrigin(0).setScrollFactor(0).setDepth(D - 1);
         this.lifeIcons = [];
-        for (let i = 0; i < CFG.hero.lives; i++) this.lifeIcons.push(this.add.image(14 + i * 22, 12, 'wikary_kamil_closeup_open').setScale(0.11).setScrollFactor(0).setDepth(D));
-        this.hudScore = txt(this, 82, 8, '', 8, '#ffffff', { ox: 0, oy: 0 }).setScrollFactor(0).setDepth(D);
+        for (let i = 0; i < CFG.hero.maxLives; i++) this.lifeIcons.push(this.add.image(14 + i * 22, 12, 'wikary_kamil_closeup_open').setScale(0.11).setScrollFactor(0).setDepth(D));
+        this.hudScore = txt(this, 142, 8, '', 8, '#ffffff', { ox: 0, oy: 0 }).setScrollFactor(0).setDepth(D);
         this.hudTime = txt(this, 262, 8, '', 8, '#ffe8a0', { ox: 0.5, oy: 0 }).setScrollFactor(0).setDepth(D);
         this.hudCross = this.add.image(332, 12, 'fx_cross_1').setScale(0.5).setScrollFactor(0).setDepth(D);
         this.hudFire = this.add.image(312, 12, 'fx_fireball_1').setScale(0.6).setScrollFactor(0).setDepth(D);
@@ -502,6 +564,10 @@ class LevelScene extends Phaser.Scene {
             this.blessingPickup(it); return;
         } else if (t === 'repellent') {
             this.repellentPickup(it, time);
+        } else if (t === 'life') {
+            GS.lives = Math.min(CFG.hero.maxLives, GS.lives + 1);
+            WikaryAudio.sfx('pickup'); this.popup(it.x, it.y, '+1 ŻYCIE');
+            if (GS.lives >= CFG.hero.maxLives) this.removeLifePickups(it);
         }
         this.tweens.killTweensOf(it);
         this.tweens.add({ targets: it, scale: it.scale * 1.8, alpha: 0, duration: 180, onComplete: () => it.destroy() });
@@ -682,6 +748,10 @@ class LevelScene extends Phaser.Scene {
         WikaryAudio.sfx('kill'); this.popup(e.x, e.y - e.displayHeight - 4, '+' + pts);
         const poof = this.makePoof(e);
         poof.once('animationcomplete', () => poof.destroy());
+        const dropChance = CFG.lifePickup.dropChanceByLevel[this.levelIndex] || 0;
+        if (GS.lives < CFG.hero.maxLives && Math.random() < dropChance) {
+            this.createLifePickup(e.x, CFG.GROUND_Y - CFG.lifePickup.pickupY);
+        }
         e.destroy();
     }
 
