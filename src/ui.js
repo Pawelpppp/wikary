@@ -95,8 +95,32 @@ function bindGlobalKeys(scene) {
     kb.on('keydown', () => WikaryAudio.unlock());
     scene.input.on('pointerdown', () => WikaryAudio.unlock());
 }
+/** Pełny ekran: natywne Fullscreen API na całej stronie (<html>), wołane wprost w geście użytkownika
+    (klawisz F albo pointerup na przycisku F). Phaser sam słucha 'fullscreenchange' (isFullscreen, refresh, enterfullscreen).
+    Odmowa przeglądarki -> 'fullscreenfailed' + podpowiedź, bez „Uncaught (in promise)”.
+    iPhone (brak API): podpowiedź o dodaniu gry do ekranu początkowego. */
 function toggleFullscreen(scene) {
-    try { if (scene.scale.isFullscreen) scene.scale.stopFullscreen(); else scene.scale.startFullscreen(); } catch (e) { /* brak wsparcia */ }
+    const sm = scene.scale, d = document;
+    if (!sm.fullscreen.available) {
+        sm.emit('fullscreenunsupported');
+        hintBubble(scene, CFG.fullscreen.unsupportedHint, CFG.fullscreen.hintMs, CFG.fullscreen.hintY);
+        return;
+    }
+    const failed = (err) => {
+        sm.emit('fullscreenfailed', err);
+        hintBubble(scene, CFG.fullscreen.failedHint, CFG.fullscreen.hintMs, CFG.fullscreen.hintY);
+    };
+    try {
+        if (d.fullscreenElement || d.webkitFullscreenElement) {
+            const exit = d.exitFullscreen || d.webkitExitFullscreen;
+            const p = exit && exit.call(d);
+            if (p && p.catch) p.catch(() => {});
+            return;
+        }
+        const el = d.documentElement, req = el.requestFullscreen || el.webkitRequestFullscreen;
+        const p = req.call(el, { navigationUI: 'hide' });
+        if (p && p.catch) p.catch(failed);
+    } catch (err) { failed(err); }
 }
 
 /** Małe przyciski M (dźwięk) i F (pełny ekran) w prawym górnym rogu. */
@@ -105,7 +129,11 @@ function cornerButtons(scene, y) {
     const mk = (x, label, cb) => {
         const r = scene.add.rectangle(x, y, 22, 16, 0x140c1c, 0.75).setStrokeStyle(1, 0xd8a640).setScrollFactor(0).setDepth(3000);
         const t = txt(scene, x, y + 1, label, 8, '#ffe8a0').setScrollFactor(0).setDepth(3001);
-        r.setInteractive({ useHandCursor: true }).on('pointerdown', (p, lx, ly, ev) => { if (ev) ev.stopPropagation(); cb(); });
+        // pointerdown tylko zatrzymuje dotyk (bez skoku / pominięcia); akcja na pointerup = gest, który
+        // przeglądarka na Androidzie uznaje za aktywację (touchstart / pointerdown dotykiem nie wystarcza do pełnego ekranu)
+        r.setInteractive({ useHandCursor: true })
+            .on('pointerdown', (p, lx, ly, ev) => { if (ev) ev.stopPropagation(); })
+            .on('pointerup', (p, lx, ly, ev) => { if (ev) ev.stopPropagation(); cb(); });
         return { r, t };
     };
     const m = mk(CFG.W - 40, 'M', () => { WikaryAudio.unlock(); WikaryAudio.toggleMute(); scene.events.emit('mutechange'); });

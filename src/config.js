@@ -37,6 +37,13 @@ const CFG = {
         exclude: ['hans', 'rafal', 'adrian'],   // bossy: bez stompa, zachowanie jak dotąd
     },
 
+    fullscreen: {                   // pełny ekran (przycisk F / klawisz F)
+        unsupportedHint: 'UDOSTĘPNIJ \u2192 DO EKRANU POCZĄTKOWEGO',   // iPhone: brak Fullscreen API
+        failedHint: 'PEŁNY EKRAN ZABLOKOWANY PRZEZ PRZEGLĄDARKĘ',
+        hintMs: 3000, hintY: 40,
+        buttonZone: { w: 60, h: 24 },     // prawy górny róg (M, F): dotyk tu nie pomija intro
+    },
+
     lifePickup: {                   // znajdźki i dropy życia rosną z każdym poziomem
         countByLevel: [1, 2, 4, 6],
         dropChanceByLevel: [0.15, 0.20, 0.25, 0.30],

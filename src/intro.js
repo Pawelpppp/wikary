@@ -14,7 +14,11 @@ class IntroScene extends Phaser.Scene {
         kb.on('keydown-SPACE', onKey(() => this.skip()));
         kb.on('keydown-ESC', onKey(() => this.skip()));
         kb.on('keydown-ENTER', onKey(() => this.advance()));
-        this.input.on('pointerdown', (p) => { if (p.wasTouch) this.skip(); else this.advance(); });
+        const Z = CFG.fullscreen.buttonZone;
+        this.input.on('pointerdown', (p) => {
+            if (p.x > CFG.W - Z.w && p.y < Z.h) return;            // róg z przyciskami M / F
+            if (p.wasTouch) this.skip(); else this.advance();
+        });
         this.skipHint = txt(this, CFG.W / 2, CFG.H - 8, IS_TOUCH ? 'DOTKNIJ = POMIŃ' : 'SPACJA = POMIŃ   ENTER = DALEJ', 8, '#9a8a90').setDepth(5000);
 
         this.run();
@@ -33,10 +37,10 @@ class IntroScene extends Phaser.Scene {
             L.add(this.add.image(0, 0, 'intro_room_bg').setOrigin(0));
             L.add(this.add.sprite(270, 308, 'wikary_kamil_pray_back_1').setOrigin(0.5, 1).play('k_pray_back'));
             this.cameras.main.fadeIn(600, 0, 0, 0);
-            this.cameras.main.zoomTo(1.06, 2600);
+            // powolne przybliżenie samego obrazu (nie kamery: kamera przesuwałaby przyciski M / F)
+            this.tweens.add({ targets: L, scale: 1.06, x: -W * 0.03, y: -H * 0.03, duration: 2600, ease: 'Sine.easeInOut' });
             await this.wait(2800); if (this.done) return;
             await this.fade(250); if (this.done) return;
-            this.cameras.main.setZoom(1);
 
             // 2. Front, zbliżenie na twarz, oczy zamknięte
             L = this.clear();
