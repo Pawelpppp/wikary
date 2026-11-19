@@ -3,7 +3,7 @@ błogosławieństwo (X) w promieniu, obrona drzwi kościoła z proboszczem (3 fa
 Kościelny Rafał (walka, egzorcyzm, diabeł, świt, dalej Level 4), przenoszenie stanu z Level 2."""
 import time
 
-from wikary import (beat_hans, beat_rafal, hold, reach_arena, reach_defense, skip_dialogs_until, start_l3,
+from wikary import (beat_hans, decline_retry, beat_rafal, hold, reach_arena, reach_defense, skip_dialogs_until, start_l3,
                     teleport, wait_js, wait_rafal, wait_scene)
 
 def quiet(page):
@@ -125,6 +125,7 @@ def test_defense_door_hp_bar_door_look_and_game_over(game):
     assert 60 < w0 < 140, w0
     # duch dochodzi do drzwi sam
     game.evaluate("(()=>{const l=__wikary.level(); __wikary.defense().doorHp=2; l.spawnGhost('upior', l.doorX-60, 1);})()")
+    decline_retry(game, 15)
     assert wait_scene(game, "Nick", 12), "drzwi = 0 nie skończyły gry"
 
 

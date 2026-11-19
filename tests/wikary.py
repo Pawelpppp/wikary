@@ -101,7 +101,7 @@ def wait_js(page, expr, timeout=15):
 
 def finish_level1(page):
     """Level 1: dojście do kościoła, podsumowanie, Enter -> kościół (rozmowa z proboszczem)."""
-    page.evaluate("__wikary.GS.lives = Math.max(__wikary.GS.lives, 1)")
+    page.evaluate("__wikary.GS.lives = Math.max(__wikary.GS.lives, 1); __wikary.level().removeLifePickups()")   # losowe serce po drodze nie zmienia żyć
     teleport(page, 5250)
     hold(page, "ArrowRight", 1.6)
     wait_js(page, "__wikary.level().summaryShown", 8)
@@ -258,3 +258,10 @@ def beat_adrian(page):
 def no_life_pickups(page):
     """Wyłącza serduszka (znajdźki i dropy) w tej karcie: dla testów, które liczą życia. Wołać przed startem poziomu."""
     page.evaluate("(()=>{const C=__wikary.CFG.lifePickup; C.countByLevel=C.countByLevel.map(()=>0); C.dropChanceByLevel=C.dropChanceByLevel.map(()=>0);})()")
+
+
+def decline_retry(page, timeout=12):
+    """Po GAME OVER: na pytanie „POWTÓRZYĆ POZIOM?” odpowiada NIE (strzałka w prawo + Enter)."""
+    wait_js(page, "!!(__wikary.level() && __wikary.level().retryPrompt)", timeout)
+    page.keyboard.press("ArrowRight")
+    page.keyboard.press("Enter")

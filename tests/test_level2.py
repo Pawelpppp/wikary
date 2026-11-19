@@ -2,7 +2,7 @@
 przenoszenie stanu między poziomami, game over w Level 2."""
 import time
 
-from wikary import (beat_hans, no_life_pickups, finish_level1, fmt, hold, reach_arena, skip_church, start_level, state,
+from wikary import (beat_hans, decline_retry, no_life_pickups, finish_level1, fmt, hold, reach_arena, skip_church, start_level, state,
                     teleport, wait_js, wait_scene)
 
 
@@ -144,6 +144,7 @@ def test_game_over_in_level2_goes_to_nick(game):
     game.evaluate("__wikary.GS.lives = 1")
     teleport(game, 1100)
     hold(game, "ArrowLeft", 1.4)
+    decline_retry(game)
     assert wait_scene(game, "Nick", 8)
 
 

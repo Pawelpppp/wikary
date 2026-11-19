@@ -33,6 +33,9 @@ class LevelScene extends Phaser.Scene {
         this.kamilFree = false; this.repelUntil = 0; this.repelAura = null; this.repelKills = 0; this.swamp = null;
         this.orbsCast = 0; this.swarmsSummoned = 0; this.teleports = 0; this.tongues = 0; this.carGone = false;
         GS.level = this.levelIndex;
+        this.retryPrompt = null;
+        // stan na starcie poziomu: do powtórzenia po przegranej (wynik zostaje, moce i pasek jak na starcie)
+        this.levelStart = { hasCross: GS.hasCross, hasFire: GS.hasFire, hasBless: GS.hasBless, meter: GS.meter };
         this.ensureLifeTexture();
 
         bindGlobalKeys(this);
@@ -190,7 +193,8 @@ class LevelScene extends Phaser.Scene {
         kb.on('keydown-Z', onKey(() => { this.firePressed = true; }));
         kb.on('keydown-X', onKey(() => { this.blessPressed = true; }));
         kb.on('keydown-ENTER', onKey(() => this.onConfirm()));
-        kb.on('keydown-SPACE', onKey(() => { if (this.talk.dialog) this.talk.skip(); }));
+        kb.on('keydown-SPACE', onKey(() => { if (this.talk.dialog) this.talk.skip(); else if (this.retryPrompt) this.retryPrompt.confirm(); }));
+        ['LEFT', 'RIGHT', 'UP', 'DOWN'].forEach(k => kb.on('keydown-' + k, onKey(() => { if (this.retryPrompt) this.retryPrompt.select(1 - this.retryPrompt.sel); })));
         this.input.on('pointerdown', (p, over) => this.onPointerDown(p, over));
         this.talk = makeTalker(this);
 
@@ -829,10 +833,57 @@ class LevelScene extends Phaser.Scene {
         const go = goldText(this, CFG.W / 2, CFG.H / 2 - 20, 'GAME OVER', 24).setScrollFactor(0).setDepth(5000);
         go.setScale(0.2);
         this.tweens.add({ targets: go, scale: 1, duration: 400, ease: 'Back.easeOut' });
-        this.time.delayedCall(2600, () => {
+        const toNick = () => {
             this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('Nick', { result: 'over' }));
             this.cameras.main.fade(400, 0, 0, 0, true);
+        };
+        if (GS.retries < CFG.retry.maxRetries) this.time.delayedCall(CFG.retry.askDelayMs, () => this.askRetry(go, toNick));
+        else this.time.delayedCall(2600, toNick);
+    }
+    /** „POWTÓRZYĆ POZIOM?” TAK / NIE: strzałki + Spacja / Enter albo dotyk; TAK = ten sam poziom od początku */
+    askRetry(go, toNick) {
+        if (this.retryPrompt || !this.sys.isActive()) return;
+        const W = CFG.W, D = 5100;
+        this.tweens.add({ targets: go, y: 92, duration: 300 });
+        const box = this.add.rectangle(W / 2, 178, 300, 104, 0x0c0610, 0.92).setStrokeStyle(2, 0xd8a640).setScrollFactor(0).setDepth(D);
+        const q = txt(this, W / 2, 148, 'POWTÓRZYĆ POZIOM?', 16, '#ffe9a8', { stroke: '#2a1206', strokeW: 4 }).setScrollFactor(0).setDepth(D + 1);
+        const sub = txt(this, W / 2, 168, 'WYNIK ZOSTAJE, MOŻNA TYLKO RAZ', 8, '#c8b890').setScrollFactor(0).setDepth(D + 1);
+        const P = { sel: 0, buttons: [], objs: [box, q, sub] };
+        ['TAK', 'NIE'].forEach((label, i) => {
+            const x = W / 2 + (i ? 62 : -62), y = 202;
+            const r = this.add.rectangle(x, y, 96, 26, 0x1a0c10, 0.85).setStrokeStyle(2, 0x8a6a30).setScrollFactor(0).setDepth(D + 1);
+            const t = txt(this, x, y + 1, label, 16, '#c8b8a0', { stroke: '#2a1206', strokeW: 4 }).setScrollFactor(0).setDepth(D + 2);
+            r.setInteractive({ useHandCursor: true })
+                .on('pointerover', () => P.select(i))
+                .on('pointerdown', (p, lx, ly, ev) => { if (ev) ev.stopPropagation(); })
+                .on('pointerup', (p, lx, ly, ev) => { if (ev) ev.stopPropagation(); P.select(i); P.confirm(); });
+            P.buttons.push({ r, t }); P.objs.push(r, t);
         });
+        P.select = (i) => {
+            if (P.sel !== i) WikaryAudio.sfx('click');
+            P.sel = i;
+            P.buttons.forEach((b, k) => {
+                b.r.setStrokeStyle(2, k === i ? 0xffd040 : 0x8a6a30).setFillStyle(k === i ? 0x3a1a10 : 0x1a0c10, 0.88);
+                b.t.setColor(k === i ? '#ffe070' : '#c8b8a0');
+            });
+        };
+        P.confirm = () => {
+            if (P.done) return; P.done = true;
+            WikaryAudio.sfx('select');
+            if (P.sel === 0) this.retryLevel(); else toNick();
+        };
+        P.select(0);
+        P.objs.forEach(o => o.setAlpha(0));
+        this.tweens.add({ targets: P.objs, alpha: 1, duration: 200 });
+        this.retryPrompt = P;
+    }
+    retryLevel() {
+        const S = this.levelStart;
+        GS.retries++; GS.retryUsed = true;
+        GS.lives = CFG.hero.lives;
+        GS.hasCross = S.hasCross; GS.hasFire = S.hasFire; GS.hasBless = S.hasBless; GS.meter = S.meter;
+        this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('Level', { level: this.levelIndex }));
+        this.cameras.main.fade(350, 0, 0, 0, true);
     }
     finishLevel() {
         if (this.ended) return;
@@ -877,6 +928,7 @@ class LevelScene extends Phaser.Scene {
     }
     onConfirm() {
         if (this.talk.dialog) { this.talk.advance(); return; }
+        if (this.retryPrompt) { this.retryPrompt.confirm(); return; }
         if (!this.summaryShown) return;
         this.summaryShown = false;
         WikaryAudio.sfx('select');

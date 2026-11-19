@@ -37,6 +37,11 @@ const CFG = {
         exclude: ['hans', 'rafal', 'adrian'],   // bossy: bez stompa, zachowanie jak dotąd
     },
 
+    retry: {                        // po GAME OVER: „POWTÓRZYĆ POZIOM?” (raz na całą rozgrywkę)
+        maxRetries: 1,
+        askDelayMs: 1800,           // ile po napisie GAME OVER pokazać pytanie
+    },
+
     fullscreen: {                   // pełny ekran (przycisk F / klawisz F)
         unsupportedHint: 'UDOSTĘPNIJ \u2192 DO EKRANU POCZĄTKOWEGO',   // iPhone: brak Fullscreen API
         failedHint: 'PEŁNY EKRAN ZABLOKOWANY PRZEZ PRZEGLĄDARKĘ',

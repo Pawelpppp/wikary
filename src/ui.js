@@ -10,6 +10,7 @@ const GS = {          // stan jednej rozgrywki (od START NEW GAME do końca)
     reset() {
         this.score = 0; this.lives = CFG.hero.lives; this.timeMs = 0; this.meter = 0;
         this.hasCross = false; this.hasFire = false; this.hasBless = false; this.diamonds = 0; this.kills = 0; this.level = 0;
+        this.retries = 0; this.retryUsed = false;          // powtórzenie poziomu po przegranej (CFG.retry)
     },
 };
 GS.reset();
