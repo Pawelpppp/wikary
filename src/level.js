@@ -516,7 +516,8 @@ class LevelScene extends Phaser.Scene {
             if (this.spawnAcc >= this.nextSpawn && this.enemies.countActive(true) < SPs.maxAlive) {
                 this.spawnAcc = 0; this.nextSpawn = Phaser.Math.Between(SPs.minMs, SPs.maxMs);
                 const set = ST ? ST.set : E.late && this.heroD() >= E.late.at ? E.late.set : E.set;
-                this.spawnEnemy(this.pickEnemy(set));
+                const t = this.pickEnemy(set);
+                if (this.spawnAllowed(t)) this.spawnEnemy(t);
             }
         }
         // --- meta: kościół (Level 1) albo arena z bossem (Level 2) ---
@@ -664,6 +665,10 @@ class LevelScene extends Phaser.Scene {
     inView(o) { const c = this.cameras.main; return o.x > c.scrollX - 20 && o.x < c.scrollX + CFG.W + 20 && o.y > -40 && o.y < CFG.H + 40; }
 
     /* ---------- wrogowie (grafiki TYMCZASOWE z Fibi-Run) ---------- */
+    spawnAllowed(type) {             // CFG.spawnRate: rzadsze typy w danym poziomie (np. nietoperze w Level 2)
+        const r = (CFG.spawnRate.byLevel[this.levelIndex] || {})[type];
+        return r === undefined || Math.random() < r;
+    }
     pickEnemy(set) {
         const tot = set.reduce((a, t) => a + CFG.enemies[t].weight, 0);
         let r = Math.random() * tot;

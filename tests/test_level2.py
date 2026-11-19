@@ -187,3 +187,23 @@ def test_hans_win_ending_goes_to_level3(game):
     assert gain >= game.evaluate("__wikary.CFG.score.hans + __wikary.CFG.score.tenZloty"), gain
     game.keyboard.press("Enter")                               # dalej: Level 3 – Noc duchów
     wait_js(game, "__wikary.scene().includes('Level') && __wikary.level().L.id === 3", 8)
+
+
+BAT_SIM = """(()=>{const l=__wikary.level(), E=l.L.enemies, N=40000, out={};
+    for (const [k,set] of [['main',E.set],['late',(E.late||E).set]]) { let picked=0, spawned=0;
+        for (let i=0;i<N;i++){ const t=l.pickEnemy(set); if(t==='bat'){picked++; if(l.spawnAllowed(t)) spawned++;} }
+        out[k]={picked:picked/N, spawned:spawned/N}; }
+    return out})()"""
+
+
+def test_level2_has_20_percent_fewer_bats(game):
+    """CFG.spawnRate: w Level 2 tylko 80% wylosowanych nietoperzy się pojawia (inni wrogowie bez zmian); Level 1 bez zmian."""
+    start_l2(game)
+    assert game.evaluate("__wikary.CFG.spawnRate.byLevel[1].bat") == 0.8
+    r = game.evaluate(BAT_SIM)
+    for k in ("main", "late"):
+        assert abs(r[k]["spawned"] / r[k]["picked"] - 0.8) < 0.03, r
+    assert game.evaluate("(()=>{const l=__wikary.level(); return ['dog','crow','boar','wisp'].every(t=>l.spawnAllowed(t))})()")
+    game.evaluate("__wikary.start(0)")
+    wait_js(game, "__wikary.level() && __wikary.level().levelIndex === 0", 8)
+    assert game.evaluate("(()=>{const l=__wikary.level(); for(let i=0;i<500;i++) if(!l.spawnAllowed('bat')) return false; return true})()")

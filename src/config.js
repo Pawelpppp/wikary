@@ -254,6 +254,9 @@ const CFG = {
         wisp:   { hp: 1, scale: 0.45, weight: 2, radius0: 150, radius1: 30, shrinkPerS: 16, angSpeed: 2.2, follow: 3.0, lifeMs: 9000, yMin: 150, yMax: 220, bodyW: 16, bodyH: 18, center: true },
     },
     spawn: { minMs: 1300, maxMs: 2600, maxAlive: 6 },
+    spawnRate: {                    // ułamek wylosowanych spawnów danego typu, który naprawdę się pojawia (reszta = pusta kolejka; inni wrogowie bez zmian)
+        byLevel: [{}, { bat: 0.8 }, {}, {}],     // Level 2: o 20% mniej nietoperzy
+    },
 
     items: { scale: 0.45 },         // diamenciki, pioruny, efekt "poof" (skala postaci)
     obstacles: {                    // hitbox przeszkód (px na ekranie, od ziemi w górę)
