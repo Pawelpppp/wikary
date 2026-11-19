@@ -49,9 +49,35 @@ def on_screen(s):
     return s["hx"] is not None and s["cam"] - 1 <= s["hx"] <= s["cam"] + W + 1
 
 
-def start_level(page):
-    """Z ekranu tytułowego: START -> intro -> pominięcie Spacją -> Level 1."""
+def game_xy(page, x, y):
+    """Współrzędne gry (568x320) -> piksele strony (canvas skalowany FIT)."""
+    return page.evaluate(f"""(()=>{{const b=__wikary.game.canvas.getBoundingClientRect();
+        return [b.x + {x} / __wikary.CFG.W * b.width, b.y + {y} / __wikary.CFG.H * b.height]}})()""")
+
+
+def choose_difficulty(page, which=None):
+    """Ekran wyboru trudności: strzałkami na `which` (easy/normal/hard; None = podświetlony) i Enter."""
+    assert wait_scene(page, "Difficulty", 5), "brak ekranu wyboru trudności"
+    time.sleep(0.4)
+    if which:
+        for _ in range(4):
+            if page.evaluate(f"(()=>{{const d=__wikary.diffScene(); return d.ids[d.sel] === '{which}'}})()"):
+                break
+            page.keyboard.press("ArrowDown")
     page.keyboard.press("Enter")
+
+
+def tap_difficulty(page, which="normal"):
+    assert wait_scene(page, "Difficulty", 5), "brak ekranu wyboru trudności"
+    time.sleep(0.4)
+    y = page.evaluate(f"(()=>{{const d=__wikary.diffScene(); return d.items[d.ids.indexOf('{which}')].y}})()")
+    page.touchscreen.tap(*game_xy(page, 284, y))
+
+
+def start_level(page, which=None):
+    """Z ekranu tytułowego: START -> wybór trudności (Enter) -> intro -> pominięcie Spacją -> Level 1."""
+    page.keyboard.press("Enter")
+    choose_difficulty(page, which)
     assert wait_scene(page, "Intro", 5), "intro nie wystartowało"
     time.sleep(0.6)
     page.keyboard.press("Space")

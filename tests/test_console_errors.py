@@ -19,6 +19,8 @@ def test_plain_playthrough_start(page, base_url):
     open_game(page, base_url, debug=False)
     time.sleep(1.5)
     page.keyboard.press("Enter")
+    time.sleep(1.0)
+    page.keyboard.press("Enter")                    # wybór trudności (NORMALNY)
     time.sleep(1.5)
     page.keyboard.press("Space")
     time.sleep(0.8)

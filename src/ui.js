@@ -6,9 +6,36 @@ const IS_TOUCH = (() => { try { return ('ontouchstart' in window) || navigator.m
 /** Tryb sterowania dotykiem: CFG.touch.mode, nadpisywany przez ?touch=buttons / ?touch=joystick (testy A/B). */
 const TOUCH_MODE = (() => { const m = (location.search.match(/[?&]touch=(buttons|joystick)\b/) || [])[1]; return m || CFG.touch.mode; })();
 
+/** Poziom trudności (CFG.difficulty): profil bieżącej gry, zapamiętany wybór, przeskalowane parametry wrogów i bossów. */
+const Difficulty = {
+    valid(id) { return !!CFG.difficulty.levels[id]; },
+    get(id) { return CFG.difficulty.levels[id] || CFG.difficulty.levels[CFG.difficulty.default]; },
+    cur() { return this.get(GS.difficulty); },
+    load() { try { const v = localStorage.getItem(CFG.difficulty.storageKey); return this.valid(v) ? v : CFG.difficulty.default; } catch (e) { return CFG.difficulty.default; } },
+    save(id) { try { localStorage.setItem(CFG.difficulty.storageKey, id); } catch (e) { /* tryb prywatny */ } },
+    _cache: {},
+    /** CFG.enemies[type] z prędkościami (pola *speed / *Speed) × enemySpeed i HP + enemyHp (min 1) */
+    enemy(type) {
+        const id = this.valid(GS.difficulty) ? GS.difficulty : CFG.difficulty.default, D = this.get(id), C = CFG.enemies[type];
+        if (!C || (D.enemySpeed === 1 && !D.enemyHp)) return C;
+        const k = id + ':' + type;
+        if (!this._cache[k]) {
+            const o = Object.assign({}, C);
+            Object.keys(o).forEach(f => { if (/speed$/i.test(f) && typeof o[f] === 'number') o[f] = o[f] * D.enemySpeed; });
+            if (typeof o.hp === 'number') o.hp = Math.max(1, o.hp + D.enemyHp);
+            this._cache[k] = o;
+        }
+        return this._cache[k];
+    },
+    bossHp(base) { return Math.max(1, Math.round(base * this.cur().bossHp)); },
+    retryAllowed() { return this.cur().retry !== false; },
+};
+const enemyCfg = (type) => Difficulty.enemy(type);
+
 const GS = {          // stan jednej rozgrywki (od START NEW GAME do końca)
-    reset() {
-        this.score = 0; this.lives = CFG.hero.lives; this.timeMs = 0; this.meter = 0;
+    reset(difficulty) {                                  // tylko nowa gra (wybór poziomu trudności) i starty debug
+        this.difficulty = Difficulty.valid(difficulty) ? difficulty : CFG.difficulty.default;
+        this.score = 0; this.lives = Difficulty.get(this.difficulty).lives; this.timeMs = 0; this.meter = 0;
         this.hasCross = false; this.hasFire = false; this.hasBless = false; this.diamonds = 0; this.kills = 0; this.level = 0;
         this.retries = 0; this.retryUsed = false;          // powtórzenie poziomu po przegranej (CFG.retry)
     },
@@ -188,7 +215,7 @@ const sleep = (scene, ms) => new Promise(res => scene.time.delayedCall(ms, res))
 
 /** Tylko ?debug=1: start wybranego poziomu z nowym stanem gry (w Level 2 krzyż już jest). */
 function debugStart(scene, idx, startAt, extra) {
-    GS.reset();
+    GS.reset(extra && extra.difficulty);
     if (idx >= 1) GS.hasCross = true;
     if (idx >= 2) GS.hasFire = true;
     if (idx >= 3) GS.hasBless = true;

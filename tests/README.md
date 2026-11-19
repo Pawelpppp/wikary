@@ -47,6 +47,7 @@ Przydatne opcje pytest-playwright: `--headed` (widoczna przeglądarka), `--brows
 | `test_stomp.py` | naskok: wróg z 1 HP ginie, Kamil lekko się odbija i nie traci życia; wróg z 2 HP traci 1 HP, Kamil odbija się wyżej bez obrażeń; wejście z boku nadal rani; działa na latających (wrona, duży komar) i duchach (duszek, upiór); bossy (Hans) wyłączone |
 | `test_fullscreen.py` | pełny ekran: przycisk i klawisz F na tytule i w levelu, wyjście przeglądarką, intro w trakcie przybliżenia (przycisk działa, klik nie przewija), nick (F = litera), dotyk na tytule: pełny ekran dopiero na puszczeniu palca (pointerup), bez zmiany sceny; dotyk F w levelu nie skacze, w intro nie pomija; iPhone bez Fullscreen API: podpowiedź „DO EKRANU POCZĄTKOWEGO”; odmowa przeglądarki: `fullscreenfailed` bez błędów konsoli |
 | `test_retry.py` | pytanie „POWTÓRZYĆ POZIOM?” po GAME OVER: TAK (Enter) = ten sam poziom od początku, wynik zostaje, 3 życia, druga przegrana bez pytania do nicku; NIE (strzałka + Spacja) do nicku; dotyk TAK, moce ze startu poziomu; nowa gra z tytułu zeruje licznik |
+| `test_difficulty.py` | ekran wyboru trudności (klawiatura, Esc, dotyk, zapamiętany wybór); każdy profil: życia, HP i prędkość wrogów, HP bossa, powtórka; serca częściej na łatwym; trudny bez powtórki, trudność na ekranie nicku i w tabeli wyników (stare wpisy bez trudności) |
 | `test_console_errors.py` | zwykłe uruchomienie bez debug, krótka rozgrywka, ładowanie wszystkich grafik |
 
 ## CI

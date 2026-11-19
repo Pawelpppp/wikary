@@ -123,7 +123,7 @@ Object.assign(LevelScene.prototype, {
     spawnEnemy2(type, frontX, mv, mk) {
         const D = { crow: ['enemy_crow_fly_1', 'crow_fly'], boar: ['enemy_boar_run_1', 'boar_run'], wisp: ['enemy_wisp_1', 'wisp'] }[type];
         if (!D) return false;
-        const C = CFG.enemies[type], G = CFG.GROUND_Y, hero = this.hero;
+        const C = enemyCfg(type), G = CFG.GROUND_Y, hero = this.hero;
         const y = type === 'boar' ? G : Phaser.Math.Between(C.yMin, C.yMax);
         const e = mk(frontX, y, ART.key(D[0]), D[1]);
         if (type === 'wisp') e.setOrigin(0.5, 0.5);
@@ -296,7 +296,7 @@ Object.assign(LevelScene.prototype, {
     spawnBoss() {
         const B = CFG.boss, G = CFG.GROUND_Y, k = 'boss_hans_run_1';
         const e = this.enemies.create(this.doorX, G, ART.key(k));
-        e.type = 'hans'; e.hp = B.hp; e.maxHp = B.hp; e.dead = false; e.thread = null;
+        e.type = 'hans'; e.hp = e.maxHp = Difficulty.bossHp(B.hp); e.dead = false; e.thread = null;
         e.setOrigin(0.5, 1).setScale(B.scale * ART.mul(this, k)).setDepth(7);
         e.baseTint = ART.tint(k); if (e.baseTint) e.setTint(e.baseTint);
         e.play('hans_run'); this.fitBody(e);

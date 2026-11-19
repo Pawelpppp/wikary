@@ -671,7 +671,7 @@ class LevelScene extends Phaser.Scene {
         return set[0];
     }
     spawnEnemy(type) {
-        const cam = this.cameras.main, W = CFG.W, G = CFG.GROUND_Y, dir = this.L.dir, C = CFG.enemies[type];
+        const cam = this.cameras.main, W = CFG.W, G = CFG.GROUND_Y, dir = this.L.dir, C = enemyCfg(type);
         const frontX = dir > 0 ? cam.scrollX + W + 30 : cam.scrollX - 30, mv = -dir;
         const mk = (x, y, key, anim) => {
             const e = this.enemies.create(x, y, key);
@@ -708,7 +708,7 @@ class LevelScene extends Phaser.Scene {
     }
     /** hitbox na dole klatki (origin 0.5,1), w px ekranu z CFG; działa też po zmianie klatki (skok wilka) */
     fitBody(e) {
-        const C = e.type === 'hans' ? CFG.boss : e.type === 'rafal' ? CFG.rafal : e.type === 'adrian' ? CFG.adrian : CFG.enemies[e.type], w = C.bodyW / Math.abs(e.scaleX), h = C.bodyH / Math.abs(e.scaleY);
+        const C = e.type === 'hans' ? CFG.boss : e.type === 'rafal' ? CFG.rafal : e.type === 'adrian' ? CFG.adrian : enemyCfg(e.type), w = C.bodyW / Math.abs(e.scaleX), h = C.bodyH / Math.abs(e.scaleY);
         e.body.setSize(w, h, false);
         const mid = e.type === 'bat' || C.center;
         e.body.setOffset((e.frame.width - w) / 2, mid ? (e.frame.height - h) / 2 : e.frame.height - h - (e.type === 'spider' ? 2 : 0));
@@ -720,7 +720,7 @@ class LevelScene extends Phaser.Scene {
             if (e.type === 'hans') { this.updateBoss(e, time, dt); return; }
             if (e.type === 'rafal') { this.updateRafal(e, time, dt); return; }
             if (e.type === 'adrian') { this.updateAdrian(e, time, dt); return; }
-            const C = CFG.enemies[e.type];
+            const C = enemyCfg(e.type);
             if (e.type === 'wolf') {
                 const onG = e.body.blocked.down || e.body.touching.down;
                 if (onG && time > e.nextJump) { e.setVelocityY(-C.jumpV); e.nextJump = time + C.jumpEveryMs; }
@@ -757,7 +757,7 @@ class LevelScene extends Phaser.Scene {
         WikaryAudio.sfx('kill'); this.popup(e.x, e.y - e.displayHeight - 4, '+' + pts);
         const poof = this.makePoof(e);
         poof.once('animationcomplete', () => poof.destroy());
-        const dropChance = CFG.lifePickup.dropChanceByLevel[this.levelIndex] || 0;
+        const dropChance = Math.min(1, (CFG.lifePickup.dropChanceByLevel[this.levelIndex] || 0) * Difficulty.cur().heartDrop);
         if (GS.lives < CFG.hero.maxLives && Math.random() < dropChance) {
             this.createLifePickup(e.x, CFG.GROUND_Y - CFG.lifePickup.pickupY);
         }
@@ -837,7 +837,7 @@ class LevelScene extends Phaser.Scene {
             this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('Nick', { result: 'over' }));
             this.cameras.main.fade(400, 0, 0, 0, true);
         };
-        if (GS.retries < CFG.retry.maxRetries) this.time.delayedCall(CFG.retry.askDelayMs, () => this.askRetry(go, toNick));
+        if (Difficulty.retryAllowed() && GS.retries < CFG.retry.maxRetries) this.time.delayedCall(CFG.retry.askDelayMs, () => this.askRetry(go, toNick));
         else this.time.delayedCall(2600, toNick);
     }
     /** „POWTÓRZYĆ POZIOM?” TAK / NIE: strzałki + Spacja / Enter albo dotyk; TAK = ten sam poziom od początku */
@@ -880,7 +880,7 @@ class LevelScene extends Phaser.Scene {
     retryLevel() {
         const S = this.levelStart;
         GS.retries++; GS.retryUsed = true;
-        GS.lives = CFG.hero.lives;
+        GS.lives = Difficulty.cur().lives;
         GS.hasCross = S.hasCross; GS.hasFire = S.hasFire; GS.hasBless = S.hasBless; GS.meter = S.meter;
         this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('Level', { level: this.levelIndex }));
         this.cameras.main.fade(350, 0, 0, 0, true);

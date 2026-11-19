@@ -37,6 +37,20 @@ const CFG = {
         exclude: ['hans', 'rafal', 'adrian'],   // bossy: bez stompa, zachowanie jak dotąd
     },
 
+    difficulty: {                   // wybór przed nową grą (ekran po tytule); ostatni wybór w localStorage
+        default: 'normal', storageKey: 'wikary_difficulty',
+        order: ['easy', 'normal', 'hard'],
+        levels: {                   // lives: życia startowe; enemySpeed: mnożnik prędkości wrogów; enemyHp: + HP (min 1);
+                                    // heartDrop: mnożnik szansy na serce z wroga; bossHp: mnożnik HP bossów; retry: powtórka poziomu
+            easy:   { label: 'ŁATWY',    short: 'Ł', lives: 5, enemySpeed: 0.8, enemyHp: -1, heartDrop: 1.5, bossHp: 0.75, retry: true,
+                      desc: '5 ŻYĆ, WOLNIEJSI WROGOWIE, WIĘCEJ SERC' },
+            normal: { label: 'NORMALNY', short: 'N', lives: 3, enemySpeed: 1,   enemyHp: 0,  heartDrop: 1,   bossHp: 1,    retry: true,
+                      desc: '3 ŻYCIA, KLASYCZNA GRA' },
+            hard:   { label: 'TRUDNY',   short: 'T', lives: 2, enemySpeed: 1.2, enemyHp: 1,  heartDrop: 0.5, bossHp: 1.25, retry: false,
+                      desc: '2 ŻYCIA, SZYBSI I TWARDSI, BEZ POWTÓRKI' },
+        },
+    },
+
     retry: {                        // po GAME OVER: „POWTÓRZYĆ POZIOM?” (raz na całą rozgrywkę)
         maxRetries: 1,
         askDelayMs: 1800,           // ile po napisie GAME OVER pokazać pytanie

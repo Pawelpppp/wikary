@@ -14,6 +14,7 @@ class NickScene extends Phaser.Scene {
         this.add.image(W / 2, 112, this.result === 'win' ? 'wikary_kamil_closeup_open' : 'wikary_kamil_closeup_closed').setScale(0.42).setAlpha(0.9);
         goldText(this, W / 2, 30, this.result === 'win' ? 'BRAWO, KAMIL!' : 'GAME OVER', 24);
         txt(this, W / 2, 160, 'PUNKTY: ' + GS.score + '    CZAS: ' + Leaderboard.fmt(GS.timeMs / 1000), 8, '#ffffff');
+        this.diffText = txt(this, W / 2, 173, 'POZIOM TRUDNOŚCI: ' + Difficulty.cur().label, 8, '#d8c8a0');
         txt(this, W / 2, 186, 'WPISZ NICK (MAX ' + Leaderboard.NICK_MAX + '):', 8, '#ffd040');
         this.box = this.add.rectangle(W / 2, 212, 236, 26, 0x140c1c, 0.92).setStrokeStyle(2, 0xffd040).setInteractive({ useHandCursor: true });
         this.field = txt(this, W / 2, 213, '', 16, '#ffffff');
@@ -51,7 +52,7 @@ class NickScene extends Phaser.Scene {
     save() {
         if (this.saved) return; this.saved = true;
         WikaryAudio.sfx('select');
-        const pos = Leaderboard.add(this.nick, GS.score, Math.floor(GS.timeMs / 1000));
+        const pos = Leaderboard.add(this.nick, GS.score, Math.floor(GS.timeMs / 1000), GS.difficulty);
         this.scene.start('Scores', { highlight: pos });
     }
     skip() {

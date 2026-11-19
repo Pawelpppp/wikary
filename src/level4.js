@@ -60,7 +60,7 @@ Object.assign(LevelScene.prototype, {
 
     /* ---------- wrogowie bagna (ogień działa) ---------- */
     swampSprite(type, x, y, key, anim, mv, center) {
-        const C = CFG.enemies[type];
+        const C = enemyCfg(type);
         const e = this.enemies.create(x, y, ART.key(key));
         e.type = type; e.hp = C.hp; e.dead = false; e.thread = null;
         e.setOrigin(0.5, center ? 0.5 : 1).setScale(C.scale * ART.mul(this, key)).setDepth(7).setFlipX(mv < 0);
@@ -71,7 +71,7 @@ Object.assign(LevelScene.prototype, {
         return e;
     },
     spawnMosquitoSwarm(x, y, mv, n) {
-        const C = CFG.enemies.mosquito_small;
+        const C = enemyCfg('mosquito_small');
         for (let i = 0; i < (n || C.swarm); i++) {
             const e = this.swampSprite('mosquito_small', x + (mv < 0 ? 1 : -1) * i * C.gap, y + Phaser.Math.Between(-14, 14), 'enemy_mosquito_small_1', 'mosq_small', mv, true);
             e.body.setAllowGravity(false); e.phase = i * 1.3 + Math.random(); e.state = 'fly';
@@ -80,7 +80,7 @@ Object.assign(LevelScene.prototype, {
         WikaryAudio.sfx('buzz');
     },
     spawnEnemy4(type, frontX, mv) {
-        const C = CFG.enemies[type], G = CFG.GROUND_Y, cam = this.cameras.main, W = CFG.W;
+        const C = enemyCfg(type), G = CFG.GROUND_Y, cam = this.cameras.main, W = CFG.W;
         if (type === 'mosquito_small') { this.spawnMosquitoSwarm(frontX, Phaser.Math.Between(C.yMin, C.yMax), mv); return true; }
         if (type === 'mosquito_big') {
             const e = this.swampSprite(type, frontX, Phaser.Math.Between(C.yMin, C.yMax), 'enemy_mosquito_big_1', 'mosq_big', mv, true);
@@ -101,7 +101,7 @@ Object.assign(LevelScene.prototype, {
         return false;
     },
     spawnBogman(x, mv) {
-        const C = CFG.enemies.bogman, G = CFG.GROUND_Y;
+        const C = enemyCfg('bogman'), G = CFG.GROUND_Y;
         const e = this.swampSprite('bogman', x, G, 'enemy_bogman_rise_1', null, mv);
         e.body.setAllowGravity(false);
         e.state = 'warn'; e.harmless = true; e.setVisible(false); e.body.enable = false; e.until = this.time.now + C.warnMs;
@@ -235,7 +235,7 @@ Object.assign(LevelScene.prototype, {
         if (this.adrian) return this.adrian;
         const A = CFG.adrian, k = 'adrian_idle_1';
         const e = this.enemies.create(this.doorX, this.doorBottom || CFG.GROUND_Y, ART.key(k));
-        e.type = 'adrian'; e.hp = A.hp; e.maxHp = A.hp; e.dead = false; e.thread = null; e.harmless = true;
+        e.type = 'adrian'; e.hp = e.maxHp = Difficulty.bossHp(A.hp); e.dead = false; e.thread = null; e.harmless = true;
         e.setOrigin(0.5, 1).setScale(A.scale * ART.mul(this, k)).setDepth(7).setAlpha(0).setFlipX(this.L.dir > 0);
         e.baseTint = ART.tint(k); if (e.baseTint) e.setTint(e.baseTint);
         e.body.setAllowGravity(false); e.body.enable = false;

@@ -35,7 +35,7 @@ Object.assign(LevelScene.prototype, {
 
     /* ---------- duchy ---------- */
     ghostSprite(type, x, y, key, anim, mv) {
-        const C = CFG.enemies[type];
+        const C = enemyCfg(type);
         const e = this.enemies.create(x, y, ART.key(key));
         e.type = type; e.hp = C.hp; e.dead = false; e.thread = null; e.ghost = true;
         e.setOrigin(0.5, C.center ? 0.5 : 1).setScale(C.scale * ART.mul(this, key)).setDepth(7).setFlipX(mv < 0);
@@ -49,7 +49,7 @@ Object.assign(LevelScene.prototype, {
     },
     /** duch w miejscu x (świat); mv = kierunek ruchu na start */
     spawnGhost(type, x, mv, y) {
-        const C = CFG.enemies[type], G = CFG.GROUND_Y;
+        const C = enemyCfg(type), G = CFG.GROUND_Y;
         if (type === 'duszek') {
             const e = this.ghostSprite(type, x, y || Phaser.Math.Between(C.yMin, C.yMax), 'enemy_duszek_1', 'duszek', mv);
             e.baseY = e.y; e.phase = Math.random() * 6; e.state = 'float';
@@ -356,7 +356,7 @@ Object.assign(LevelScene.prototype, {
         if (this.defense) this.defense.state = 'boss';
         this.cutscene = true;
         const e = this.enemies.create(this.doorX, G - R.hover, ART.key(k));
-        e.type = 'rafal'; e.ghost = true; e.hp = R.hp; e.maxHp = R.hp; e.dead = false; e.thread = null; e.harmless = true;
+        e.type = 'rafal'; e.ghost = true; e.hp = e.maxHp = Difficulty.bossHp(R.hp); e.dead = false; e.thread = null; e.harmless = true;
         e.setOrigin(0.5, 1).setScale(R.scale * ART.mul(this, k)).setDepth(7).setAlpha(0);
         e.baseTint = ART.tint(k); if (e.baseTint) e.setTint(e.baseTint);
         e.body.setAllowGravity(false);

@@ -76,9 +76,8 @@ class TitleScene extends Phaser.Scene {
     startGame() {
         if (this.leaving) return; this.leaving = true;
         WikaryAudio.unlock(); WikaryAudio.sfx('select');
-        GS.reset();
-        this.cameras.main.fadeOut(350, 0, 0, 0);
-        this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('Intro'));
+        this.cameras.main.fadeOut(350, 0, 0, 0);       // nowa gra: najpierw wybór poziomu trudności (tam GS.reset)
+        this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('Difficulty'));
     }
     openScores() {
         if (this.leaving) return; this.leaving = true;

@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-from wikary import fmt, open_game, start_level, state, wait_scene
+from wikary import fmt, open_game, start_level, state, tap_difficulty, wait_scene
 
 
 def test_fit_1280x720(game):
@@ -18,6 +18,7 @@ def test_touch_start_skip_and_jump(new_page, base_url):
     pg = new_page(has_touch=True, is_mobile=True)
     open_game(pg, base_url)
     pg.touchscreen.tap(284, 150)
+    tap_difficulty(pg)
     assert wait_scene(pg, "Intro", 3), "dotyk START"
     time.sleep(1.0)
     pg.touchscreen.tap(284, 200)
@@ -50,6 +51,7 @@ def _touch_level(new_page, base_url, mode="buttons"):
     pg = new_page(has_touch=True, is_mobile=True)
     open_game(pg, base_url, query="touch=" + mode)
     pg.touchscreen.tap(284, 150)
+    tap_difficulty(pg)
     assert wait_scene(pg, "Intro", 3)
     time.sleep(0.8)
     pg.touchscreen.tap(284, 200)

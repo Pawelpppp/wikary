@@ -12,17 +12,18 @@ class ScoresScene extends Phaser.Scene {
         cornerButtons(this);
 
         const list = Leaderboard.load();
-        const head = ' # ' + 'NICK'.padEnd(12, ' ') + 'PKT'.padStart(6, ' ') + ' ' + 'CZAS';
+        const head = ' # ' + 'NICK'.padEnd(12, ' ') + 'PKT'.padStart(6, ' ') + ' ' + 'CZAS' + ' TR.';
         txt(this, 22, 54, head, 8, '#d8a640', { ox: 0, oy: 0 });
         txt(this, 288, 54, head, 8, '#d8a640', { ox: 0, oy: 0 });
         if (!list.length) txt(this, W / 2, 150, 'BRAK WYNIKÓW - ZAGRAJ PIERWSZY!', 8, '#ffffff');
         list.forEach((e, i) => {
             const col = i < 10 ? 0 : 1, r = i % 10;
-            const line = String(i + 1).padStart(2, ' ') + ' ' + e.nick.padEnd(12, ' ') + String(e.score).padStart(6, ' ') + ' ' + Leaderboard.fmt(e.time);
+            const line = String(i + 1).padStart(2, ' ') + ' ' + e.nick.padEnd(12, ' ') + String(e.score).padStart(6, ' ') + ' ' + Leaderboard.fmt(e.time) + ' ' + (e.diff ? CFG.difficulty.levels[e.diff].short : '-');
             const color = i === this.highlight ? '#ffe070' : (i < 3 ? '#fff2c0' : '#d8d0c0');
             const t = txt(this, 22 + col * 266, 72 + r * 22, line, 8, color, { ox: 0, oy: 0 });
             if (i === this.highlight) this.hlTexts.push(t);
         });
+        txt(this, W / 2, 284, 'TR. = POZIOM TRUDNOŚCI: ' + CFG.difficulty.order.map(id => CFG.difficulty.levels[id].short + ' ' + CFG.difficulty.levels[id].label).join('  '), 8, '#a89878');
         txt(this, W / 2, 300, IS_TOUCH ? 'DOTKNIJ, ABY WRÓCIĆ' : 'ENTER / ESC = POWRÓT', 8, '#c8b890');
 
         const back = () => {
