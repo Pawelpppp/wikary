@@ -716,7 +716,7 @@ class LevelScene extends Phaser.Scene {
         const C = e.type === 'hans' ? CFG.boss : e.type === 'rafal' ? CFG.rafal : e.type === 'adrian' ? CFG.adrian : enemyCfg(e.type), w = C.bodyW / Math.abs(e.scaleX), h = C.bodyH / Math.abs(e.scaleY);
         e.body.setSize(w, h, false);
         const mid = e.type === 'bat' || C.center;
-        e.body.setOffset((e.frame.width - w) / 2, mid ? (e.frame.height - h) / 2 : e.frame.height - h - (e.type === 'spider' ? 2 : 0));
+        e.body.setOffset(e.frame.width * e.originX - w / 2, mid ? (e.frame.height - h) / 2 : e.frame.height - h - (e.type === 'spider' ? 2 : 0));
     }
     updateEnemies(time, dt) {
         const cam = this.cameras.main, dir = this.L.dir;

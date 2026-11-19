@@ -181,6 +181,8 @@ const CFG = {
 
     adrian: {                       // boss Level 4: czarnoksiężnik Adrian
         hp: 26, scale: 0.45, bodyW: 30, bodyH: 66, gromDamage: 5, hurtMs: 140, blessDamage: 2,
+        summonTint: 0xc8f0b8,       // delikatna zieleń przy przywoływaniu komarów (na finalnej grafice mocny tint wyglądał jak zamiennik)
+        hurtFootDx: 11,             // adrian_hurt_1 (132 px): stopy 11 px w prawo od środka klatki (odchyla się do tyłu)
         spots: [130, 290, 450],     // miejsca teleportu: x na ekranie areny
         enterMs: 900, castWindupMs: 520, orbSpeed: 120, orbTurn: 2.6, orbLifeMs: 4200, orbW: 14, orbH: 14, orbScale: 0.7,
         summonMs: 900, teleportMs: 420, keepAway: 110,

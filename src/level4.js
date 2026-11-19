@@ -239,12 +239,22 @@ Object.assign(LevelScene.prototype, {
         e.setOrigin(0.5, 1).setScale(A.scale * ART.mul(this, k)).setDepth(7).setAlpha(0).setFlipX(this.L.dir > 0);
         e.baseTint = ART.tint(k); if (e.baseTint) e.setTint(e.baseTint);
         e.body.setAllowGravity(false); e.body.enable = false;
-        e.play('adrian_idle'); this.fitBody(e);
+        const pose = () => this.adrianPose(e);       // klatki mają różne szerokości (100/110/140/132): stopy i hitbox pod postacią
+        e.on(Phaser.Animations.Events.ANIMATION_START, pose); e.on(Phaser.Animations.Events.ANIMATION_UPDATE, pose);
+        e.play('adrian_idle'); pose();
         e.state = 'enter'; e.until = 0; e.attackN = 0; e.enraged = false;
         this.tweens.add({ targets: e, alpha: 1, duration: 400 });
         this.adrian = e; this.boss = e;
         this.createBossBar('ADRIAN', 34);
         return e;
+    },
+    /** origin w stopach (hurt_1: stopy przesunięte o CFG.adrian.hurtFootDx, lustrzanie przy flipX) + hitbox pod stopami */
+    adrianPose(e) {
+        if (!e || !e.active) return;
+        const hurt = e.texture && e.texture.key === 'adrian_hurt_1' && ART.has('adrian_hurt_1');
+        const dx = hurt ? CFG.adrian.hurtFootDx / e.frame.width : 0;
+        e.setOrigin(0.5 + (e.flipX ? -dx : dx), 1);
+        if (e.body) this.fitBody(e);
     },
     adrianPhase(e) {
         let p = CFG.adrian.phases[0];
@@ -258,13 +268,13 @@ Object.assign(LevelScene.prototype, {
         if (ph.enraged && !e.enraged) { e.enraged = true; e.baseTint = 0xff80c0; e.setTint(e.baseTint); hintBubble(this, 'ADRIAN SIĘ WŚCIEKŁ!', 1600, 90); }
         e.setVelocity(0, 0);
         if (this.cutscene || e.state === 'enter' || e.state === 'tp') return;
-        e.setFlipX(dx < 0);
+        e.setFlipX(dx < 0); this.adrianPose(e);
         const back = () => { e.state = 'idle'; e.until = time + ph.restMs; e.play('adrian_idle'); };
         if (e.state === 'idle' && time > e.until) {
             e.attackN++;
             if (e.attackN % (ph.teleportEvery + 2) === 0 || Math.abs(dx) < A.keepAway) this.adrianTeleport(e);
             else if (e.attackN % 3 === 2) {
-                e.state = 'summon'; e.until = time + A.summonMs; e.play('adrian_cast'); e.setTint(0x90ff90);
+                e.state = 'summon'; e.until = time + A.summonMs; e.play('adrian_cast'); e.setTint(CFG.adrian.summonTint);   // lekka zieleń: przywołuje komary
                 for (let i = 0; i < ph.swarm; i++) this.spawnMosquitoSwarm(e.x + (i ? 40 : -40), e.y - e.displayHeight - 10 - i * 20, Math.sign(dx) || -1, 3);
                 this.swarmsSummoned++;
             } else { e.state = 'cast'; e.until = time + A.castWindupMs; e.play('adrian_cast'); WikaryAudio.sfx('orb'); }
@@ -307,7 +317,7 @@ Object.assign(LevelScene.prototype, {
         WikaryAudio.sfx('hit');
         if (e.hp <= 0) { e.hp = 0; this.adrianDefeated(e); return; }
         if (e.state === 'idle') {
-            e.anims.stop(); e.setTexture(ART.key('adrian_hurt_1'));
+            e.anims.stop(); e.setTexture(ART.key('adrian_hurt_1')); this.adrianPose(e);
             this.time.delayedCall(A.hurtMs, () => { if (e.active && !e.dead && e.state === 'idle') e.play('adrian_idle'); });
         }
         e.setTintFill(0xffffff);
@@ -319,7 +329,7 @@ Object.assign(LevelScene.prototype, {
         this.enemies.getChildren().slice().forEach(o => { if (o !== e && o.active) { o.dead = true; if (o.body) o.body.enable = false; this.tweens.add({ targets: o, alpha: 0, duration: 300, onComplete: () => o.destroy() }); } });
         GS.score += CFG.score.adrian; GS.kills++;
         this.popup(e.x, e.y - e.displayHeight - 4, '+' + CFG.score.adrian);
-        e.anims.stop(); e.setTexture(ART.key('adrian_defeated_1')); e.clearTint();
+        e.anims.stop(); e.setTexture(ART.key('adrian_defeated_1')); this.adrianPose(e); e.clearTint();
         const t = ART.tint('adrian_defeated_1'); if (t) e.setTint(t);
         this.ended = true; this.ending = true; this.cutscene = true;
         this.setCrouch(false, 0); if (this.praying) this.cancelPray();
@@ -394,7 +404,7 @@ Object.assign(LevelScene.prototype, {
             this.redScreen(false);
             await sleep(this, 1200);
             // Adrian się przyznaje i oddaje auto
-            e.setTexture(ART.key('adrian_idle_1')); e.play('adrian_idle'); e.clearTint(); if (e.baseTint) e.setTint(e.baseTint);
+            e.setTexture(ART.key('adrian_idle_1')); e.play('adrian_idle'); this.adrianPose(e); e.clearTint(); if (e.baseTint) e.setTint(e.baseTint);
             await this.adrianSay('Diabeł wie, gdzie mieszka moja rodzina... Sam mu powiedziałem, przy herbatce. Teraz tego żałuję.', 'adrian_closeup_ashamed');
             await this.kamilSay('To trzeba ich ratować! I to szybko!');
             await this.adrianSay('Weź moje auto. Tylko uważaj na sprzęgło, trochę bierze wysoko.', 'adrian_closeup_ashamed');

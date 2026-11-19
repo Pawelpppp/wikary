@@ -116,7 +116,7 @@ const ART = (function () {
         hut_adrian: { size: [260, 240], fb: 'house_krzysztof', tint: 0x7a8a68, stretch: true },
         hut_adrian_door_1: { size: [18, 54], fb: 'house_krzysztof_door_1', tint: 0x7a8a68 },
         hut_adrian_door_2: { size: [18, 54], fb: 'house_krzysztof_door_2', tint: 0x7a8a68 },
-        adrian_hurt_1: { size: [100, 164], fb: 'krzysztof_idle_1', tint: 0xff9090 },
+        adrian_hurt_1: { size: [132, 164], fb: 'krzysztof_idle_1', tint: 0xff9090 },
         adrian_defeated_1: { size: [100, 164], fb: 'krzysztof_idle_2', tint: 0x6a5a7a },
         adrian_closeup_open: { size: [192, 192], fb: 'krzysztof_closeup_open', tint: 0xc0a0ff },
         adrian_closeup_closed: { size: [192, 192], fb: 'krzysztof_closeup_closed', tint: 0xc0a0ff },

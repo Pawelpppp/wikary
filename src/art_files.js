@@ -2,6 +2,18 @@
 /* PLIK GENEROWANY: python3 tools/art_manifest.py (nie edytuj ręcznie).
    Grafiki obecne w repo: klucz -> ścieżka. */
 const ART_FILES = {
+    'adrian_cast_1': 'assets/sprites/adrian_cast_1.png',
+    'adrian_cast_2': 'assets/sprites/adrian_cast_2.png',
+    'adrian_cast_3': 'assets/sprites/adrian_cast_3.png',
+    'adrian_closeup_ashamed': 'assets/portraits/adrian_closeup_ashamed.png',
+    'adrian_closeup_closed': 'assets/portraits/adrian_closeup_closed.png',
+    'adrian_closeup_open': 'assets/portraits/adrian_closeup_open.png',
+    'adrian_defeated_1': 'assets/sprites/adrian_defeated_1.png',
+    'adrian_hurt_1': 'assets/sprites/adrian_hurt_1.png',
+    'adrian_idle_1': 'assets/sprites/adrian_idle_1.png',
+    'adrian_idle_2': 'assets/sprites/adrian_idle_2.png',
+    'adrian_talk_1': 'assets/sprites/adrian_talk_1.png',
+    'adrian_talk_2': 'assets/sprites/adrian_talk_2.png',
     'arek_attack': 'assets/game/arek_attack.png',
     'arek_casual_jump_1': 'assets/game/arek_casual_jump_1.png',
     'arek_casual_jump_2': 'assets/game/arek_casual_jump_2.png',
@@ -366,6 +378,9 @@ const ART_FILES = {
     'proboszcz_talk_2': 'assets/sprites/proboszcz_talk_2.png',
     'proboszcz_tired_sit_1': 'assets/sprites/proboszcz_tired_sit_1.png',
     'proboszcz_tired_sit_2': 'assets/sprites/proboszcz_tired_sit_2.png',
+    'proj_adrian_spell_1': 'assets/sprites/proj_adrian_spell_1.png',
+    'proj_adrian_spell_2': 'assets/sprites/proj_adrian_spell_2.png',
+    'proj_adrian_spell_3': 'assets/sprites/proj_adrian_spell_3.png',
     'proj_key_1': 'assets/sprites/proj_key_1.png',
     'proj_key_2': 'assets/sprites/proj_key_2.png',
     'prop_collection_basket': 'assets/game/prop_collection_basket.png',

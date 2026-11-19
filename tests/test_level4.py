@@ -3,7 +3,7 @@ bagienne doły (lilie, pływające pnie), komary / żaby / bagienne stwory, świ
 czarnoksiężnik Adrian (kule, roje, teleport, fazy, pasek HP), diabeł spod ziemi, auto Adriana i nick."""
 import time
 
-from wikary import (beat_adrian, beat_rafal, hold, reach_adrian, reach_defense, start_l3, start_l4,
+from wikary import (beat_adrian, beat_rafal, hold, reach_adrian, reach_defense, skip_dialogs_until, start_l3, start_l4,
                     teleport, wait_js, wait_rafal, wait_scene)
 
 
@@ -226,6 +226,59 @@ def test_debug_url_level4(page, base_url):
     assert page.evaluate("__wikary.GS.hasCross && __wikary.GS.hasFire && __wikary.GS.hasBless")
 
 
-def test_level4_art_only_adrian_still_fallback(game):
+def test_adrian_final_art_no_fallback(game):
     miss = game.evaluate("__wikary.artMissing()")
-    assert all(k.startswith("adrian_") or k.startswith("proj_adrian_") for k in miss), miss
+    assert not [k for k in miss if "adrian" in k], miss
+    anims = game.evaluate("""(()=>{const o={}; for (const k of ['adrian_idle','adrian_talk','adrian_cast','adrian_spell'])
+        o[k]=__wikary.game.anims.get(k).frames.map(f=>f.textureKey); return o})()""")
+    assert anims == {"adrian_idle": ["adrian_idle_1", "adrian_idle_2"], "adrian_talk": ["adrian_talk_1", "adrian_talk_2"],
+                     "adrian_cast": ["adrian_cast_1", "adrian_cast_2", "adrian_cast_3"],
+                     "adrian_spell": ["proj_adrian_spell_1", "proj_adrian_spell_2", "proj_adrian_spell_3"]}, anims
+
+
+ADR = """(()=>{const l=__wikary.level(),a=__wikary.adrian(),h=l.hero; return {key:a.texture.key, tint:a.isTinted, flip:a.flipX,
+    heroLeft:h.x<a.x, x:a.x, y:a.y, ox:a.originX, oy:a.originY, bodyMid:a.body.center.x, bodyBottom:a.body.bottom, h:a.displayHeight,
+    doorX:l.doorX, doorBottom:l.doorBottom, G:__wikary.CFG.GROUND_Y}})()"""
+PORTRAIT = "(()=>{const d=__wikary.level().talk.dialog; return d && d.portrait ? [d.portrait.texture.key, d.portrait.isTinted] : null})()"
+
+
+def test_adrian_final_art_door_flip_feet_hurt_portraits_ending(game):
+    start_l4(game, "boss")
+    game.evaluate("__wikary.GS.lives = 6; __wikary.level().invulnUntil = 1e12")
+    teleport(game, game.evaluate("__wikary.LEVELS[3].arenaAt") - 60)
+    hold(game, "ArrowRight", 0.8)
+    wait_js(game, "!!__wikary.adrian() && !!__wikary.level().talk.dialog", 20)
+    a = game.evaluate(ADR)
+    # pojawia się w drzwiach chaty, bez fioletowego tintu zamiennika, patrzy na Kamila
+    assert a["key"].startswith("adrian_") and not a["tint"], a
+    assert abs(a["x"] - a["doorX"]) < 1 and abs(a["y"] - a["doorBottom"]) < 1, a
+    assert a["flip"] == a["heroLeft"], a
+    assert 66 <= a["h"] <= 76, a                                         # ok. 155 px postaci × 0.45 jak inne [P]
+    assert game.evaluate(PORTRAIT) == ["adrian_closeup_open", False]
+    reach_adrian(game)
+    game.evaluate("__wikary.level().invulnUntil = 1e12")
+    time.sleep(0.3)
+    a = game.evaluate(ADR)
+    assert a["y"] == a["G"] and abs(a["bodyBottom"] - a["G"]) < 1.5 and abs(a["bodyMid"] - a["x"]) < 1.5, a   # stopy i hitbox na ziemi
+    assert a["flip"] == a["heroLeft"] and a["ox"] == 0.5 and a["oy"] == 1, a
+    # cast: klatki 140 px, hitbox dalej pod stopami
+    game.evaluate("(()=>{const a=__wikary.adrian(); a.play('adrian_cast');})()")
+    time.sleep(0.15)
+    c = game.evaluate(ADR)
+    assert c["key"].startswith("adrian_cast_") and abs(c["bodyMid"] - c["x"]) < 1.5, c
+    # hurt: stopy 11 px od środka klatki 132 px (lustrzanie przy flipX), hitbox pod stopami
+    wait_js(game, "!__wikary.adrian().harmless && __wikary.adrian().state === 'idle'", 10)
+    game.evaluate("(()=>{const l=__wikary.level(),a=__wikary.adrian(); a.hp = 20; l.adrianHit(a, 1);})()")
+    hu = game.evaluate(ADR)
+    dx = 11 / 132
+    assert hu["key"] == "adrian_hurt_1", hu
+    assert abs(hu["ox"] - (0.5 - dx if hu["flip"] else 0.5 + dx)) < 1e-6 and abs(hu["bodyMid"] - hu["x"]) < 1.5, hu
+    wait_js(game, "__wikary.adrian().texture.key !== 'adrian_hurt_1'", 3)
+    assert game.evaluate("__wikary.adrian().originX") == 0.5
+    # klęka pokonany, końcówka z zawstydzonym portretem
+    game.evaluate("(()=>{const l=__wikary.level(),a=__wikary.adrian(); a.hp=1; a.harmless=false; l.damageEnemy(a,1);})()")
+    wait_js(game, "__wikary.adrian().dead", 3)
+    d = game.evaluate(ADR)
+    assert d["key"] == "adrian_defeated_1" and not d["tint"] and d["y"] == d["G"], d
+    skip_dialogs_until(game, "(()=>{const d=__wikary.level().talk.dialog; return !!(d && d.portrait && d.portrait.texture.key === 'adrian_closeup_ashamed')})()", 40, key="Enter")
+    assert game.evaluate(PORTRAIT) == ["adrian_closeup_ashamed", False]
