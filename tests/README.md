@@ -49,6 +49,7 @@ Przydatne opcje pytest-playwright: `--headed` (widoczna przeglądarka), `--brows
 | `test_retry.py` | pytanie „POWTÓRZYĆ POZIOM?” po GAME OVER: TAK (Enter) = ten sam poziom od początku, wynik zostaje, 3 życia, druga przegrana bez pytania do nicku; NIE (strzałka + Spacja) do nicku; dotyk TAK, moce ze startu poziomu; nowa gra z tytułu zeruje licznik |
 | (w `test_level2.py`) | `test_level2_has_20_percent_fewer_bats`: w Level 2 spawnuje się 80% ±3% wylosowanych nietoperzy (40 000 losowań, oba zestawy), inni wrogowie i Level 1 bez zmian |
 | `test_difficulty.py` | ekran wyboru trudności (klawiatura, Esc, dotyk, zapamiętany wybór); każdy profil: życia, HP i prędkość wrogów, HP bossa, powtórka; serca częściej na łatwym; trudny bez powtórki, trudność na ekranie nicku i w tabeli wyników (stare wpisy bez trudności) |
+| `test_analytics.py` | GoatCounter (issue #2), bez prawdziwych żądań (gc.zgo.at mockowany): domyślnie placeholder i `allowedHosts` = ksiadz.trawiasta.pl; na localhost skrypt się nie ładuje nawet z kontem; reguły (file:, 127.0.0.1, inny host, pusty adres); z wymuszonym hostem: `count.js` z właściwym `data-goatcounter`, nic widocznego, zdarzenie „start gry” przy nowej grze; placeholder lub inny host = brak skryptu; skrypt bez `goatcounter` nie psuje startu gry |
 | `test_console_errors.py` | zwykłe uruchomienie bez debug, krótka rozgrywka, ładowanie wszystkich grafik |
 
 ## CI

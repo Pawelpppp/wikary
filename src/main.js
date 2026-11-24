@@ -25,7 +25,7 @@
                 game, GS, CFG, LEVELS,
                 scene: () => game.scene.getScenes(true).map(s => s.scene.key),
                 level: () => game.scene.getScene('Level'),
-                Difficulty, diffScene: () => game.scene.getScene('Difficulty'),
+                Analytics, Difficulty, diffScene: () => game.scene.getScene('Difficulty'),
                 setMeter: (v) => { GS.meter = v; },
                 giveCross: () => { GS.hasCross = true; },
                 giveFire: () => { GS.hasFire = true; },

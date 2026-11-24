@@ -37,6 +37,15 @@ const CFG = {
         exclude: ['hans', 'rafal', 'adrian'],   // bossy: bez stompa, zachowanie jak dotąd
     },
 
+    analytics: {                    // niewidoczne statystyki odwiedzin (GoatCounter, bez cookies) – jedno konto dla wszystkich gier
+        // WPISZ TU ADRES SWOJEGO KONTA (np. 'https://mojekonto.goatcounter.com/count').
+        // Placeholder albo pusty = skrypt się nie ładuje i nic nie jest liczone.
+        goatcounterUrl: 'https://TWOJE-KONTO.goatcounter.com/count',
+        scriptSrc: 'https://gc.zgo.at/count.js',
+        allowedHosts: ['ksiadz.trawiasta.pl'],    // liczymy tylko na tych hostach (nigdy localhost / 127.0.0.1 / file:)
+        startEvent: { path: 'start-gry', title: 'Start gry' },
+    },
+
     difficulty: {                   // wybór przed nową grą (ekran po tytule); ostatni wybór w localStorage
         default: 'normal', storageKey: 'wikary_difficulty',
         order: ['easy', 'normal', 'hard'],

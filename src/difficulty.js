@@ -58,6 +58,7 @@ class DifficultyScene extends Phaser.Scene {
         const id = this.ids[i];
         WikaryAudio.unlock(); WikaryAudio.sfx('select');
         Difficulty.save(id);
+        try { Analytics.startGame(); } catch (e) { /* statystyki nie mogą zepsuć gry */ }
         GS.reset(id);                                   // nowa gra: wynik, życia (z profilu), moce, licznik powtórek
         this.cameras.main.fadeOut(300, 0, 0, 0);
         this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('Intro'));

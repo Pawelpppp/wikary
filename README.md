@@ -18,7 +18,7 @@ Automatyczne testy (Python + pytest + Playwright, przeglądarka headless) są w 
 - Dźwięk: chiptune generowany w **Web Audio** (`src/audio.js`, bez plików): organy na tytule i w intro, szybki motyw w Level 1, mocny bas, efekty (skok, salto, trafienie, znajdźki, dzwonek telefonu, piorun, rzut krzyżem, ogień, szczekanie, kracz, moneta, grzmot, Grom z Nieba). Level 2 ma własny mroczny motyw, a Hans szybki motyw bossa. Level 3 ma nocny motyw (h-moll) i własne efekty: syk gasnącego ognia, błogosławieństwo, wrzask Rafała, zamach kluczami, uderzenie w drzwi, czar proboszcza, upiór spod ziemi, egzorcyzm i dzwony o świcie. Level 4 ma powolny, bagienny motyw (g-moll) i efekty: bzyczenie komarów, rechot i język żaby, bąble bagna, aura święconej wody, czar i teleport Adriana, głos diabła i silnik auta.
 - Font: [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) (SIL OFL, `assets/fonts/`).
 - Wersja na ekranie tytułowym: `v1.N`, N = liczba commitów na `master` (`src/version.js`).
-- Pliki: `src/boot.js` (ładowanie, animacje), `title.js`, `difficulty.js` (wybór trudności), `scores.js`, `intro.js`, `church.js` (kościół), `level.js` + `level2.js` (kładka, pogoda, nowi wrogowie, ogień, Hans) + `level3.js` (noc i mgła, duchy, błogosławieństwo, obrona kościoła, Rafał, świt) + `level4.js` (bagno i zielona mgła, lilie i pnie, komary / żaby / bagienne stwory, święcona woda, Adrian, Czerwony Diabeł, auto), `art.js` + `art_files.js` (grafiki i zamienniki), `nick.js`, `ui.js`, `leaderboard.js`, `main.js`.
+- Pliki: `src/boot.js` (ładowanie, animacje), `title.js`, `difficulty.js` (wybór trudności), `scores.js`, `intro.js`, `church.js` (kościół), `level.js` + `level2.js` (kładka, pogoda, nowi wrogowie, ogień, Hans) + `level3.js` (noc i mgła, duchy, błogosławieństwo, obrona kościoła, Rafał, świt) + `level4.js` (bagno i zielona mgła, lilie i pnie, komary / żaby / bagienne stwory, święcona woda, Adrian, Czerwony Diabeł, auto), `art.js` + `art_files.js` (grafiki i zamienniki), `nick.js`, `ui.js`, `leaderboard.js`, `analytics.js` (statystyki GoatCounter), `main.js`.
 
 ## Sterowanie
 | Akcja | Klawiatura | Dotyk |
@@ -53,6 +53,15 @@ Na dotyku przyciski są półprzezroczyste i pionowo na środku ekranu: GROM / (
 | Intro | Spacja = pomiń, Enter = dalej | dotknij = pomiń |
 | Kościół | Spacja / Esc = pomiń, Enter / klik = dalej | dotknij = dalej, POMIŃ |
 | Rozmowy w poziomach (Level 2–4) | Enter / Spacja / klik = dalej | dotknij = dalej |
+
+## Statystyki (GoatCounter)
+
+Niewidoczne statystyki odwiedzin (issue #2). Używamy GoatCountera: jest darmowy i nie zapisuje cookies, więc nie potrzeba banera RODO. Jedno konto obsługuje wszystkie gry. Na stronie nic się nie wyświetla, a gra działa tak samo jak bez statystyk.
+
+- **Adres konta wpisujesz w jednym miejscu:** `src/config.js` → `CFG.analytics.goatcounterUrl`. Zamień placeholder `'https://TWOJE-KONTO.goatcounter.com/count'` na adres swojego konta, np. `'https://mojekonto.goatcounter.com/count'` (w panelu GoatCountera: *Settings → Site code*). Dopóki jest tam placeholder albo pusty tekst, skrypt się nie ładuje.
+- **Gdzie liczymy:** tylko na hostach z `CFG.analytics.allowedHosts`, domyślnie `['ksiadz.trawiasta.pl']`. Na localhost, 127.0.0.1 i z pliku (`file:`) nic nie jest liczone, niezależnie od listy hostów.
+- **Co liczymy:** wejście na stronę (liczy je sam `count.js`, ładowany dynamicznie z `https://gc.zgo.at/count.js` z `data-goatcounter` ustawionym z konfiguracji) i zdarzenie **„start gry”** (`start-gry`), wysyłane po wybraniu poziomu trudności przy nowej grze. Gdy skrypt jest zablokowany albo się nie załadował, zdarzenie jest pomijane i gra działa dalej.
+- Kod: `src/analytics.js`. Testy (`tests/test_analytics.py`) nie wysyłają żadnych prawdziwych żądań: gc.zgo.at jest mockowany, a host i konto są wymuszane tylko w testach (`window.__wikaryAnalyticsOverride`).
 
 ## Status (co już działa)
 - ✅ Ekran tytułowy: złoty migoczący tytuł, kościół, mrugająca twarz Kamila, rząd świeczek, START NEW GAME / HIGH SCORES, wersja, M i F.
