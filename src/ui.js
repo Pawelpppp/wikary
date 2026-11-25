@@ -2,6 +2,7 @@
 /* Wspólne elementy interfejsu: tekst pikselowym fontem, dymki, przyciski M/F. */
 const FONT = '"PressStart", monospace';
 const DEBUG = /[?&]debug=1/.test(location.search);
+const DEV = /[?&]dev=true(&|$)/.test(location.search);           // ?dev=true: po wyborze trudności lista punktów startu
 const IS_TOUCH = (() => { try { return ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || /[?&]touch=(1|buttons|joystick)\b/.test(location.search); } catch (e) { return false; } })();
 /** Tryb sterowania dotykiem: CFG.touch.mode, nadpisywany przez ?touch=buttons / ?touch=joystick (testy A/B). */
 const TOUCH_MODE = (() => { const m = (location.search.match(/[?&]touch=(buttons|joystick)\b/) || [])[1]; return m || CFG.touch.mode; })();
@@ -214,6 +215,20 @@ function makeTalker(scene, defaults) {
     return t;
 }
 const sleep = (scene, ms) => new Promise(res => scene.time.delayedCall(ms, res));
+
+/** Punkty startu dla ?debug=1 (klawisze 1–9 na tytule) i ?dev=true (lista po wyborze trudności).
+    go(scene, difficulty): nowa gra z danym poziomem trudności (brak = domyślny). */
+const DEV_STARTS = [
+    { key: 'ONE',   label: 'LEVEL 1',             go: (s, d) => debugStart(s, 0, undefined, { difficulty: d }) },
+    { key: 'TWO',   label: 'KOŚCIÓŁ',             go: (s, d) => { GS.reset(d); s.scene.start('Church', { next: 1 }); } },
+    { key: 'THREE', label: 'LEVEL 2',             go: (s, d) => debugStart(s, 1, undefined, { difficulty: d }) },
+    { key: 'FOUR',  label: 'L2: PRZED HANSEM',    go: (s, d) => debugStart(s, 1, LEVELS[1].arenaAt - 140, { difficulty: d }) },
+    { key: 'FIVE',  label: 'LEVEL 3',             go: (s, d) => debugStart(s, 2, undefined, { difficulty: d }) },
+    { key: 'SIX',   label: 'L3: OBRONA KOŚCIOŁA', go: (s, d) => { debugStart(s, 2, LEVELS[2].arenaAt - 60, { difficulty: d }); GS.hasBless = true; } },
+    { key: 'SEVEN', label: 'L3: RAFAŁ',           go: (s, d) => { debugStart(s, 2, LEVELS[2].arenaAt - 60, { skipTo: 'boss', difficulty: d }); GS.hasBless = true; } },
+    { key: 'EIGHT', label: 'LEVEL 4',             go: (s, d) => debugStart(s, 3, undefined, { difficulty: d }) },
+    { key: 'NINE',  label: 'L4: ADRIAN',          go: (s, d) => debugStart(s, 3, LEVELS[3].arenaAt - 60, { difficulty: d }) },
+];
 
 /** Tylko ?debug=1: start wybranego poziomu z nowym stanem gry (w Level 2 krzyż już jest). */
 function debugStart(scene, idx, startAt, extra) {

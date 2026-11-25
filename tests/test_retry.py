@@ -34,7 +34,8 @@ def test_yes_restarts_level_keeps_score_then_second_loss_goes_to_nick(game):
     time.sleep(0.5)
     s = game.evaluate("""(()=>{const l=__wikary.level(),G=__wikary.GS; return {id:l.L.id, score:G.score, lives:G.lives, used:G.retryUsed,
         n:G.retries, d:Math.round(l.heroD())}})()""")
-    assert s["id"] == 1 and s["score"] == 1234 and s["lives"] == game.evaluate("__wikary.CFG.hero.lives"), s
+    # wynik zostaje (po starcie poziomu Kamil może zdążyć zebrać diament: +50)
+    assert s["id"] == 1 and 1234 <= s["score"] <= 1234 + 200 and s["lives"] == game.evaluate("__wikary.CFG.hero.lives"), s
     assert s["used"] is True and s["n"] == 1 and s["d"] < 400, s                  # od początku poziomu
     # druga przegrana: bez pytania, prosto do nicku
     die(game)

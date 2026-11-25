@@ -18,7 +18,7 @@ Automatyczne testy (Python + pytest + Playwright, przeglądarka headless) są w 
 - Dźwięk: chiptune generowany w **Web Audio** (`src/audio.js`, bez plików): organy na tytule i w intro, szybki motyw w Level 1, mocny bas, efekty (skok, salto, trafienie, znajdźki, dzwonek telefonu, piorun, rzut krzyżem, ogień, szczekanie, kracz, moneta, grzmot, Grom z Nieba). Level 2 ma własny mroczny motyw, a Hans szybki motyw bossa. Level 3 ma nocny motyw (h-moll) i własne efekty: syk gasnącego ognia, błogosławieństwo, wrzask Rafała, zamach kluczami, uderzenie w drzwi, czar proboszcza, upiór spod ziemi, egzorcyzm i dzwony o świcie. Level 4 ma powolny, bagienny motyw (g-moll) i efekty: bzyczenie komarów, rechot i język żaby, bąble bagna, aura święconej wody, czar i teleport Adriana, głos diabła i silnik auta.
 - Font: [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) (SIL OFL, `assets/fonts/`).
 - Wersja na ekranie tytułowym: `v1.N`, N = liczba commitów na `master` (`src/version.js`).
-- Pliki: `src/boot.js` (ładowanie, animacje), `title.js`, `difficulty.js` (wybór trudności), `scores.js`, `intro.js`, `church.js` (kościół), `level.js` + `level2.js` (kładka, pogoda, nowi wrogowie, ogień, Hans) + `level3.js` (noc i mgła, duchy, błogosławieństwo, obrona kościoła, Rafał, świt) + `level4.js` (bagno i zielona mgła, lilie i pnie, komary / żaby / bagienne stwory, święcona woda, Adrian, Czerwony Diabeł, auto), `art.js` + `art_files.js` (grafiki i zamienniki), `nick.js`, `ui.js`, `leaderboard.js`, `analytics.js` (statystyki GoatCounter), `main.js`.
+- Pliki: `src/boot.js` (ładowanie, animacje), `title.js`, `difficulty.js` (wybór trudności), `devstart.js` (lista startów dla `?dev=true`), `scores.js`, `intro.js`, `church.js` (kościół), `level.js` + `level2.js` (kładka, pogoda, nowi wrogowie, ogień, Hans) + `level3.js` (noc i mgła, duchy, błogosławieństwo, obrona kościoła, Rafał, świt) + `level4.js` (bagno i zielona mgła, lilie i pnie, komary / żaby / bagienne stwory, święcona woda, Adrian, Czerwony Diabeł, auto), `art.js` + `art_files.js` (grafiki i zamienniki), `nick.js`, `ui.js`, `leaderboard.js`, `analytics.js` (statystyki GoatCounter), `main.js`.
 
 ## Sterowanie
 | Akcja | Klawiatura | Dotyk |
@@ -81,6 +81,8 @@ Niewidoczne statystyki odwiedzin (issue #2). Używamy GoatCountera: jest darmowy
 - ⏳ Następne: Level 5 (jazda samochodem, scenariusz niżej), wspólna tablica na Azure.
 
 **Debug:** `?debug=1` na ekranie tytułowym: 1 = Level 1, 2 = kościół, 3 = Level 2, 4 = Level 2 tuż przed Hansem, 5 = Level 3, 6 = Level 3 obrona kościoła, 7 = Level 3 od razu Rafał, 8 = Level 4, 9 = Level 4 tuż przed chatą Adriana (także `?debug=1&level=2` / `level=3` / `level=4`). W konsoli: `__wikary.startL4('boss')`, `__wikary.adrian()`, `__wikary.devil()`.
+
+**Tryb dev (`?dev=true`):** np. `https://ksiadz.trawiasta.pl/?dev=true`. Po wyborze poziomu trudności pojawia się ekran „DEV: START OD” z listą: INTRO (zwykły start), 1. Level 1, 2. Kościół, 3. Level 2, 4. L2: przed Hansem, 5. Level 3, 6. L3: obrona kościoła, 7. L3: Rafał, 8. Level 4, 9. L4: Adrian. To te same punkty startu co skróty debug 1–9. Sterowanie: strzałki (góra/dół w kolumnie, lewo/prawo między kolumnami) i Enter/Spacja, Esc wraca do wyboru trudności; na telefonie dotknięcie przycisku albo „◀ WRÓĆ”. Wybrany poziom trudności obowiązuje. Bez `?dev=true` nic się nie zmienia. Kod: `src/devstart.js`, lista `DEV_STARTS` w `src/ui.js`.
 
 ## Bohater
 Główną postacią jest **wikary Kamil**: rude krótkie włosy, czarna sutanna, plecak.

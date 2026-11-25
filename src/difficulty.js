@@ -61,7 +61,7 @@ class DifficultyScene extends Phaser.Scene {
         try { Analytics.startGame(); } catch (e) { /* statystyki nie mogą zepsuć gry */ }
         GS.reset(id);                                   // nowa gra: wynik, życia (z profilu), moce, licznik powtórek
         this.cameras.main.fadeOut(300, 0, 0, 0);
-        this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('Intro'));
+        this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start(DEV ? 'DevStart' : 'Intro'));   // ?dev=true: lista startów
     }
     back() {
         if (this.leaving) return; this.leaving = true;
