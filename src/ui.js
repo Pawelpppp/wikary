@@ -27,6 +27,8 @@ const Difficulty = {
         }
         return this._cache[k];
     },
+    /** CFG.spells z nadpisaniami profilu (TRUDNY: stare hitboxy i zasięgi) */
+    spells() { return Object.assign({}, CFG.spells, this.cur().spells || {}); },
     bossHp(base) { return Math.max(1, Math.round(base * this.cur().bossHp)); },
     retryAllowed() { return this.cur().retry !== false; },
 };

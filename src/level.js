@@ -419,7 +419,7 @@ class LevelScene extends Phaser.Scene {
         this.updateWeather(time, delta);
         this.updateLevel3(time, delta);
         this.updateLevel4(time, delta);
-        this.shots.getChildren().forEach(s => { if (time > s.dieAt) s.destroy(); });
+        this.updateShots(time);
         if (this.dead || this.ended || this.respawning) { this.syncSprite(time, 0); return; }
 
         // --- auto-scroll + kamera dogania gracza ---
@@ -613,14 +613,34 @@ class LevelScene extends Phaser.Scene {
         });
     }
 
+    /** hitbox czaru (w px ekranu): dawny hitbox × Difficulty.spells().hitScale + reachUp/reachDown; grafika bez zmian */
+    spellBody(s, baseW, baseH) {
+        const S = Difficulty.spells(), sx = Math.abs(s.scaleX), sy = Math.abs(s.scaleY);
+        const w = baseW * S.hitScale, h = baseH * S.hitScale + S.reachUp + S.reachDown;
+        s.body.setSize(w / sx, h / sy, false);
+        s.body.setOffset(s.frame.width / 2 - w / sx / 2, s.frame.height / 2 - h / sy / 2 + (S.reachDown - S.reachUp) / 2 / sy);
+        s.hitW = w; s.hitH = h;
+    }
+    /** zasięg pocisków: krzyż do Difficulty.spells().crossRange, ogień do krawędzi kamery ('screen') albo liczba px */
+    updateShots(time) {
+        const cam = this.cameras.main, S = Difficulty.spells();
+        this.shots.getChildren().slice().forEach(s => {
+            if (!s.active) return;
+            if (time > s.dieAt) { s.destroy(); return; }
+            if (s.range === 'screen') {
+                const vx = s.body.velocity.x, edge = s.displayWidth / 2;
+                if ((vx > 0 && s.x - edge > cam.scrollX + CFG.W) || (vx < 0 && s.x + edge < cam.scrollX)) { s.reachedEdge = true; s.destroy(); }
+            } else if (typeof s.range === 'number' && Math.abs(s.x - s.startX) >= s.range) { s.travelled = Math.abs(s.x - s.startX); s.destroy(); }
+        });
+    }
     throwCross(time) {
         this.lastThrow = time; this.attackUntil = time + 240;
         const h = this.hero, y = this.crouching ? h.body.bottom - CFG.cross.crouchUp : h.y + CFG.cross.standDy;
         const s = this.shots.create(h.x + this.facing * 14, y, 'fx_cross_1');
         s.setScale(0.8).setDepth(9).play('fx_cross');
-        s.body.setAllowGravity(false); s.body.setSize(20, 24);
+        s.body.setAllowGravity(false); this.spellBody(s, 16, 19.2);      // dawny hitbox 20x24 px klatki × skala 0.8
         s.setVelocityX(this.facing * CFG.cross.speed);
-        s.dieAt = time + CFG.cross.lifeMs;
+        s.kind = 'cross'; s.startX = s.x; s.range = Difficulty.spells().crossRange; s.dieAt = time + 10000;
         if (!this.crouching) this.kamil.play('k_attack');   // w kucnięciu zostaje w kucnięciu
         WikaryAudio.sfx('throw');
     }

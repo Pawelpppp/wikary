@@ -41,8 +41,9 @@ Object.assign(LevelScene.prototype, {
                 this.enemies.getChildren().slice().forEach(e => {
                     if (!e.active || e.dead) return;
                     const d = Math.hypot(e.x - hero.x, e.y - hero.y);
-                    if (e.type === 'mosquito_small' && d < R.radius) { this.damageEnemy(e, 99); this.repelKills++; }
-                    else if (e.type === 'mosquito_big' && d < R.radius * 1.5 && e.state !== 'up') { e.state = 'up'; e.play('mosq_big'); e.setVelocity(Math.sign(e.x - hero.x) * 80, -R.bigPush); }
+                    const rr = R.radius * Difficulty.spells().hitScale;
+                    if (e.type === 'mosquito_small' && d < rr) { this.damageEnemy(e, 99); this.repelKills++; }
+                    else if (e.type === 'mosquito_big' && d < rr * 1.5 && e.state !== 'up') { e.state = 'up'; e.play('mosq_big'); e.setVelocity(Math.sign(e.x - hero.x) * 80, -R.bigPush); }
                 });
             }
         }

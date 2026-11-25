@@ -185,11 +185,11 @@ Object.assign(LevelScene.prototype, {
         this.enemies.getChildren().slice().forEach(e => {
             if (!e.active || e.dead || !e.body || (!e.body.enable && e.state !== 'warn')) return;
             const ey = e.originY === 1 ? e.y - e.displayHeight / 2 : e.y;
-            if (Math.hypot(e.x - cx, ey - cy) > B.radius) return;
+            if (Math.hypot(e.x - cx, ey - cy) > B.radius * Difficulty.spells().hitScale) return;
             if (e.type === 'rafal' || e.type === 'adrian') this.damageEnemy(e, B.bossDamage);
             else this.damageEnemy(e, e.ghost ? B.ghostDamage : B.damage);
         });
-        this.hostile.getChildren().slice().forEach(kk => { if (Math.hypot(kk.x - cx, kk.y - cy) <= B.radius) kk.destroy(); });
+        this.hostile.getChildren().slice().forEach(kk => { if (Math.hypot(kk.x - cx, kk.y - cy) <= B.radius * Difficulty.spells().hitScale) kk.destroy(); });
     },
 
     /* ---------- część B: obrona drzwi kościoła ---------- */

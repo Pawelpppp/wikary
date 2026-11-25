@@ -50,12 +50,14 @@ const CFG = {
         default: 'normal', storageKey: 'wikary_difficulty',
         order: ['easy', 'normal', 'hard'],
         levels: {                   // lives: życia startowe; enemySpeed: mnożnik prędkości wrogów; enemyHp: + HP (min 1);
-                                    // heartDrop: mnożnik szansy na serce z wroga; bossHp: mnożnik HP bossów; retry: powtórka poziomu
+                                    // heartDrop: mnożnik szansy na serce z wroga; bossHp: mnożnik HP bossów; retry: powtórka poziomu;
+                                    // spells: nadpisuje CFG.spells (brak = nowe wartości z CFG.spells)
             easy:   { label: 'ŁATWY',    short: 'Ł', lives: 5, enemySpeed: 0.8, enemyHp: -1, heartDrop: 1.5, bossHp: 0.75, retry: true,
                       desc: '5 ŻYĆ, WOLNIEJSI WROGOWIE, WIĘCEJ SERC' },
             normal: { label: 'NORMALNY', short: 'N', lives: 3, enemySpeed: 1,   enemyHp: 0,  heartDrop: 1,   bossHp: 1,    retry: true,
                       desc: '3 ŻYCIA, KLASYCZNA GRA' },
             hard:   { label: 'TRUDNY',   short: 'T', lives: 2, enemySpeed: 1.2, enemyHp: 1,  heartDrop: 0.5, bossHp: 1.25, retry: false,
+                      spells: { hitScale: 1, reachDown: 0, reachUp: 0, crossRange: 342, fireRange: 330 },   // czary jak przed v1.43
                       desc: '2 ŻYCIA, SZYBSI I TWARDSI, BEZ POWTÓRKI' },
         },
     },
@@ -108,12 +110,21 @@ const CFG = {
     puddle: { slowMult: 0.5, slowMs: 600 },
     boost: { mult: 1.55, ms: 4500 },       // piorun = przyspieszenie biegu
 
-    cross: { speed: 380, cooldownMs: 330, lifeMs: 900, damage: 1,    // rzut krzyżem (Alt)
+    spells: {                       // oddziaływanie czarów Kamila (grafiki i ich rozmiar na ekranie bez zmian); ŁATWY i NORMALNY,
+                                    // TRUDNY ma stare wartości (CFG.difficulty.levels.hard.spells)
+        hitScale: 1.5,              // hitbox krzyża i ognia ×1.5 (szer. i wys.), promień błogosławieństwa i święconej wody ×1.5
+        reachDown: 10,              // + px hitboxu w dół: stojący Kamil trafia psy i wilki biegnące przy ziemi
+        reachUp: 6,                 // + px w górę: trafia nietoperze lecące tuż nad pociskiem
+        crossRange: 205,            // zasięg krzyża (px); wcześniej 380 px/s × 0,9 s ≈ 342 px
+        fireRange: 'screen',        // ogień leci do krawędzi ekranu (kamery); wcześniej 300 px/s × 1,1 s = 330 px
+    },
+
+    cross: { speed: 380, cooldownMs: 330, damage: 1,    // rzut krzyżem (Alt); zasięg: CFG.spells.crossRange
         standDy: -6,                // wysokość lotu na stojąco: środek hitboxu Kamila + standDy
         crouchUp: 22 },             // w kucnięciu: tyle px nad stopami (nisko - trafia psy i wilki)
 
     fire: {                         // ogień (Z) po zdobyciu znicza w Level 2: przebija kilku wrogów
-        speed: 300, cooldownMs: 420, lifeMs: 1100, damage: 1, pierce: 3, scale: 1,
+        speed: 300, cooldownMs: 420, lifeMs: 1100, damage: 1, pierce: 3, scale: 1,   // lifeMs tylko gdy CFG.spells.fireRange to liczba
         standDy: -8, crouchUp: 20, bodyW: 26, bodyH: 18,
     },
 

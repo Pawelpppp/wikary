@@ -194,9 +194,9 @@ Object.assign(LevelScene.prototype, {
         const y = this.crouching ? h.body.bottom - F.crouchUp : h.y + F.standDy;
         const s = this.shots.create(h.x + this.facing * 16, y, 'fx_fireball_1');
         s.setScale(F.scale).setDepth(9).setFlipX(this.facing < 0).play('fireball');
-        s.body.setAllowGravity(false); s.body.setSize(F.bodyW / F.scale, F.bodyH / F.scale);
+        s.body.setAllowGravity(false); this.spellBody(s, F.bodyW, F.bodyH);
         s.setVelocityX(this.facing * F.speed);
-        s.dieAt = time + F.lifeMs; s.kind = 'fire'; s.pierce = F.pierce; s.hitSet = new Set();
+        s.startX = s.x; s.range = Difficulty.spells().fireRange; s.dieAt = time + (s.range === 'screen' ? 10000 : F.lifeMs + 500); s.kind = 'fire'; s.pierce = F.pierce; s.hitSet = new Set();
         if (!this.crouching) this.kamil.play('k_attack_fire');
         WikaryAudio.sfx('fire');
     },
