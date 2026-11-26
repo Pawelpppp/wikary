@@ -345,7 +345,7 @@ class LevelScene extends Phaser.Scene {
         this.joy = { id: null, x0: J.restX, y0: J.restY, ax: 0, ay: 0, base, knob };
         this.joyRest();
         this.input.on('pointermove', (p) => { if (this.joy && p.id === this.joy.id) this.joyMove(p); });
-        const up = (p) => { if (this.joy && p.id === this.joy.id) this.joyRelease(); };
+        const up = (p) => { if (this.joy && p.id === this.joy.id) { this.joyMove(p); this.joyRelease(true); } };
         this.input.on('pointerup', up); this.input.on('pointerupoutside', up);
         this.events.once('shutdown', () => { this.joy = null; });
     }
@@ -355,13 +355,14 @@ class LevelScene extends Phaser.Scene {
     }
     inJoyZone(p) { const J = CFG.touch.joystick; return p.x < CFG.W * J.zoneW && p.y > J.topY; }
     joyStart(p) {
-        const j = this.joy; j.id = p.id; j.x0 = p.x; j.y0 = p.y;
+        const j = this.joy; j.id = p.id; j.x0 = p.x; j.y0 = p.y; j.t0 = this.time.now; j.maxD = 0;
         j.base.setPosition(p.x, p.y).setAlpha(1); j.knob.setPosition(p.x, p.y).setAlpha(1);
         this.joyMove(p);
     }
     joyMove(p) {
         const J = CFG.touch.joystick, j = this.joy;
         let dx = p.x - j.x0, dy = p.y - j.y0; const d = Math.hypot(dx, dy);
+        j.maxD = Math.max(j.maxD || 0, d);
         if (d > J.radius) { dx *= J.radius / d; dy *= J.radius / d; }
         j.knob.setPosition(j.x0 + dx, j.y0 + dy);
         const nx = dx / J.radius, ny = dy / J.radius, m = Math.abs(nx);
@@ -370,8 +371,13 @@ class LevelScene extends Phaser.Scene {
         this.touch.down = ny >= J.crouchY && dy > Math.abs(dx) * J.crouchSlope;
         if (this.touch.down) j.ax = 0;
     }
-    joyRelease() {
-        const j = this.joy; j.id = null; j.ax = 0; j.ay = 0; this.touch.down = false;
+    joyRelease(tap) {
+        const J = CFG.touch.joystick, j = this.joy;
+        // krótkie stuknięcie w joystick = skok (w powietrzu: salto), jak Spacja; przeciąganie = zwykłe sterowanie
+        if (tap && J.joyTapJump && j.id !== null && this.time.now - j.t0 < J.tapMaxMs && (j.maxD || 0) < J.tapMaxDist) {
+            this.jumpAt = this.time.now; this.joyTaps = (this.joyTaps || 0) + 1;
+        }
+        j.id = null; j.ax = 0; j.ay = 0; this.touch.down = false;
         this.joyRest();
     }
     /** dotknięcie ekranu: dymek / podsumowanie, joystick, albo (poza przyciskami) skok */

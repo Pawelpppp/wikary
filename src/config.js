@@ -97,6 +97,9 @@ const CFG = {
             restX: 64, restY: 248,  // gdzie widać spoczynkowy joystick (podpowiedź)
             restAlpha: 0.5,         // przezroczystość spoczynkowa (względem alpha przycisków)
             tapJump: true,          // dotknięcie poza joystickiem i przyciskami = skok, drugie w powietrzu = salto
+            joyTapJump: true,       // krótkie stuknięcie w joystick (lewa strefa) = skok, drugie w powietrzu = salto (podwójny skok)
+            tapMaxMs: 200,          // stuknięcie: palec krócej niż tyle ms...
+            tapMaxDist: 12,         // ...i przesunięty o mniej niż tyle px (dłużej / dalej = zwykłe sterowanie)
         },
     },
 

@@ -1,5 +1,5 @@
 """Dotyk, tryb joysticka (test, domyślny CFG.touch.mode): pływający joystick w lewej strefie (analogowa prędkość,
-kucanie w dół), dotknięcie ekranu = skok, drugie w powietrzu = salto, dymki nadal przewijane dotknięciem,
+kucanie w dół, stuknięcie w joystick = skok, dwa = salto), dotknięcie ekranu = skok, drugie w powietrzu = salto, dymki nadal przewijane dotknięciem,
 przyciski KRZYŻ / OGIEŃ / GROM / SKOK bez zmian (także jednocześnie z joystickiem)."""
 import time
 
@@ -37,8 +37,8 @@ class Touch:
         self.down(i, x, y); time.sleep(0.05); self.up(i)
 
 
-def _joy_level(new_page, base_url, level=0):
-    pg = new_page(has_touch=True, is_mobile=True)
+def _joy_level(new_page, base_url, level=0, viewport=None):
+    pg = new_page(has_touch=True, is_mobile=True, **({"viewport": viewport} if viewport else {}))
     open_game(pg, base_url)
     assert pg.evaluate("IS_TOUCH && TOUCH_MODE === 'joystick'")
     if level == 0:
@@ -115,12 +115,13 @@ def test_tap_jumps_and_double_tap_saltos(new_page, base_url):
     assert pg.evaluate("__wikary.level().jumps") == 2 and pg.evaluate("__wikary.level().flipping")
 
 
-def test_tap_in_joystick_zone_does_not_jump(new_page, base_url):
+def test_tap_in_joystick_zone_jumps(new_page, base_url):
+    """Stuknięcie w joystick (krócej niż tapMaxMs, bez przesunięcia) = skok."""
     pg = _joy_level(new_page, base_url)
     t = Touch(pg)
     t.tap(0, JX, JY)
     time.sleep(0.2)
-    assert pg.evaluate("__wikary.level().jumps") == 0
+    assert pg.evaluate("__wikary.level().jumps") == 1
 
 
 def test_tap_during_dialog_advances_and_does_not_jump(new_page, base_url):
@@ -183,3 +184,64 @@ def test_buttons_mode_still_available(new_page, base_url):
     t.tap(0, TAP_X, TAP_Y)                               # w starym układzie dotknięcie ekranu nie skacze
     time.sleep(0.15)
     assert pg.evaluate("__wikary.level().jumps") == 0
+
+
+# ---------- stuknięcie w joystick = skok, dwa = podwójny skok (salto); telefon 667x375 ----------
+
+PHONE = {"width": 667, "height": 375}
+
+
+def _joy_xy(pg, gx=110, gy=220):
+    """Punkt w strefie joysticka (współrzędne gry) -> piksele strony."""
+    return pg.evaluate(f"""(()=>{{const b=__wikary.game.canvas.getBoundingClientRect();
+        return [b.x + {gx} / __wikary.CFG.W * b.width, b.y + {gy} / __wikary.CFG.H * b.height]}})()""")
+
+
+@pytest.mark.parametrize("level", [0, 1, 2, 3])
+def test_joystick_tap_jump_and_double_tap_salto_all_levels(new_page, base_url, level):
+    pg = _joy_level(new_page, base_url, level, PHONE)
+    pg.evaluate("(()=>{const l=__wikary.level(); l.invulnUntil=1e12; l.nextSpawn=1e12; l.enemies.getChildren().slice().forEach(e=>e.destroy());})()")
+    wait = "__wikary.level().hero.body.blocked.down || __wikary.level().hero.body.touching.down"
+    pg.wait_for_function(wait, timeout=3000)
+    t = Touch(pg)
+    x, y = _joy_xy(pg)
+    y0 = pg.evaluate("__wikary.level().hero.y")
+    t.tap(0, x, y)
+    time.sleep(0.15)
+    j = pg.evaluate("({jumps: __wikary.level().jumps, y: __wikary.level().hero.y, taps: __wikary.level().joyTaps})")
+    assert j["jumps"] == 1 and j["y"] < y0 - 5 and j["taps"] == 1, j
+    t.tap(0, x, y)                                        # drugie stuknięcie w powietrzu = salto (jak 2× Spacja)
+    time.sleep(0.1)
+    assert pg.evaluate("[__wikary.level().jumps, __wikary.level().flipping]") == [2, True]
+    assert pg.evaluate("__wikary.level().joy.id") is None
+
+
+def test_joystick_drag_moves_without_jump(new_page, base_url):
+    pg = _joy_level(new_page, base_url, 0, PHONE)
+    t = Touch(pg)
+    x, y = _joy_xy(pg)
+    k = pg.evaluate("__wikary.game.canvas.getBoundingClientRect().width / __wikary.CFG.W")
+    t.down(0, x, y)
+    for i in range(1, 6):                                # przeciąganie w prawo: 30 px gry
+        t.move(0, x + 6 * i * k, y)
+        time.sleep(0.03)
+    time.sleep(0.3)
+    assert pg.evaluate(VX) > 50
+    t.up(0)
+    time.sleep(0.2)
+    assert pg.evaluate("__wikary.level().jumps") == 0 and not pg.evaluate("__wikary.level().joyTaps")
+
+
+def test_joystick_long_press_without_move_does_not_jump(new_page, base_url):
+    pg = _joy_level(new_page, base_url, 0, PHONE)
+    t = Touch(pg)
+    x, y = _joy_xy(pg)
+    t.down(0, x, y)
+    time.sleep(0.35)                                     # dłużej niż tapMaxMs (200 ms)
+    t.up(0)
+    time.sleep(0.2)
+    assert pg.evaluate("__wikary.level().jumps") == 0
+
+
+def test_joystick_tap_thresholds_in_cfg(game):
+    assert game.evaluate("(()=>{const J=__wikary.CFG.touch.joystick; return [J.joyTapJump, J.tapMaxMs, J.tapMaxDist]})()") == [True, 200, 12]
