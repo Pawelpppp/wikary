@@ -131,7 +131,7 @@ def test_touch_level2_has_fire_button_in_centered_right_column(new_page, base_ur
     pg.wait_for_function("__wikary.scene().includes('Level') && __wikary.level().L.id === 2", timeout=8000)
     time.sleep(0.8)
     b = pg.evaluate(BUTTONS)
-    expected = {"ult", "fire", "attack", "jump"} | ({"left", "right", "down"} if mode == "buttons" else set())
+    expected = {"ult", "fire", "attack", "jump"} | ({"left", "right", "down"} if mode == "buttons" else {"jumpLeft"})
     assert set(b) == expected, b
     col = [b[k] for k in ("ult", "fire", "attack", "jump")]
     top, bottom = min(c["y"] for c in col), max(c["y"] + c["h"] for c in col)

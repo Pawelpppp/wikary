@@ -86,6 +86,7 @@ const CFG = {
         leftW: 40, rightW: 56, h: 40, gap: 8, alpha: 0.28, edge: 2,
         heroMargin: 64,             // w trybie dotyku Kamil trzyma się tyle px od krawędzi (nie wchodzi pod przyciski)
         mode: 'joystick',           // 'joystick' (test: joystick z lewej, dotknięcie ekranu = skok) | 'buttons' (stare < > ↓); URL ?touch=buttons / ?touch=joystick
+        leftJump: { x: 64, y: 178, w: 56 },   // przycisk SKOK z lewej, nad spoczynkowym joystickiem (tryb joysticka); wysokość = h
         joystick: {
             zoneW: 0.4,             // strefa joysticka: lewe 40% ekranu, pod HUD-em
             topY: 24,

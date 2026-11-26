@@ -323,7 +323,11 @@ class LevelScene extends Phaser.Scene {
             return r;
         };
         const lx = T.edge + T.leftW / 2, rx = CFG.W - T.edge - T.rightW / 2;
-        if (TOUCH_MODE === 'joystick') this.createJoystick();
+        if (TOUCH_MODE === 'joystick') {
+            this.createJoystick();
+            const LJ = T.leftJump;                      // drugi SKOK z lewej, nad joystickiem (przycisk ma pierwszeństwo przed strefą joysticka)
+            btn('jumpLeft', LJ.x, LJ.y, LJ.w, 'SKOK', 8, () => this.jumpAt = this.time.now);
+        }
         else {
             btn('left', lx, ys[0], T.leftW, '<', 16, () => this.touch.left = true, () => this.touch.left = false);
             btn('right', lx, ys[1], T.leftW, '>', 16, () => this.touch.right = true, () => this.touch.right = false);

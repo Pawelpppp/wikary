@@ -55,7 +55,7 @@ VX = "__wikary.level().hero.body.velocity.x"
 
 def test_joystick_analog_speed_and_follow_finger(new_page, base_url):
     pg = _joy_level(new_page, base_url)
-    assert set(pg.evaluate("Object.keys(__wikary.level().touchButtons)")) == {"ult", "attack", "jump"}
+    assert set(pg.evaluate("Object.keys(__wikary.level().touchButtons)")) == {"ult", "attack", "jump", "jumpLeft"}
     t = Touch(pg)
     pg.evaluate("__wikary.teleport(150)")
     t.down(0, JX, JY)
@@ -245,3 +245,20 @@ def test_joystick_long_press_without_move_does_not_jump(new_page, base_url):
 
 def test_joystick_tap_thresholds_in_cfg(game):
     assert game.evaluate("(()=>{const J=__wikary.CFG.touch.joystick; return [J.joyTapJump, J.tapMaxMs, J.tapMaxDist]})()") == [True, 200, 12]
+
+
+@pytest.mark.parametrize("vp", [None, {"width": 667, "height": 375}])
+def test_left_jump_button_jumps_and_saltos(new_page, base_url, vp):
+    """SKOK z lewej (nad joystickiem): widoczny na ekranie, wciśnięcie = skok, drugie w powietrzu = salto, joystick się nie rusza."""
+    pg = _joy_level(new_page, base_url, 0, vp)
+    b = pg.evaluate("(()=>{const r=__wikary.level().touchButtons.jumpLeft, c=__wikary.game.canvas.getBoundingClientRect();"
+                    "return {x: c.x + r.x / __wikary.CFG.W * c.width, y: c.y + r.y / __wikary.CFG.H * c.height, top: r.y - r.height/2, vis: r.visible}})()")
+    assert b["vis"] and b["top"] > 24
+    t = Touch(pg)
+    t.tap(0, b["x"], b["y"])
+    time.sleep(0.15)
+    assert pg.evaluate("__wikary.level().jumps") == 1 and pg.evaluate("__wikary.level().joy.id") is None
+    t.tap(0, b["x"], b["y"])
+    time.sleep(0.1)
+    assert pg.evaluate("[__wikary.level().jumps, __wikary.level().flipping]") == [2, True]
+    assert pg.evaluate("__wikary.level().joyTaps") in (None, 0)
