@@ -32,6 +32,7 @@ class LevelScene extends Phaser.Scene {
         this.devil = null; this.devilGone = false; this.adrian = null; this.adrianNpc = null; this.car = null; this.red = null; this.hut = null; this.hutDoor = null;
         this.kamilFree = false; this.repelUntil = 0; this.repelAura = null; this.repelKills = 0; this.swamp = null;
         this.orbsCast = 0; this.swarmsSummoned = 0; this.teleports = 0; this.tongues = 0; this.carGone = false;
+        this.l5 = null; this.quiz = null; this.benek = null; this.ambulance = null; this.l5Ben = null; this.l5Pb = null; this.l5Medics = null;
         GS.level = this.levelIndex;
         this.retryPrompt = null;
         // stan na starcie poziomu: do powtórzenia po przegranej (wynik zostaje, moce i pasek jak na starcie)
@@ -142,6 +143,7 @@ class LevelScene extends Phaser.Scene {
         // --- koniec poziomu: kościół (Level 1) albo dom Krzysztofa (Level 2) ---
         const ex = this.wx(L.endAt), flip = L.dir < 0;
         if (BG.end === 'hut_adrian') this.createHut(ex);
+        else if (BG.end === 'road') this.doorX = ex;                 // Level 5: sama droga (Solniczki), bez budynku
         else if (!/^church_exterior/.test(BG.end)) this.createHouse(ex);
         else {                                                        // kościół: Level 1 (dzień) i Level 3 (noc)
         const doorLeft = flip ? 240 - 51 - 48 : 51;                  // lewa krawędź drzwi w obrazku kościoła
@@ -174,7 +176,7 @@ class LevelScene extends Phaser.Scene {
             this.hurt(e.x);
         });
         this.hostile = this.physics.add.group({ allowGravity: false });        // klucze Rafała
-        this.physics.add.overlap(this.hero, this.hostile, (h, k) => { if (k.active) { k.destroy(); this.hurt(k.x); } });
+        this.physics.add.overlap(this.hero, this.hostile, (h, k) => { if (!k.active) return; if (k.onHit) { k.onHit(k); return; } k.destroy(); this.hurt(k.x); });
         this.allyShots = this.physics.add.group({ allowGravity: false });      // czary proboszcza
         this.physics.add.overlap(this.allyShots, this.enemies, (s, e) => this.spellHits(s, e));
         this.physics.add.overlap(this.shots, this.enemies, (s, e) => this.shotHits(s, e));
@@ -203,6 +205,7 @@ class LevelScene extends Phaser.Scene {
         this.createWeather();
         this.createNight();
         this.createSwamp();
+        this.createLevel5();
         WikaryAudio.play(L.music);
         hintBubble(this, 'POZIOM ' + L.id + ': ' + L.name, 2200, 112);
     }
@@ -386,7 +389,9 @@ class LevelScene extends Phaser.Scene {
     }
     /** dotknięcie ekranu: dymek / podsumowanie, joystick, albo (poza przyciskami) skok */
     onPointerDown(p, over) {
+        if (this.quiz) return;                                     // zadanie: tylko klawiatura ekranowa
         if (this.talk.dialog) { this.talk.advance(); return; }
+        if (this.l5 && this.l5.intro && !(over && over.length)) { this.skipL5Intro(); return; }   // Level 5: dotknięcie = pomiń intro
         if (this.summaryShown) { this.onConfirm(); return; }
         if (!IS_TOUCH || TOUCH_MODE !== 'joystick' || !this.joy) return;
         if (over && over.length) return;                          // przycisk (KRZYŻ, OGIEŃ, GROM, SKOK, M, F)
@@ -429,6 +434,7 @@ class LevelScene extends Phaser.Scene {
         this.updateWeather(time, delta);
         this.updateLevel3(time, delta);
         this.updateLevel4(time, delta);
+        this.updateLevel5(time, delta);
         this.updateShots(time);
         if (this.dead || this.ended || this.respawning) { this.syncSprite(time, 0); return; }
 
@@ -532,6 +538,7 @@ class LevelScene extends Phaser.Scene {
         }
         // --- meta: kościół (Level 1) albo arena z bossem (Level 2) ---
         if (L.defense) { if (!this.arena && this.heroD() >= L.arenaAt) this.startDefense(); }
+        else if (L.boss === 'benek') { /* Level 5: przebieg w level5.js */ }
         else if (L.boss === 'adrian') { if (!this.arena && this.heroD() >= L.arenaAt) this.startAdrianArena(); }
         else if (L.boss) { if (!this.arena && this.heroD() >= L.arenaAt) this.startArena(); }
         else if (this.heroD() >= L.endAt - 6) this.finishLevel();
@@ -743,7 +750,7 @@ class LevelScene extends Phaser.Scene {
     }
     /** hitbox na dole klatki (origin 0.5,1), w px ekranu z CFG; działa też po zmianie klatki (skok wilka) */
     fitBody(e) {
-        const C = e.type === 'hans' ? CFG.boss : e.type === 'rafal' ? CFG.rafal : e.type === 'adrian' ? CFG.adrian : enemyCfg(e.type), w = C.bodyW / Math.abs(e.scaleX), h = C.bodyH / Math.abs(e.scaleY);
+        const C = e.type === 'hans' ? CFG.boss : e.type === 'rafal' ? CFG.rafal : e.type === 'adrian' ? CFG.adrian : e.type === 'benek' ? CFG.level5.boss : enemyCfg(e.type), w = C.bodyW / Math.abs(e.scaleX), h = C.bodyH / Math.abs(e.scaleY);
         e.body.setSize(w, h, false);
         const mid = e.type === 'bat' || C.center;
         e.body.setOffset(e.frame.width * e.originX - w / 2, mid ? (e.frame.height - h) / 2 : e.frame.height - h - (e.type === 'spider' ? 2 : 0));
@@ -755,6 +762,7 @@ class LevelScene extends Phaser.Scene {
             if (e.type === 'hans') { this.updateBoss(e, time, dt); return; }
             if (e.type === 'rafal') { this.updateRafal(e, time, dt); return; }
             if (e.type === 'adrian') { this.updateAdrian(e, time, dt); return; }
+            if (e.type === 'benek') { this.updateBenek(e, time, dt); return; }
             const C = enemyCfg(e.type);
             if (e.type === 'wolf') {
                 const onG = e.body.blocked.down || e.body.touching.down;
@@ -779,6 +787,7 @@ class LevelScene extends Phaser.Scene {
         if (e.type === 'hans') { this.bossHit(e, dmg, byUlt); return; }
         if (e.type === 'rafal') { this.rafalHit(e, dmg, byUlt); return; }
         if (e.type === 'adrian') { this.adrianHit(e, dmg, byUlt); return; }
+        if (e.type === 'benek') { this.benekHit(e, dmg, byUlt); return; }
         e.hp -= dmg;
         if (e.hp > 0) {
             WikaryAudio.sfx('hit');

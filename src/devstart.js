@@ -1,11 +1,11 @@
 'use strict';
-/* Tylko ?dev=true: po wyborze poziomu trudności lista punktów startu (DEV_STARTS = skróty debug 1–9) + zwykłe intro.
+/* Tylko ?dev=true: po wyborze poziomu trudności lista punktów startu (DEV_STARTS = skróty debug 1–9, 0, -) + zwykłe intro.
    Klawiatura: strzałki (góra/dół w kolumnie, lewo/prawo między kolumnami) + Enter/Spacja, Esc = wybór trudności.
    Dotyk: dotknięcie i puszczenie na tym samym przycisku. Wybrana trudność (GS.difficulty) obowiązuje. */
 class DevStartScene extends Phaser.Scene {
     constructor() { super('DevStart'); }
     create() {
-        const W = CFG.W, ROWS = 5;
+        const W = CFG.W, ROWS = 6;
         this.leaving = false; this.downOn = -1; this.readyAt = this.time.now + 250;      // reset stanu przy każdym wejściu
         this.diff = GS.difficulty;
         bindGlobalKeys(this);
@@ -17,7 +17,7 @@ class DevStartScene extends Phaser.Scene {
             .concat(DEV_STARTS.map((d, i) => ({ label: (i + 1) + '. ' + d.label, go: (s) => d.go(s, this.diff) })));
         this.ROWS = ROWS;
         this.items = list.map((it, i) => {
-            const col = Math.floor(i / ROWS), x = col ? W / 2 + 136 : W / 2 - 136, y = 78 + (i % ROWS) * 40;
+            const col = Math.floor(i / ROWS), x = col ? W / 2 + 136 : W / 2 - 136, y = 72 + (i % ROWS) * 36;
             const box = this.add.rectangle(x, y, 252, 30, 0x1a0c10, 0.8).setStrokeStyle(2, 0x8a6a30).setInteractive({ useHandCursor: true });
             const t = txt(this, x, y + 1, it.label, 8, '#c8b8a0');
             box.on('pointerover', () => this.select(i));

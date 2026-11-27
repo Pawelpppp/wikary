@@ -14,7 +14,7 @@ Automatyczne testy (Python + pytest + Playwright, przeglądarka headless) są w 
 - **Phaser 3.80** z CDN (jsDelivr), czysty JavaScript bez bundlera: `index.html`, `style.css`, `src/*.js`.
 - Rozdzielczość bazowa **568×320**, `Scale.FIT` + wyśrodkowanie, `pixelArt`, `roundPixels`. Mieści się w całości na telefonie poziomo.
 - **Wszystkie parametry rozgrywki** (prędkości, skok, grawitacja, auto-scroll, obrażenia, nietykalność, koszt ultimate, spawn wrogów, punkty) są w jednym bloku `CFG` w `src/config.js`.
-- **Poziomy opisane danymi** w `src/levels.js` (kierunek `dir` w prawo/lewo, rzeki, przeszkody, znajdźki, zestaw wrogów, koniec poziomu). Są Level 1, Level 2, Level 3 (`defense`, `boss: 'rafal'`) i Level 4 (`boss: 'adrian'`, `nextText`: zapowiedź Level 5).
+- **Poziomy opisane danymi** w `src/levels.js` (kierunek `dir` w prawo/lewo, rzeki, przeszkody, znajdźki, zestaw wrogów, koniec poziomu). Są Level 1, Level 2, Level 3 (`defense`, `boss: 'rafal'`) i Level 4 (`boss: 'adrian'`) oraz Level 5 (`boss: 'benek'`, przebieg w `src/level5.js`, `nextText`: „Ciąg dalszy nastąpi”).
 - Dźwięk: chiptune generowany w **Web Audio** (`src/audio.js`, bez plików): organy na tytule i w intro, szybki motyw w Level 1, mocny bas, efekty (skok, salto, trafienie, znajdźki, dzwonek telefonu, piorun, rzut krzyżem, ogień, szczekanie, kracz, moneta, grzmot, Grom z Nieba). Level 2 ma własny mroczny motyw, a Hans szybki motyw bossa. Level 3 ma nocny motyw (h-moll) i własne efekty: syk gasnącego ognia, błogosławieństwo, wrzask Rafała, zamach kluczami, uderzenie w drzwi, czar proboszcza, upiór spod ziemi, egzorcyzm i dzwony o świcie. Level 4 ma powolny, bagienny motyw (g-moll) i efekty: bzyczenie komarów, rechot i język żaby, bąble bagna, aura święconej wody, czar i teleport Adriana, głos diabła i silnik auta.
 - Font: [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) (SIL OFL, `assets/fonts/`).
 - Wersja na ekranie tytułowym: `v1.N`, N = liczba commitów na `master` (`src/version.js`).
@@ -78,11 +78,12 @@ Niewidoczne statystyki odwiedzin (issue #2). Używamy GoatCountera: jest darmowy
 - ✅ Trzy poziomy trudności (ŁATWY / NORMALNY / TRUDNY) wybierane przed nową grą.
 - ✅ Level 3 „Noc duchów”: noc, mgła i księżyc, duszki / fantomy / upiory (ogień na nie nie działa), błogosławieństwo (X), obrona drzwi kościoła z proboszczem (3 fale, pasek drzwi), boss kościelny Rafał, egzorcyzm, Czerwony Diabeł wychodzi z Rafała i ucieka na bagna, świt z dzwonami, proboszcz wysyła Kamila do Level 4.
 - ✅ Level 4 „Bagna”: zmierzch i zielona mgła, bagienne doły (wpadnięcie = -1 życie), lilie wodne i pływające pnie, komary (małe roje i duże z żądłem), żaby z językiem, bagienne stwory spod ziemi, święcona woda (aura na komary), chata Adriana na palach, boss czarnoksiężnik Adrian (kule, roje, teleport, 3 fazy, pasek), czerwony ekran i diabeł spod ziemi, auto Adriana, „CIĄG DALSZY: LEVEL 5 – JAZDA SAMOCHODEM WKRÓTCE” i wpisanie nicku. Adrian ma finalną grafikę (sprite'y idle/talk/cast/hurt/defeated, czar, portrety).
-- ⏳ Następne: Level 5 (jazda samochodem, scenariusz niżej), wspólna tablica na Azure.
+- ✅ Level 5 „Bernard” (Solniczki): jazda, filmowe intro, walka z Benkiem matematykiem i zadania na czas (opis niżej).
+- ⏳ Następne: grafiki paczki 2 dla Level 5, kolejne poziomy, wspólna tablica na Azure.
 
 **Debug:** `?debug=1` na ekranie tytułowym: 1 = Level 1, 2 = kościół, 3 = Level 2, 4 = Level 2 tuż przed Hansem, 5 = Level 3, 6 = Level 3 obrona kościoła, 7 = Level 3 od razu Rafał, 8 = Level 4, 9 = Level 4 tuż przed chatą Adriana (także `?debug=1&level=2` / `level=3` / `level=4`). W konsoli: `__wikary.startL4('boss')`, `__wikary.adrian()`, `__wikary.devil()`.
 
-**Tryb dev (`?dev=true`):** np. `https://ksiadz.trawiasta.pl/?dev=true`. Po wyborze poziomu trudności pojawia się ekran „DEV: START OD” z listą: INTRO (zwykły start), 1. Level 1, 2. Kościół, 3. Level 2, 4. L2: przed Hansem, 5. Level 3, 6. L3: obrona kościoła, 7. L3: Rafał, 8. Level 4, 9. L4: Adrian. To te same punkty startu co skróty debug 1–9. Sterowanie: strzałki (góra/dół w kolumnie, lewo/prawo między kolumnami) i Enter/Spacja, Esc wraca do wyboru trudności; na telefonie dotknięcie przycisku albo „◀ WRÓĆ”. Wybrany poziom trudności obowiązuje. Bez `?dev=true` nic się nie zmienia. Kod: `src/devstart.js`, lista `DEV_STARTS` w `src/ui.js`.
+**Tryb dev (`?dev=true`):** np. `https://ksiadz.trawiasta.pl/?dev=true`. Po wyborze poziomu trudności pojawia się ekran „DEV: START OD” z listą: INTRO (zwykły start), 1. Level 1, 2. Kościół, 3. Level 2, 4. L2: przed Hansem, 5. Level 3, 6. L3: obrona kościoła, 7. L3: Rafał, 8. Level 4, 9. L4: Adrian, 10. Level 5, 11. L5: Benek (walka bez intro). To te same punkty startu co skróty debug 1–9, 0 i `-`. Sterowanie: strzałki (góra/dół w kolumnie, lewo/prawo między kolumnami) i Enter/Spacja, Esc wraca do wyboru trudności; na telefonie dotknięcie przycisku albo „◀ WRÓĆ”. Wybrany poziom trudności obowiązuje. Bez `?dev=true` nic się nie zmienia. Kod: `src/devstart.js`, lista `DEV_STARTS` w `src/ui.js`.
 
 ## Bohater
 Główną postacią jest **wikary Kamil**: rude krótkie włosy, czarna sutanna, plecak.
@@ -210,11 +211,13 @@ Działa jak w Fibi Run:
   - `assets/game/car_1.png`, `car_2.png` (auto z Kamilem za kierownicą, 2 klatki jazdy) oraz `car_empty_1.png`, `car_empty_2.png` (puste auto),
   - `assets/sprites/ksiadz_kamil_car.png`, `ksiadz_kamil_car_1.png`, `ksiadz_kamil_car_2.png` (Kamil w aucie; z wersjami `_x4`).
 
-### Level 5: jazda samochodem (scenariusz – do zrobienia)
-- Następna misja: Kamil **jedzie samochodem w lewo**, żeby zdążyć przed diabłem do rodziny Adriana. Szczegóły rozgrywki zostaną jeszcze wymyślone.
-
-### Level 5: „Bernard” (projekt – do akceptacji)
-- Jazda (~5 s) → znak **Solniczki** z końmi → filmowe intro (Benek na czerwonym motorze, wypadek, karetka, opętanie) → walka z Benkiem matematykiem (∫, √, trójkąt = zadanie na 15 s) → „Ciąg dalszy nastąpi”. Pełny opis, CFG i lista grafik: [`docs/level5_bernard.md`](docs/level5_bernard.md).
+### Level 5: „Bernard” (Solniczki)
+- Po podsumowaniu Level 4 gra przechodzi do Level 5. **Jazda autem** (ok. 5 s, na razie zaślepka) w prawo, w stronę kościoła, kończy się zielonym znakiem **SOLNICZKI** z końmi w tle.
+- **Filmowe intro** (Spacja albo dotknięcie poza dymkiem = pomiń; Enter / dotknięcie dymka = dalej): ujęcie z przodu auta, Benek na czerwonym motorze wyprzedza i się wywraca, Kamil i przechodzień (blondyn z telefonem) podbiegają, „Czy rana jest duża?” – „Nic takiego!”, przechodzień wzywa karetkę. Sanitariusze są **opętani od początku** (czerwony błysk w oczach): diabeł wylatuje z nich jak dym i wchodzi w Benka, zbliżenie na transformację (czerwone oczy, rogi, ∫ √ △ π).
+- **Walka z Benkiem** (pasek życia, 3 fazy): rzuca **całki** (lecą falą) i **pierwiastki** (prosto), co jakiś czas po błysku ostrzegawczym **duży trójkąt** przy ziemi (można przeskoczyć). Trafienie trójkątem = **zadanie matematyczne** na czas (gra stoi): dodawanie, odejmowanie, mnożenie, dzielenie, pierwiastki, potęgi (np. ∛125, √144, 13×16). ŁATWY: 20 s i tylko + − ×, NORMALNY: 15 s, TRUDNY: 12 s i większe liczby. Odpowiedź: cyfry + Enter (Backspace poprawia), na telefonie klawiatura ekranowa 3×4 (1–9, ⌫, 0, OK). Dobrze = trójkąt pęka, +300 pkt; źle albo koniec czasu = -1 życie.
+- **Zakończenie:** diabeł ucieka do karetki, karetka odjeżdża, Kamil: „Mam nadzieję, że poczujesz się lepiej. Noga zagoi się do wesela!”, krótka jazda dalej, podsumowanie „CIĄG DALSZY NASTĄPI” i wpisanie nicku.
+- Ustawienia: `CFG.level5` (jazda, pozycje, Benek, pociski, fazy) i `CFG.mathQuiz` (czas, działania, zakresy, klawiatura). Projekt i lista grafik: [`docs/level5_bernard.md`](docs/level5_bernard.md).
+- **Grafiki:** paczka 1 (Benek, przechodzień, sanitariusze, dym diabła, motor, karetka, pociski, portrety) jest w repo. Paczka 2 jeszcze nie: `bg_solniczki_sky/far/near` (teraz tła Level 1 w zieleni), `tile_ground_road` (bruk), `sign_solniczki` (prosty zielony znak z tekstu), `horses_1..2` (podbarwione dziki), `car_front_kamil` (portret Kamila na ciemnym tle). Po wrzuceniu plików do `assets/game/` i `python3 tools/art_manifest.py` gra sama ich użyje.
 
 ### Pomysły na później (do dopracowania)
 - Kolejne moce (modlitwa) jako itemy w następnych poziomach, z podobnym efektem pioruna i przyciemnienia.

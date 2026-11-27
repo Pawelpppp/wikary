@@ -129,6 +129,17 @@ class BootScene extends Phaser.Scene {
         A('adrian_spell', ART.frames('proj_adrian_spell_', 3), 10);
         A('car_empty', ART.frames('car_empty_', 2), 3);
         A('car_drive', ART.frames('car_', 2), 10);
+        // Level 5 „Bernard”
+        A('benek_fight', ART.frames('benek_possessed_', 4).slice(2), 3);
+        A('benek_cast', ART.frames('benek_cast_', 3), 8, 0);
+        A('benek_possess', ART.frames('benek_possessed_', 4), 4, 0);
+        A('passerby_idle', ART.frames('passerby_idle_', 2), 2);
+        A('devil_smoke', ART.frames('devil_smoke_', 3), 8);
+        A('moto_red', ART.frames('moto_red_', 2), 10);
+        A('moto_crash', ART.frames('moto_crash_', 3), 4, 0);
+        A('ambulance', ART.frames('ambulance_', 2), 4);
+        A('horses', ART.frames('horses_', 2), 2);
+        A('triangle_warn', ART.frames('proj_triangle_', 2), 8);
         const target = DEBUG && (location.search.match(/[?&]scene=(\w+)/) || [])[1];
         const lvl = DEBUG && +((location.search.match(/[?&]level=(\d)/) || [])[1] || 0);
         if (lvl && LEVELS[lvl - 1]) { debugStart(this, lvl - 1); return; }

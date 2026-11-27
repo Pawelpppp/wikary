@@ -172,7 +172,21 @@ const LEVELS = [
         arenaAt: 6250,                                      // tu ekran staje: chata Adriana na palach i walka
         endAt: 6662,                                        // środek chaty
         boss: 'adrian',
+        next: 4,
+    },
+    {
+        id: 5,
+        name: 'SOLNICZKI',
+        dir: 1,                                             // jazda autem w prawo, w stronę kościoła; Solniczki = arena na końcu
+        length: 2200,
+        startAt: 120,
+        music: 'level1',
+        bg: { sky: 'bg_solniczki_sky', far: 'bg_solniczki_far', near: 'bg_solniczki_near', ground: 'tile_ground_road', water: 'tile_water_', end: 'road' },
+        hints: [],
+        rivers: [], obstacles: [], items: [],
+        endAt: 2100,
+        boss: 'benek',                                      // przebieg: level5.js (jazda, intro, walka, zadania, zakończenie)
         next: null,
-        nextText: 'CIĄG DALSZY: LEVEL 5 – JAZDA SAMOCHODEM WKRÓTCE',
+        nextText: 'CIĄG DALSZY NASTĄPI',
     },
 ];

@@ -207,8 +207,8 @@ def test_adrian_defeat_devil_rises_car_drives_left_then_nick(game):
     assert game.evaluate("__wikary.GS.score") - s0 >= game.evaluate("__wikary.CFG.score.adrian")
     txt = game.evaluate("__wikary.level().children.list.filter(o=>o.type==='Text').map(o=>o.text).join('|')")
     assert "LEVEL 5" in txt, txt
-    game.keyboard.press("Enter")
-    assert wait_scene(game, "Nick", 5)
+    game.keyboard.press("Enter")                                                             # dalej: Level 5 „Bernard”
+    wait_js(game, "__wikary.scene().includes('Level') && __wikary.level().L.id === 5 && !!__wikary.level().l5", 8)
 
 
 def test_beat_adrian_helper(game):

@@ -40,6 +40,7 @@
                 adrian: () => { const l = game.scene.getScene('Level'); return l && l.adrian; },
                 devil: () => { const l = game.scene.getScene('Level'); return l && l.devil; },
                 startL4: (part) => { const s = game.scene.getScenes(true)[0]; debugStart(s, 3, part ? LEVELS[3].arenaAt - 60 : undefined); },
+                startL5: (part) => { const s = game.scene.getScenes(true)[0]; debugStart(s, 4, undefined, part ? { skipTo: part } : undefined); },
                 orientation: () => ({ overlay: Orientation.paused, gamePaused: game.isPaused, byUs: Orientation.pausedByUs }),
                 teleport: (d) => game.scene.getScene('Level').debugTeleport(d),
             };

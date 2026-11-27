@@ -233,7 +233,7 @@ def beat_rafal(page):
 
 
 def finish_game(page):
-    """Cała gra do wpisania nicku: Level 1 -> kościół -> Level 2 (Hans) -> Level 3 (obrona, Rafał) -> Level 4 (Adrian)."""
+    """Cała gra do wpisania nicku: Level 1 -> kościół -> Level 2 (Hans) -> Level 3 (obrona, Rafał) -> Level 4 (Adrian) -> Level 5 (Benek)."""
     finish_level1(page)
     skip_church(page)
     reach_arena(page)
@@ -252,8 +252,20 @@ def finish_game(page):
     reach_adrian(page)
     beat_adrian(page)
     page.keyboard.press("Enter")
+    wait_js(page, "__wikary.scene().includes('Level') && __wikary.level().L.id === 5 && !!__wikary.level().l5", 8)
+    time.sleep(0.5)
+    beat_benek(page)
+    page.keyboard.press("Enter")
     assert wait_scene(page, "Nick", 5)
     time.sleep(0.5)
+
+
+def beat_benek(page):
+    """Level 5: pominięcie intro (Spacja), Benek z 1 HP trafiony, zakończenie do podsumowania."""
+    page.keyboard.press("Space")
+    wait_js(page, "__wikary.level().l5.phase === 'fight'", 5)
+    page.evaluate("""(()=>{const l=__wikary.level(); l.invulnUntil=1e12; l.benek.hp=1; l.damageEnemy(l.benek, 1);})()""")
+    skip_dialogs_until(page, "__wikary.level().summaryShown", 60)
 
 
 def start_l4(page, part=None):

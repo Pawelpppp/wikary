@@ -5,7 +5,7 @@ import time
 from wikary import choose_difficulty, game_xy, open_game, wait_js, wait_scene
 
 LABELS = ["INTRO (ZWYKŁY START)", "1. LEVEL 1", "2. KOŚCIÓŁ", "3. LEVEL 2", "4. L2: PRZED HANSEM", "5. LEVEL 3",
-          "6. L3: OBRONA KOŚCIOŁA", "7. L3: RAFAŁ", "8. LEVEL 4", "9. L4: ADRIAN"]
+          "6. L3: OBRONA KOŚCIOŁA", "7. L3: RAFAŁ", "8. LEVEL 4", "9. L4: ADRIAN", "10. LEVEL 5", "11. L5: BENEK"]
 
 
 def open_dev(page, base_url, diff="normal"):
@@ -22,8 +22,8 @@ def test_dev_list_visible_and_keyboard_to_level4(page, base_url):
     d = page.evaluate("(()=>{const s=__wikary.devScene(); return {labels:s.items.map(i=>i.t.text), sel:s.sel, diff:s.diff}})()")
     assert d == {"labels": LABELS, "sel": 0, "diff": "hard"}, d
     assert "Intro" not in page.evaluate("__wikary.scene()")
-    page.keyboard.press("ArrowRight")                      # druga kolumna: 5. LEVEL 3
-    for _ in range(3):
+    page.keyboard.press("ArrowRight")                      # druga kolumna: 6. L3: OBRONA KOŚCIOŁA
+    for _ in range(2):
         page.keyboard.press("ArrowDown")                   # -> 8. LEVEL 4
     assert page.evaluate("__wikary.devScene().sel") == 8
     page.keyboard.press("Enter")

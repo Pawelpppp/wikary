@@ -34,7 +34,7 @@ const CFG = {
         bounceHit: 400,             // odbicie od twardszego wroga (wyżej)
         tolerancePx: 10,            // stopy (z poprzedniej klatki) mogą być tyle px poniżej wierzchu hitboxu wroga
         invulnMs: 250,              // po odbiciu wrogowie nie ranią Kamila (bez migania)
-        exclude: ['hans', 'rafal', 'adrian'],   // bossy: bez stompa, zachowanie jak dotąd
+        exclude: ['hans', 'rafal', 'adrian', 'benek'],   // bossy: bez stompa, zachowanie jak dotąd
     },
 
     analytics: {                    // niewidoczne statystyki odwiedzin (GoatCounter, bez cookies) – jedno konto dla wszystkich gier
@@ -222,6 +222,42 @@ const CFG = {
 
     car: { scale: 0.45, driveMs: 2600, enterMs: 500 }, // auto Adriana (car_*.png 219x100, przodem w prawo)   // świt: bg_l3_dawn nad kościołem i drzwiami, pod postaciami (proboszcz 6, Kamil 10)
 
+    level5: {                       // Level 5 „Bernard” (Solniczki): jazda, filmowe intro, walka z Benkiem matematykiem
+        driveMs: 5000,              // jazda autem do Solniczek (na razie zaślepka, docelowo osobna rozgrywka)
+        rollMs: 1800,               // auto dojeżdża i hamuje (ujęcie z przodu auta)
+        driveOutMs: 3000,           // odjazd po walce
+        carX: 90, signX: 196, horsesX: [150, 236],    // pozycje na ekranie areny (px od lewej krawędzi)
+        benekX: 330, motoX: 430, kamilX: 262, passerbyX: 380, ambulanceX: 500, medicsX: [452, 500],
+        frontShotMs: 1800,          // ujęcie z przodu auta (car_front_kamil; zamiennik: portret Kamila)
+        closeupMs: 2600,            // zbliżenie na Benka: transformacja
+        scale: 0.45, motoScale: 0.45, ambulanceScale: 0.7, smokeScale: 0.6,
+        boss: {
+            hp: 30, bodyW: 30, bodyH: 66, gromDamage: 5, hurtMs: 140, walkSpeed: 70,
+            spots: [300, 400, 480],                       // x na ekranie areny
+            castWindupMs: 480, keepAway: 90,
+            integral: { speed: 150, wobble: 60, wobbleHz: 3, scale: 1, lifeMs: 5000, w: 14, h: 22 },
+            sqrt: { speed: 190, scale: 1, lifeMs: 4000, w: 14, h: 22 },
+            triangle: { warnMs: 700, speed: 115, scale: 0.8, lifeMs: 7000, w: 44, h: 38, y: 268 },
+            phases: [
+                { from: 1.0, restMs: 1400, shots: 1, triangleEveryMs: 9000 },
+                { from: 0.66, restMs: 1100, shots: 2, triangleEveryMs: 7500 },
+                { from: 0.33, restMs: 850, shots: 2, triangleEveryMs: 6000, enraged: true },
+            ],
+        },
+    },
+    mathQuiz: {                     // trafienie trójkątem = zadanie (czas wg trudności); dobrze = trójkąt pęka, źle / czas = -1 życie
+        timeMs: 15000,
+        ops: ['add', 'sub', 'mul', 'div', 'sqrt', 'cbrt', 'pow'],
+        ranges: { add: [10, 99], sub: [20, 99], mul: [2, 19], div: [2, 12], sqrt: [4, 15], cbrt: [2, 6], pow: [2, 10] },
+        byDifficulty: {
+            easy: { timeMs: 20000, ops: ['add', 'sub', 'mul'], ranges: { mul: [2, 12] } },
+            normal: {},
+            hard: { timeMs: 12000, ranges: { add: [50, 499], sub: [100, 499], mul: [6, 25], div: [3, 19], sqrt: [8, 25] } },
+        },
+        maxDigits: 5, rightBonus: 300, resultMs: 900, invulnAfterMs: 900,
+        keypad: { key: 40, gap: 6 },   // klawiatura ekranowa (telefon): 3x4, 1–9, ⌫, 0, OK
+    },
+
     church: { floorY: 288, kamilFrom: -30, kamilTo: 340, proboszczX: 450, basketX: 404, blessMs: 1500 },
 
     weather: {                      // Level 2: deszcz (gdy jest fx_rain) i dalekie błyskawice (tylko błysk ekranu)
@@ -256,7 +292,7 @@ const CFG = {
     score: { diamond: 50, lightning: 100, cross: 500, znicz: 500, dog: 100, wolf: 200, bat: 80, spider: 120,
         crow: 90, boar: 180, wisp: 110, hans: 3000, tenZloty: 1000,
         duszek: 60, phantom: 120, upior: 200, blessing: 500, rafal: 5000,
-        mosquito_small: 40, mosquito_big: 130, frog: 150, bogman: 220, repellent: 200, adrian: 6000 },
+        mosquito_small: 40, mosquito_big: 130, frog: 150, bogman: 220, repellent: 200, adrian: 6000, benek: 7000 },
 
     enemies: {
         // skala postaci = jak Kamil (0.45); bodyW/bodyH = hitbox na ekranie (px)

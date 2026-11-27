@@ -15,7 +15,7 @@
 - `BootScene` ładuje zasoby i rejestruje animacje.
 - `TitleScene` prowadzi do `IntroScene` lub `ScoresScene`.
 - `IntroScene` rozpoczyna nową rozgrywkę i przechodzi do `LevelScene`.
-- `LevelScene` obsługuje podstawową rozgrywkę; rozszerzenia w `src/level2.js`, `src/level3.js` i `src/level4.js` dodają mechaniki, wrogów i bossów dla kolejnych poziomów.
+- `LevelScene` obsługuje podstawową rozgrywkę; rozszerzenia w `src/level2.js`, `src/level3.js` `src/level4.js` i `src/level5.js` dodają mechaniki, wrogów i bossów dla kolejnych poziomów.
 - Po Level 1 gracz przechodzi przez `ChurchScene`; podsumowania poziomów i dialogi prowadzą do następnych etapów.
 - `NickScene` zapisuje wynik, a `ScoresScene` wyświetla lokalną tablicę wyników.
 
@@ -45,4 +45,4 @@ Gra jest statyczną stroną; README wskazuje publikację przez GitHub Pages. Pha
 
 ## Stan funkcji i ograniczenia
 
-Zaimplementowane są poziomy 1–4. Level 4 kończy się zapowiedzią „Level 5 – jazda samochodem wkrótce”; mechanika i scenariusz Level 5 nie są jeszcze zaimplementowane. Projekt kolejnego poziomu („Bernard”) jest w `docs/level5_bernard.md` (tylko dokumentacja). README i komentarze w `src/art.js` opisują zastępcze grafiki Adriana używane do czasu dostarczenia docelowych assetów. W razie rozbieżności dokumentację funkcjonalną aktualizuj na podstawie kodu i testów, rozróżniając działające zachowanie od planów.
+Zaimplementowane są poziomy 1–5. Level 5 („Bernard”, `src/level5.js`) kończy się napisem „Ciąg dalszy nastąpi”; projekt i lista grafik są w `docs/level5_bernard.md`, a brakujące grafiki paczki 2 mają zamienniki w `src/art.js`. README i komentarze w `src/art.js` opisują zastępcze grafiki Adriana używane do czasu dostarczenia docelowych assetów. W razie rozbieżności dokumentację funkcjonalną aktualizuj na podstawie kodu i testów, rozróżniając działające zachowanie od planów.

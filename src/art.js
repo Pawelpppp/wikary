@@ -139,6 +139,42 @@ const ART = (function () {
     seqF('adrian_cast_', 3, [140, 164], ['krzysztof_coin_1', 'krzysztof_coin_2', 'krzysztof_talk_2'], ADR);
     seq('proj_adrian_spell_', 3, [40, 40], 'fx_bless_', 0xc060ff);
 
+    /* ---------- Level 5 „Bernard” (Solniczki): Benek matematyk, motor, karetka, przechodzień, sanitariusze ----------
+       Paczka 1 (postacie, motor, karetka, pociski, portrety) jest w repo; paczka 2 (tła Solniczek, droga, znak,
+       konie, ujęcie z przodu auta) = zamienniki, aż pliki trafią do assets/ (wtedy gra sama je weźmie). */
+    const BEN = 0xd0d0ff;
+    seqF('benek_idle_', 2, [140, 164], ['adrian_idle_1', 'adrian_idle_2'], BEN);
+    seqF('benek_walk_', 4, [140, 164], ['adrian_idle_1', 'adrian_idle_2'], BEN);
+    seqF('benek_cast_', 3, [140, 164], ['adrian_cast_1', 'adrian_cast_2', 'adrian_cast_3'], BEN);
+    seqF('benek_possessed_', 4, [140, 164], ['adrian_cast_1', 'adrian_cast_2'], 0xff9090);
+    seqF('passerby_idle_', 2, [140, 164], ['krzysztof_idle_1', 'krzysztof_idle_2'], 0xffe0a0);
+    seqF('paramedic_a_', 2, [140, 164], ['krzysztof_idle_1', 'krzysztof_idle_2'], 0xff8040);
+    seqF('paramedic_b_', 2, [140, 164], ['krzysztof_idle_1', 'krzysztof_idle_2'], 0xff8040);
+    seqF('devil_smoke_', 3, [90, 120], ['fx_rafal_ghost_1', 'fx_rafal_ghost_2', 'fx_rafal_ghost_3'], DEV);
+    seqF('moto_red_', 2, [200, 130], ['car_1', 'car_2'], 0xff4040);
+    seqF('moto_crash_', 3, [200, 150], ['car_1', 'car_2', 'car_empty_1'], 0xff4040);
+    seqF('ambulance_', 2, [220, 110], ['car_empty_1', 'car_empty_2'], 0xffffff);
+    seqF('proj_triangle_', 2, [64, 56], ['fx_bless_1', 'fx_bless_2'], 0xff6080);
+    seqF('horses_', 2, [120, 60], ['enemy_boar_run_1', 'enemy_boar_run_2'], 0x8a5a3a);
+    Object.assign(SPEC, {
+        benek_hurt_1: { size: [140, 164], fb: 'adrian_hurt_1', tint: BEN },
+        benek_defeated_1: { size: [164, 100], fb: 'adrian_defeated_1', tint: BEN },
+        passerby_phone_1: { size: [140, 164], fb: 'krzysztof_talk_1', tint: 0xffe0a0 },
+        proj_integral: { size: [20, 28], fb: 'fx_bless_1', tint: 0xff6080 },
+        proj_sqrt: { size: [20, 28], fb: 'fx_bless_2', tint: 0xff6080 },
+        benek_closeup_normal: { size: [192, 192], fb: 'krzysztof_closeup_open', tint: BEN },
+        benek_closeup_possessed: { size: [192, 192], fb: 'krzysztof_closeup_open', tint: 0xff8080 },
+        benek_closeup_hurt: { size: [192, 192], fb: 'krzysztof_closeup_ashamed', tint: BEN },
+        passerby_closeup: { size: [192, 192], fb: 'krzysztof_closeup_open', tint: 0xffe0a0 },
+        // paczka 2 (jeszcze nie ma): tła wsi, droga, znak, ujęcie z przodu auta
+        bg_solniczki_sky: { size: [568, 320], fb: 'bg_l1_sky' },
+        bg_solniczki_far: { size: [568, 200], fb: 'bg_l1_city_far', tint: 0xa8c898 },
+        bg_solniczki_near: { size: [568, 150], fb: 'bg_l1_houses_near', tint: 0xb8d0a8 },
+        tile_ground_road: { size: [64, 32], fb: 'tile_ground_cobble', tint: 0xa0a0a0 },
+        sign_solniczki: { size: [96, 64], fb: null },              // brak = prosty zielony znak rysowany w kodzie (level5.js)
+        car_front_kamil: { size: [568, 320], fb: 'wikary_kamil_closeup_open' },
+    });
+
     const has = (k) => typeof ART_FILES !== 'undefined' && Object.prototype.hasOwnProperty.call(ART_FILES, k);
     const api = {
         SPEC, has,

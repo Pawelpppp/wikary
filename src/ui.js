@@ -228,6 +228,8 @@ const DEV_STARTS = [
     { key: 'SEVEN', label: 'L3: RAFAŁ',           go: (s, d) => { debugStart(s, 2, LEVELS[2].arenaAt - 60, { skipTo: 'boss', difficulty: d }); GS.hasBless = true; } },
     { key: 'EIGHT', label: 'LEVEL 4',             go: (s, d) => debugStart(s, 3, undefined, { difficulty: d }) },
     { key: 'NINE',  label: 'L4: ADRIAN',          go: (s, d) => debugStart(s, 3, LEVELS[3].arenaAt - 60, { difficulty: d }) },
+    { key: 'ZERO',  label: 'LEVEL 5',             go: (s, d) => debugStart(s, 4, undefined, { difficulty: d }) },
+    { key: 'MINUS', label: 'L5: BENEK',           go: (s, d) => debugStart(s, 4, undefined, { skipTo: 'boss', difficulty: d }) },
 ];
 
 /** Tylko ?debug=1: start wybranego poziomu z nowym stanem gry (w Level 2 krzyż już jest). */
