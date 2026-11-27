@@ -363,6 +363,7 @@ const ART_FILES = {
     'kamil_laugh_walk_3': 'assets/game/kamil_laugh_walk_3.png',
     'kamil_laugh_walk_4': 'assets/game/kamil_laugh_walk_4.png',
     'kamil_portrait': 'assets/game/kamil_portrait.png',
+    'kamil_praying_portrait': 'assets/portraits/kamil_praying_portrait.png',
     'kamil_stand': 'assets/game/kamil_stand.png',
     'kamil_walk_1': 'assets/game/kamil_walk_1.png',
     'kamil_walk_2': 'assets/game/kamil_walk_2.png',

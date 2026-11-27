@@ -164,6 +164,7 @@ const ART = (function () {
         proj_integral: { size: [20, 28], fb: 'fx_bless_1', tint: 0xff6080 },
         proj_sqrt: { size: [20, 28], fb: 'fx_bless_2', tint: 0xff6080 },
         benek_closeup_normal: { size: [192, 192], fb: 'krzysztof_closeup_open', tint: BEN },
+        kamil_praying_portrait: { size: [192, 192], fb: 'wikary_kamil_closeup_closed' },
         benek_closeup_possessed: { size: [192, 192], fb: 'krzysztof_closeup_open', tint: 0xff8080 },
         benek_closeup_hurt: { size: [192, 192], fb: 'krzysztof_closeup_ashamed', tint: BEN },
         passerby_closeup: { size: [192, 192], fb: 'krzysztof_closeup_open', tint: 0xffe0a0 },
