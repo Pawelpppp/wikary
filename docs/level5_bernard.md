@@ -1,6 +1,6 @@
 # Level 5: „Bernard” (Benek matematyk) – projekt
 
-Status: **zaimplementowane** (v1.48, `src/level5.js`, `CFG.level5`, `CFG.mathQuiz`). Grafiki paczki 1 są w repo, paczka 2 (tła, droga, znak, konie, `car_front_kamil`) ma zamienniki. Rozmiary sprite'ów w paczce 1 są inne niż w tabeli niżej (postacie 140×164, motor 200×130/150, karetka 220×110); obowiązują pliki. Ujęcie „zza pleców” jest na razie zwykłym widokiem z boku.
+Status: **zaimplementowane** (v1.48, `src/level5.js`, `CFG.level5`, `CFG.mathQuiz`). Grafiki obu paczek są w repo (v1.49). Rozmiary sprite'ów w paczce 1 są inne niż w tabeli niżej (postacie 140×164, motor 200×130/150, karetka 220×110); obowiązują pliki. Ujęcie „zza pleców” jest na razie zwykłym widokiem z boku.
 
 Pierwotny opis: Próbne grafiki zamawiamy w Pixel Art Photo Processor (styl Mustache Protocol / early 90s, chunky pixels). Kod powstaje dopiero po akceptacji grafik przez Pawła. Benek ma przypominać twarz z załączonego zdjęcia (okulary).
 

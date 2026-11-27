@@ -16,13 +16,8 @@ def test_art_manifest_up_to_date(game, is_local):
         "uruchom: python3 tools/art_manifest.py"
 
 
-# Level 5: paczka 2 grafik (tła Solniczek, droga, znak, konie, ujęcie z przodu auta) jeszcze nie dotarła -> zamienniki
-PENDING_L5 = {"bg_solniczki_sky", "bg_solniczki_far", "bg_solniczki_near", "tile_ground_road", "sign_solniczki",
-              "horses_1", "horses_2", "car_front_kamil"}
-
-
 def test_all_art_loaded_no_fallbacks(game):
-    missing = set(game.evaluate("__wikary.artMissing()"))
-    assert missing <= PENDING_L5, sorted(missing - PENDING_L5)
+    missing = game.evaluate("__wikary.artMissing()")
+    assert missing == [], missing
     bad = game.evaluate("Object.keys(ART.SPEC).filter(k => !__wikary.game.textures.exists(ART.key(k)))")
-    assert set(bad) <= {"sign_solniczki"}, bad          # znak bez pliku = prosty znak rysowany w level5.js
+    assert bad == [], bad

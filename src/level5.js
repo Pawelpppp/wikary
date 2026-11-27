@@ -17,15 +17,10 @@ Object.assign(LevelScene.prototype, {
         const S = this.l5 = { ax, props: [], intro: true, phase: 'drive', follow: null, shots: 0, triangles: 0, quizzes: 0, right: 0, wrong: 0 };
         // tło areny: konie (horses_1..2) i zielony znak „SOLNICZKI” (sign_solniczki; brak = prosty znak z tekstu)
         C.horsesX.forEach((x, i) => {
-            const h = this.add.sprite(ax + x, G - 6, ART.key('horses_1')).setDepth(2.3).play({ key: 'horses', startFrame: i });
-            ART.fit(this, h, 'horses_1', 0.6, 0.5, 1); if (i) h.setFlipX(true);
+            const h = this.add.sprite(ax + x, C.propY, ART.key('horses_1')).setDepth(2.3).play({ key: 'horses', startFrame: i % 2 });
+            ART.fit(this, h, 'horses_1', 1, 0.5, 1);
         });
-        if (ART.has('sign_solniczki')) ART.image(this, ax + C.signX, G, 'sign_solniczki', 1, 0.5, 1).setDepth(2.45);
-        else {
-            const x = ax + C.signX, post = this.add.rectangle(x, G, 4, 44, 0x8a8a90).setOrigin(0.5, 1);
-            const board = this.add.rectangle(x, G - 44, 92, 24, 0x1f7a3a).setStrokeStyle(2, 0xffffff);
-            this.add.container(0, 0, [post, board, txt(this, x, G - 43, 'SOLNICZKI', 8, '#ffffff', { strokeW: 0 })]).setDepth(2.45);
-        }
+        ART.image(this, ax + C.signX, C.propY, 'sign_solniczki', 1, 0.5, 1).setDepth(2.45);
         // Kamil w aucie Adriana
         const car = this.car = this.add.sprite(this.hero.x, G + 2, ART.key('car_1')).setOrigin(0.5, 1).setScale(CFG.car.scale).setDepth(9).play('car_drive');
         this.kamilFree = true; this.kamil.setAlpha(0); this.hero.body.enable = false; this.cutscene = true;
@@ -56,13 +51,11 @@ Object.assign(LevelScene.prototype, {
     l5Shot(key, fullKey) {
         const W = CFG.W, H = CFG.H, D = 4600, objs = [];
         const add = (o) => { o.setScrollFactor(0).setDepth(D); objs.push(this.l5Prop(o)); return o; };
-        if (fullKey && ART.has(fullKey)) add(this.add.image(W / 2, H / 2, fullKey));
-        else {
-            add(this.add.rectangle(0, 0, W, H, 0x0c0814, 0.94).setOrigin(0));
-            const p = add(this.add.image(W / 2, H / 2, ART.key(key)).setScale(1.1));
-            const t = ART.tint(key); if (t) p.setTint(t);
-            objs.portrait = p;
-        }
+        if (fullKey && ART.has(fullKey)) { add(this.add.image(0, 0, fullKey).setOrigin(0)); return objs; }   // pełne ujęcie (568x320)
+        add(this.add.rectangle(0, 0, W, H, 0x0c0814, 0.94).setOrigin(0));
+        const p = add(this.add.image(W / 2, H / 2, ART.key(key)).setScale(1.1));
+        const t = ART.tint(key); if (t) p.setTint(t);
+        objs.portrait = p;
         add(this.add.rectangle(0, 0, W, 26, 0x000000, 1).setOrigin(0));       // kinowe pasy
         add(this.add.rectangle(0, H - 26, W, 26, 0x000000, 1).setOrigin(0));
         return objs;

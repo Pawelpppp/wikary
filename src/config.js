@@ -226,7 +226,7 @@ const CFG = {
         driveMs: 5000,              // jazda autem do Solniczek (na razie zaślepka, docelowo osobna rozgrywka)
         rollMs: 1800,               // auto dojeżdża i hamuje (ujęcie z przodu auta)
         driveOutMs: 3000,           // odjazd po walce
-        carX: 90, signX: 196, horsesX: [150, 236],    // pozycje na ekranie areny (px od lewej krawędzi)
+        carX: 90, signX: 200, horsesX: [300], propY: 288,   // znak i konie: stopy na krawędzi drogi (y=288)    // pozycje na ekranie areny (px od lewej krawędzi)
         benekX: 330, motoX: 430, kamilX: 262, passerbyX: 380, ambulanceX: 500, medicsX: [452, 500],
         frontShotMs: 1800,          // ujęcie z przodu auta (car_front_kamil; zamiennik: portret Kamila)
         closeupMs: 2600,            // zbliżenie na Benka: transformacja
