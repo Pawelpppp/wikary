@@ -213,6 +213,9 @@ Działa jak w Fibi Run:
 ### Level 5: jazda samochodem (scenariusz – do zrobienia)
 - Następna misja: Kamil **jedzie samochodem w lewo**, żeby zdążyć przed diabłem do rodziny Adriana. Szczegóły rozgrywki zostaną jeszcze wymyślone.
 
+### Level 5: „Bernard” (projekt – do akceptacji)
+- Jazda (~5 s) → znak **Solniczki** z końmi → filmowe intro (Benek na czerwonym motorze, wypadek, karetka, opętanie) → walka z Benkiem matematykiem (∫, √, trójkąt = zadanie na 15 s) → „Ciąg dalszy nastąpi”. Pełny opis, CFG i lista grafik: [`docs/level5_bernard.md`](docs/level5_bernard.md).
+
 ### Pomysły na później (do dopracowania)
 - Kolejne moce (modlitwa) jako itemy w następnych poziomach, z podobnym efektem pioruna i przyciemnienia.
 - Na końcu Level 1 mały mini-boss, np. **przywódca watahy wilków**.

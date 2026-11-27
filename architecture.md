@@ -45,4 +45,4 @@ Gra jest statyczną stroną; README wskazuje publikację przez GitHub Pages. Pha
 
 ## Stan funkcji i ograniczenia
 
-Zaimplementowane są poziomy 1–4. Level 4 kończy się zapowiedzią „Level 5 – jazda samochodem wkrótce”; mechanika i scenariusz Level 5 nie są jeszcze zaimplementowane. README i komentarze w `src/art.js` opisują zastępcze grafiki Adriana używane do czasu dostarczenia docelowych assetów. W razie rozbieżności dokumentację funkcjonalną aktualizuj na podstawie kodu i testów, rozróżniając działające zachowanie od planów.
+Zaimplementowane są poziomy 1–4. Level 4 kończy się zapowiedzią „Level 5 – jazda samochodem wkrótce”; mechanika i scenariusz Level 5 nie są jeszcze zaimplementowane. Projekt kolejnego poziomu („Bernard”) jest w `docs/level5_bernard.md` (tylko dokumentacja). README i komentarze w `src/art.js` opisują zastępcze grafiki Adriana używane do czasu dostarczenia docelowych assetów. W razie rozbieżności dokumentację funkcjonalną aktualizuj na podstawie kodu i testów, rozróżniając działające zachowanie od planów.
