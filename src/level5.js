@@ -15,10 +15,10 @@ Object.assign(LevelScene.prototype, {
         if (this.L.boss !== 'benek') return;
         const C = CFG.level5, G = CFG.GROUND_Y, L = this.L, ax = L.length - CFG.W;
         const S = this.l5 = { ax, props: [], intro: true, phase: 'drive', follow: null, shots: 0, triangles: 0, quizzes: 0, right: 0, wrong: 0 };
-        // tło areny: konie (horses_1..2) i zielony znak „SOLNICZKI” (sign_solniczki; brak = prosty znak z tekstu)
-        C.horsesX.forEach((x, i) => {
-            const h = this.add.sprite(ax + x, C.propY, ART.key('horses_1')).setDepth(2.3).play({ key: 'horses', startFrame: i % 2 });
-            ART.fit(this, h, 'horses_1', 1, 0.5, 1);
+        // tło areny: konie ([LPC] Horses, bluecarrot16, CC-BY 3.0) skubią trawę za znakiem „SOLNICZKI”
+        C.horses.forEach(hc => {
+            const h = this.add.sprite(ax + hc.x, C.propY, ART.key(hc.key + '1')).setDepth(2.3).play({ key: hc.key + 'eat', startFrame: hc.start });
+            ART.fit(this, h, hc.key + '1', C.horseScale, 0.5, 1);
         });
         ART.image(this, ax + C.signX, C.propY, 'sign_solniczki', 1, 0.5, 1).setDepth(2.45);
         // Kamil w aucie Adriana

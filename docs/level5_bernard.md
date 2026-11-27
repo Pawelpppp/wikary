@@ -100,7 +100,7 @@ Pliki PNG z przezroczystym tłem i jednolitą paletą jak reszta gry. Benek stoi
 | `sprites/devil_smoke_1..3.png` | 64×96 | diabeł wylatujący jak dym (istnieje już Czerwony Diabeł – reużycie) |
 | `game/car_front_kamil.png` | 568×320 | ujęcie z przodu auta: twarz i ręce na kierownicy |
 | `game/sign_solniczki.png` | 96×64 | zielony znak „SOLNICZKI” |
-| `game/horses_1..2.png` | 120×60 | konie za znakiem (tło) |
+| `game/horses_1..4.png`, `horses_white_1..4.png` | 68×65 | konie za znakiem (tło): [LPC] Horses, bluecarrot16, CC-BY 3.0 |
 | `game/proj_integral.png`, `proj_sqrt.png` | 20×28 | pociski ∫ i √ |
 | `game/proj_triangle_1..2.png` | 64×56 | duży trójkąt (2 klatki błysku) |
 | `portraits/benek_closeup_normal.png`, `_possessed.png`, `_hurt.png` | 192×192 | portrety do dymków |

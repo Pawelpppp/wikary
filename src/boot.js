@@ -138,7 +138,7 @@ class BootScene extends Phaser.Scene {
         A('moto_red', ART.frames('moto_red_', 2), 10);
         A('moto_crash', ART.frames('moto_crash_', 3), 4, 0);
         A('ambulance', ART.frames('ambulance_', 2), 4);
-        A('horses', ART.frames('horses_', 2), 2);
+        ['horses_', 'horses_white_'].forEach(p => A(p + 'eat', CFG.level5.horseSeq.map(i => ART.key(p + i)), CFG.level5.horseFps));   // [LPC] Horses: skubanie trawy
         A('triangle_warn', ART.frames('proj_triangle_', 2), 8);
         const target = DEBUG && (location.search.match(/[?&]scene=(\w+)/) || [])[1];
         const lvl = DEBUG && +((location.search.match(/[?&]level=(\d)/) || [])[1] || 0);

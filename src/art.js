@@ -155,7 +155,8 @@ const ART = (function () {
     seqF('moto_crash_', 3, [200, 150], ['car_1', 'car_2', 'car_empty_1'], 0xff4040);
     seqF('ambulance_', 2, [220, 110], ['car_empty_1', 'car_empty_2'], 0xffffff);
     seqF('proj_triangle_', 2, [64, 56], ['fx_bless_1', 'fx_bless_2'], 0xff6080);
-    seqF('horses_', 2, [120, 60], ['enemy_boar_run_1', 'enemy_boar_run_2'], null);
+    seqF('horses_', 4, [68, 65], ['enemy_boar_run_1', 'enemy_boar_run_2'], null);          // [LPC] Horses, bluecarrot16 (CC-BY 3.0)
+    seqF('horses_white_', 4, [68, 65], ['enemy_boar_run_1', 'enemy_boar_run_2'], null);
     Object.assign(SPEC, {
         benek_hurt_1: { size: [140, 164], fb: 'adrian_hurt_1', tint: BEN },
         benek_defeated_1: { size: [164, 100], fb: 'adrian_defeated_1', tint: BEN },

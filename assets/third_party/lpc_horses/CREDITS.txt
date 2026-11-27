@@ -1,0 +1,15 @@
+[LPC] Horses
+Artist: bluecarrot16
+Source: https://opengameart.org/content/lpc-horses
+License (offered): CC-BY 3.0 / CC-BY-SA 3.0 / GPL 3.0 / GPL 2.0 / OGA-BY 3.0
+License used in this game: CC-BY 3.0 (https://creativecommons.org/licenses/by/3.0/)
+
+Attribution notice from the source page:
+"[LPC] Horses" Artist: bluecarrot16 License: CC-BY 3.0 / GPL 3.0 / GPL 2.0 / OGA-BY 3.0
+Please link to opengameart: http://opengameart.org/content/lpc-horses
+
+Files here: horse-brown.png, horse-white.png (original sheets, unchanged, downloaded 2026-11-27).
+Used in game: assets/game/horses_1..4.png (brown, eating, facing east: sheet row 12, frames 0-3)
+and assets/game/horses_white_1..4.png (white, eating, facing west: sheet row 10, frames 0-3),
+cropped from 128x128 cells to 68x65 (crop only, no scaling); *_x4.png = 4x nearest-neighbour.
+Changes: cropping only.

@@ -226,7 +226,9 @@ const CFG = {
         driveMs: 5000,              // jazda autem do Solniczek (na razie zaślepka, docelowo osobna rozgrywka)
         rollMs: 1800,               // auto dojeżdża i hamuje (ujęcie z przodu auta)
         driveOutMs: 3000,           // odjazd po walce
-        carX: 90, signX: 200, horsesX: [300], propY: 288,   // znak i konie: stopy na krawędzi drogi (y=288)    // pozycje na ekranie areny (px od lewej krawędzi)
+        carX: 90, signX: 200, propY: 288,   // znak i konie: stopy na krawędzi drogi (y=288)
+        horses: [{ x: 278, key: 'horses_', start: 0 }, { x: 338, key: 'horses_white_', start: 7 }],   // [LPC] Horses (bluecarrot16, CC-BY 3.0): skubią trawę
+        horseScale: 1, horseFps: 6.6, horseSeq: [1, 1, 1, 1, 2, 3, 4, 4, 3, 4, 4, 3, 4, 4, 3, 2],   // klatki eat 1..4 (150 ms jak u autora)    // pozycje na ekranie areny (px od lewej krawędzi)
         benekX: 330, motoX: 430, kamilX: 262, passerbyX: 380, ambulanceX: 500, medicsX: [452, 500],
         frontShotMs: 1800,          // ujęcie z przodu auta (car_front_kamil; zamiennik: portret Kamila)
         closeupMs: 2600,            // zbliżenie na Benka: transformacja
